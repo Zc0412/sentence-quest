@@ -1,0 +1,10 @@
+node_modules/
+.next/
+.vercel/
+.idea/
+dist/
+.vite/
+*.local
+.DS_Store
+
+*.tsbuildinfo
