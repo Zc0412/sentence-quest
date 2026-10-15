@@ -1,4 +1,5 @@
 import type { DailyActivity } from '../types/game';
+import { Card } from './ui/card';
 
 interface Props {
   activityByDate: Record<string, DailyActivity>;
@@ -49,9 +50,9 @@ export function ActivityHeatmap({ activityByDate }: Props) {
   return (
     <div>
       <div className="grid grid-cols-3 gap-3">
-        <div className="stat-tile"><strong className="block text-xl text-ink">{totals.words}</strong><span className="mt-1 block text-xs text-[#968faa]">完成单词</span></div>
-        <div className="stat-tile"><strong className="block text-xl text-ink">{totals.sentences}</strong><span className="mt-1 block text-xs text-[#968faa]">完成句子</span></div>
-        <div className="stat-tile"><strong className="block text-xl text-ink">{activeDays}</strong><span className="mt-1 block text-xs text-[#968faa]">学习天数</span></div>
+        <Card className="stat-tile"><strong className="block text-xl text-ink">{totals.words}</strong><span className="mt-1 block text-xs text-[#968faa]">完成单词</span></Card>
+        <Card className="stat-tile"><strong className="block text-xl text-ink">{totals.sentences}</strong><span className="mt-1 block text-xs text-[#968faa]">完成句子</span></Card>
+        <Card className="stat-tile"><strong className="block text-xl text-ink">{activeDays}</strong><span className="mt-1 block text-xs text-[#968faa]">学习天数</span></Card>
       </div>
 
       <div className="mt-6 overflow-x-auto pb-2" aria-label="近一年学习热力图">

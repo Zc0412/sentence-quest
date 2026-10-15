@@ -86,7 +86,8 @@ try {
   const { loadProgress, saveProgress, normalizeProgress } = require(join(tmp, 'src/utils/storage.js'));
 
   assert.deepEqual(normalizeProgress({ completedIds: ['one', 'one'], xp: -9, mistakes: { two: 2.7 } }), {
-    completedIds: ['one'], xp: 0, mistakes: { two: 2 }, totalCorrectWords: 0, perfectSentences: 0, activityByDate: {},
+    completedIds: ['one'], xp: 0, mistakes: { two: 2 }, totalCorrectWords: 0, perfectSentences: 0,
+    activityByDate: {}, knownVocabulary: [], vocabularyIndex: 0, vocabularyProgress: {},
   });
   assert.deepEqual(normalizeProgress({
     activityByDate: {
@@ -97,6 +98,25 @@ try {
   }).activityByDate, {
     '2026-10-14': { words: 3, sentences: 1 },
     '2026-10-13': { words: 0, sentences: 0 },
+  });
+  assert.deepEqual(normalizeProgress({
+    knownVocabulary: ['cancel', 'cancel', ''],
+    vocabularyIndex: 18.9,
+  }).knownVocabulary, ['cancel']);
+  assert.equal(normalizeProgress({ vocabularyIndex: 18.9 }).vocabularyIndex, 18);
+  assert.deepEqual(normalizeProgress({ knownVocabulary: ['cancel'], vocabularyIndex: 18.9 }).vocabularyProgress.CET4_T, {
+    knownWords: ['cancel'],
+    index: 18,
+  });
+  assert.deepEqual(normalizeProgress({
+    vocabularyProgress: {
+      CET4_T: { knownWords: ['cancel', 'cancel'], index: 5.8 },
+      CET6_T: { knownWords: ['cancel'], index: -1 },
+      invalid: 'bad',
+    },
+  }).vocabularyProgress, {
+    CET4_T: { knownWords: ['cancel'], index: 5 },
+    CET6_T: { knownWords: ['cancel'], index: 0 },
   });
   local.set(legacyKey, JSON.stringify({ completedIds: ['daily-001'], xp: 27, mistakes: { 'daily-002': 2 }, totalCorrectWords: 3, perfectSentences: 1 }));
   let result = await loadProgress();

@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { sentences } from '../data';
+import type { VocabularyListId } from '../data';
 import type { GameMode, GamePhase, Progress, Sentence } from '../types/game';
 import { EMPTY_PROGRESS, fallbackProgress, loadProgress, saveProgress } from '../utils/storage';
 import type { LoadedProgress } from '../utils/storage';
@@ -260,6 +261,46 @@ export function useSentenceGame() {
     startSentence(sentences[0].id);
   }
 
+  function setVocabularyIndex(listId: VocabularyListId, index: number) {
+    if (!Number.isInteger(index) || index < 0) return;
+    setProgress((old) => ({
+      ...old,
+      vocabularyIndex: listId === 'CET4_T' ? index : old.vocabularyIndex,
+      vocabularyProgress: {
+        ...old.vocabularyProgress,
+        [listId]: {
+          ...(old.vocabularyProgress[listId] ?? { knownWords: [], index: 0 }),
+          index,
+        },
+      },
+    }));
+  }
+
+  function recordVocabularyCorrect(listId: VocabularyListId, word: string, nextIndex: number) {
+    const today = localDateKey();
+    setProgress((old) => {
+      const todayActivity = old.activityByDate[today] ?? { words: 0, sentences: 0 };
+      const bankProgress = old.vocabularyProgress[listId] ?? { knownWords: [], index: 0 };
+      const knownWords = new Set(bankProgress.knownWords);
+      const allKnownWords = new Set(old.knownVocabulary);
+      knownWords.add(word);
+      allKnownWords.add(word);
+      return {
+        ...old,
+        knownVocabulary: [...allKnownWords],
+        vocabularyIndex: listId === 'CET4_T' ? nextIndex : old.vocabularyIndex,
+        vocabularyProgress: {
+          ...old.vocabularyProgress,
+          [listId]: { knownWords: [...knownWords], index: nextIndex },
+        },
+        activityByDate: {
+          ...old.activityByDate,
+          [today]: { ...todayActivity, words: todayActivity.words + 1 },
+        },
+      };
+    });
+  }
+
   return {
     ready: hydrated,
     storageStatus,
@@ -290,6 +331,8 @@ export function useSentenceGame() {
     replayCourse,
     restartSentence: () => startSentence(sentence.id),
     resetProgress,
+    setVocabularyIndex,
+    recordVocabularyCorrect,
   };
 }
 

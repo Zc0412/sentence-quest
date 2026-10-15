@@ -13,6 +13,9 @@ export const EMPTY_PROGRESS: Progress = {
   totalCorrectWords: 0,
   perfectSentences: 0,
   activityByDate: {},
+  knownVocabulary: [],
+  vocabularyIndex: 0,
+  vocabularyProgress: {},
 };
 
 /** 清洗从历史版本或浏览器数据库取得的数据，防止数据模型升级时页面崩溃。 */
@@ -23,6 +26,23 @@ export function normalizeProgress(value: unknown): Progress {
   const uniqueIds = Array.isArray(data.completedIds)
     ? [...new Set(data.completedIds.filter((id): id is string => typeof id === 'string'))]
     : [];
+  const knownVocabulary = Array.isArray(data.knownVocabulary)
+    ? [...new Set(data.knownVocabulary.filter((word): word is string => typeof word === 'string' && Boolean(word.trim())))]
+    : [];
+  const vocabularyProgress = data.vocabularyProgress && typeof data.vocabularyProgress === 'object' && !Array.isArray(data.vocabularyProgress)
+    ? Object.fromEntries(Object.entries(data.vocabularyProgress).filter(
+        ([id, entry]) => typeof id === 'string' && entry !== null && typeof entry === 'object' && !Array.isArray(entry),
+      ).map(([id, entry]) => {
+        const stored = entry as { knownWords?: unknown; index?: unknown };
+        const words = Array.isArray(stored.knownWords)
+          ? [...new Set(stored.knownWords.filter((word): word is string => typeof word === 'string' && Boolean(word.trim())))]
+          : [];
+        return [id, { knownWords: words, index: nonNegative(stored.index) }];
+      }))
+    : {};
+  if (!vocabularyProgress.CET4_T && (knownVocabulary.length > 0 || nonNegative(data.vocabularyIndex) > 0)) {
+    vocabularyProgress.CET4_T = { knownWords: knownVocabulary, index: nonNegative(data.vocabularyIndex) };
+  }
   const mistakes = data.mistakes && typeof data.mistakes === 'object' && !Array.isArray(data.mistakes)
     ? Object.fromEntries(Object.entries(data.mistakes).filter(
         ([id, amount]) => typeof id === 'string' && typeof amount === 'number' && Number.isFinite(amount) && amount >= 0,
@@ -44,6 +64,9 @@ export function normalizeProgress(value: unknown): Progress {
     totalCorrectWords: nonNegative(data.totalCorrectWords),
     perfectSentences: nonNegative(data.perfectSentences),
     activityByDate,
+    knownVocabulary,
+    vocabularyIndex: nonNegative(data.vocabularyIndex),
+    vocabularyProgress,
   };
 }
 

@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import type { ChangeEvent, CompositionEvent, KeyboardEvent } from 'react';
+import { Input } from './ui/input';
 
 interface Props {
   value: string;
@@ -76,7 +77,7 @@ export function WordInput({ value, onChange, wordNumber, focusSignal, error }: P
   }
 
   return (
-    <input
+    <Input
       ref={inputRef}
       className="inline-typing-input"
       value={composing.current ? compositionValue : value}

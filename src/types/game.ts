@@ -30,6 +30,18 @@ export interface DailyActivity {
   sentences: number;
 }
 
+export interface VocabularyWord {
+  name: string;
+  trans: string[];
+  usphone?: string;
+  ukphone?: string;
+}
+
+export interface VocabularyProgress {
+  knownWords: string[];
+  index: number;
+}
+
 export type GameMode = 'challenge' | 'review';
 export type GamePhase = 'playing' | 'success' | 'allDone' | 'noMistakes' | 'reviewDone';
 
@@ -40,4 +52,7 @@ export interface Progress {
   totalCorrectWords: number;
   perfectSentences: number;
   activityByDate: Record<string, DailyActivity>;
+  knownVocabulary: string[];
+  vocabularyIndex: number;
+  vocabularyProgress: Record<string, VocabularyProgress>;
 }

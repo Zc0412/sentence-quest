@@ -3,7 +3,7 @@ import { createHash } from 'node:crypto';
 /**
  * GET /api/pronunciation?word=coffee&type=2
  *
- * 默认：重定向到有道 /pronounce/base，word 支持单词或英文短句。
+ * 默认：代理有道 /pronounce/base 音频，word 支持单词或英文短句。
  * 如果配置了服务端 PRONUNCIATION_UPSTREAM_URL，则代理你自己的签名发音服务。
  * 注意：若使用不受控的第三方音频服务，上线前应确认授权与限流策略。
  */
@@ -53,7 +53,7 @@ export async function GET(request: Request): Promise<Response> {
         status: 200,
         headers: {
           'Content-Type': contentType,
-          'Cache-Control': 'private, max-age=0, no-store',
+          'Cache-Control': 'private, max-age=7200',
           'X-Content-Type-Options': 'nosniff',
         },
       });
@@ -115,7 +115,7 @@ export async function GET(request: Request): Promise<Response> {
       status: 200,
       headers: {
         'Content-Type': contentType,
-        'Cache-Control': 'private, max-age=0, no-store',
+        'Cache-Control': 'private, max-age=7200',
         'X-Content-Type-Options': 'nosniff',
       },
     });

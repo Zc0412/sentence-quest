@@ -66,6 +66,7 @@ try {
   response = await route.GET(new Request('http://localhost:3000/api/pronunciation?word=coffee&type=2'));
   assert.equal(response.status, 200);
   assert.equal(response.headers.get('content-type'), 'audio/mpeg');
+  assert.equal(response.headers.get('cache-control'), 'private, max-age=7200');
   assert.equal((await response.arrayBuffer()).byteLength, 3);
 
   globalThis.fetch = async (requestUrl) => {
@@ -100,6 +101,25 @@ try {
 } finally {
   globalThis.fetch = originalFetch;
   delete process.env.PRONUNCIATION_UPSTREAM_URL;
+}
+
+const { loadPronunciationAudio } = await loadTS('src/utils/speech.ts');
+let audioRequests = 0;
+globalThis.fetch = async (requestUrl) => {
+  audioRequests += 1;
+  const url = new URL(requestUrl, 'http://localhost');
+  return new Response(new Uint8Array([0x49, 0x44, 0x33]), {
+    headers: { 'Content-Type': 'audio/mpeg', 'X-Test-Type': url.searchParams.get('type') },
+  });
+};
+try {
+  const britishAudio = await loadPronunciationAudio('hello', '1');
+  assert.equal((await loadPronunciationAudio('hello', '1')), britishAudio, '重复播放应复用缓存的音频');
+  const americanAudio = await loadPronunciationAudio('hello', '2');
+  assert.notEqual(americanAudio, britishAudio, '不同口音应使用不同音频缓存');
+  assert.equal(audioRequests, 2, '同一单词与口音只应请求一次音频接口');
+} finally {
+  globalThis.fetch = originalFetch;
 }
 
 console.log(`✅ ${files.length} 个 TS/TSX 文件语法转译通过；逐词校验、发音路由校验及代理功能测试通过。`);

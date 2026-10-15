@@ -3,8 +3,10 @@
 参考 Earthworm 输入手感、从零开发的英语逐词输入小游戏。
 
 - **Next.js App Router + React + TypeScript + Tailwind CSS**
+- **shadcn/ui** integrated: Buttons, inputs, selectors, dialogs, cards, badges, progress indicators, and the vocabulary command menu use reusable components in `src/components/ui`
 - 无可见的传统输入框；在单词位置直接输入、逐字反馈、拼对自动切换下一词
 - 默认隐藏全部字母，点击「多给一个字母」可从首字母开始逐个显示；包含 11 道入门句子、闯关 XP、错题复习
+- CET-4 T 单词学习：支持搜索、英美音发音、释义回忆、掌握标记和学习进度记录
 - 浏览器 **IndexedDB** 离线持久化，首次自动迁移旧版 localStorage 数据
 - **v2.2 修复加载卡死**：数据库打开和读取/写入事务有 4 秒超时，初始化另有 9 秒最终保护；失败后退出加载页进入内存模式，显示保存风险，绝不自动清空原 IndexedDB
 - 保留 Next.js `/api/pronunciation`，通过有道音频地址或你的独立签名服务发音
@@ -20,6 +22,16 @@ npm run dev
 ```
 
 打开 `http://localhost:3000`。
+
+## shadcn/ui 组件
+
+项目已配置 shadcn/ui（New York 风格、Lucide 图标、CSS 变量主题）和 `@/` 路径别名。共享的类名合并工具位于 `src/lib/utils.ts`，新增 UI 组件放在 `src/components/ui`：
+
+```bash
+pnpm dlx shadcn@latest add button
+```
+
+新增组件使用 `cn()` 合并 Tailwind 类名；主题 token 定义在 `src/app/globals.css`，Tailwind token 映射位于 `tailwind.config.ts`。深色 token 已预留为 `.dark` 主题，目前不会改变应用现有外观。
 
 ## 部署到 Vercel
 
@@ -87,9 +99,10 @@ src/
 │   ├── globals.css
 │   └── api/pronunciation/route.ts    # 发音 API 路由
 ├── App.tsx                           # 游戏主界面（client）
-├── components/                      # 单词槽位、输入、进度条、完成面板
+├── components/                      # 句子闯关、词汇卡片、输入与进度组件
 ├── hooks/useSentenceGame.ts         # 游戏逻辑 / IndexedDB 异步初始化
-├── data/sentences.json              # 题库
+├── data/sentences.json              # 句子题库
+├── data/words/CET4_T.json           # CET-4 T 词库
 ├── types/game.ts                    # Progress 等类型
 ├── repositories/
 │   ├── progress.ts                   # 可替换的持久化接口
@@ -99,6 +112,8 @@ src/
     ├── speech.ts                    # 发音处理
     └── validator.ts                 # 单词校验
 ```
+
+单词模块使用 `src/data/words/CET4_T.json`，包含单词、中文释义和英美音标。学习者根据中文释义逐字输入英文单词，拼对后自动进入下一个词；也可以搜索定位、播放发音或跳过。答对的单词和词表位置会保存，每次拼对都会计入每日学习热力图。词库由 `npm run check:data` 检查单词唯一性、释义及音标字段。
 
 ## 为后续云数据库做了什么？
 
@@ -125,7 +140,7 @@ interface ProgressRepository {
 
 ## 发音 API
 
-客户端请求 `/api/pronunciation?word=coffee&type=2`。服务端会按当前单词和口音动态生成签名，请求有道 `/pronounce/base` 并代理返回音频；若失败回退浏览器 TTS。`type=1` 为英音，`type=2` 为美音。
+客户端请求 `/api/pronunciation?word=coffee&type=2`。服务端会按当前单词和口音动态生成签名，请求有道 `/pronounce/base` 并代理返回音频；同一页面内已经获取的单词或句子音频会按文本和口音缓存，重复播放不再请求接口，浏览器也会缓存音频两小时。若获取失败则回退浏览器 TTS。`type=1` 为英音，`type=2` 为美音。
 
 如果你有可以按词动态生成签名的服务，可设置 `.env.local`：
 

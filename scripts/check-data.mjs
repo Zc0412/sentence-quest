@@ -2,6 +2,10 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 
 const sentences = JSON.parse(readFileSync(new URL('../src/data/sentences.json', import.meta.url), 'utf8'));
+const vocabularyLists = [
+  { label: 'CET-4 T', url: new URL('../src/data/words/CET4_T.json', import.meta.url) },
+  { label: 'CET-6 T', url: new URL('../src/data/words/CET6_T.json', import.meta.url) },
+];
 const ids = new Set();
 
 assert.ok(Array.isArray(sentences) && sentences.length > 0, '题库不能为空');
@@ -37,3 +41,21 @@ for (const [index, sentence] of sentences.entries()) {
 }
 
 console.log(`✅ 题库检查通过：${sentences.length} 道题，ID 唯一，英文字段与单词数组一致。`);
+
+for (const { label, url } of vocabularyLists) {
+  const vocabulary = JSON.parse(readFileSync(url, 'utf8'));
+  assert.ok(Array.isArray(vocabulary) && vocabulary.length > 0, `${label} 词库不能为空`);
+  const vocabularyNames = new Set();
+  for (const [index, word] of vocabulary.entries()) {
+    const prefix = `${label} 第 ${index + 1} 个单词`;
+    assert.ok(typeof word.name === 'string' && word.name.trim(), `${prefix} 缺少单词`);
+    const normalizedName = word.name.trim().toLocaleLowerCase('en-US');
+    assert.ok(!vocabularyNames.has(normalizedName), `${prefix} 重复: ${word.name}`);
+    vocabularyNames.add(normalizedName);
+    assert.ok(Array.isArray(word.trans) && word.trans.length > 0 && word.trans.every((meaning) => typeof meaning === 'string' && meaning.trim()), `${prefix} 释义无效`);
+    for (const key of ['usphone', 'ukphone']) {
+      assert.ok(word[key] === undefined || typeof word[key] === 'string', `${prefix} ${key} 必须为字符串`);
+    }
+  }
+  console.log(`✅ ${label} 词库检查通过：${vocabulary.length} 个单词，名称唯一，释义和音标字段有效。`);
+}
