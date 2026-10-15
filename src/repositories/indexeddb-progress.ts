@@ -1,7 +1,8 @@
 import type { Progress } from '../types/game';
 import type { ProgressRepository } from './progress';
 
-export const DATABASE_NAME = 'sentence-quest';
+export const DATABASE_NAME = 'sentleap';
+const LEGACY_DATABASE_NAME = 'sentence-quest';
 export const DATABASE_VERSION = 1;
 export const PROGRESS_STORE = 'progress';
 
@@ -18,6 +19,82 @@ interface ProgressRecord {
 }
 
 let opening: Promise<IDBDatabase> | null = null;
+
+function openLegacyDatabase(): Promise<IDBDatabase | null> {
+  return new Promise((resolve, reject) => {
+    let settled = false;
+    const finishError = (reason: Error) => {
+      if (settled) return;
+      settled = true;
+      clearTimeout(timer);
+      reject(reason);
+    };
+    const timer = setTimeout(() => {
+      finishError(new Error('旧版 IndexedDB 打开超时，原学习进度仍保留'));
+    }, IDB_OPERATION_TIMEOUT_MS);
+
+    try {
+      const request = indexedDB.open(LEGACY_DATABASE_NAME);
+      request.onsuccess = () => {
+        const db = request.result;
+        if (settled) {
+          db.close();
+          return;
+        }
+        settled = true;
+        clearTimeout(timer);
+        if (!db.objectStoreNames.contains(PROGRESS_STORE)) {
+          db.close();
+          resolve(null);
+          return;
+        }
+        resolve(db);
+      };
+      request.onerror = () => finishError(request.error ?? new Error('旧版 IndexedDB 打开失败'));
+      request.onblocked = () => finishError(new Error('其他标签页阻止读取旧版 IndexedDB，请关闭旧标签页后重试'));
+    } catch (error) {
+      finishError(error instanceof Error ? error : new Error('旧版 IndexedDB 初始化失败'));
+    }
+  });
+}
+
+async function migrateLegacyDatabase(db: IDBDatabase): Promise<void> {
+  const legacyDb = await openLegacyDatabase();
+  if (!legacyDb) return;
+
+  try {
+    const records = await withTransactionTimeout(
+      legacyDb,
+      'readonly',
+      (tx) => {
+        let savedRecords: ProgressRecord[] = [];
+        const request = tx.objectStore(PROGRESS_STORE).getAll();
+        request.onsuccess = () => { savedRecords = request.result as ProgressRecord[]; };
+        return () => savedRecords;
+      },
+      '读取旧版学习进度',
+    );
+    if (records.length === 0) return;
+
+    await withTransactionTimeout(
+      db,
+      'readwrite',
+      (tx) => {
+        const store = tx.objectStore(PROGRESS_STORE);
+        for (const record of records) {
+          const request = store.get(record.profileId);
+          request.onsuccess = () => {
+            if (request.result === undefined) store.put(record);
+          };
+        }
+        return () => undefined;
+      },
+      '迁移旧版学习进度',
+    );
+  } finally {
+    legacyDb.close();
+  }
+}
 
 export function openGameDatabase(): Promise<IDBDatabase> {
   if (typeof indexedDB === 'undefined') {
@@ -63,7 +140,13 @@ export function openGameDatabase(): Promise<IDBDatabase> {
           opening = null;
         };
         db.onclose = () => { opening = null; };
-        resolve(db);
+        void migrateLegacyDatabase(db).then(
+          () => resolve(db),
+          (error: unknown) => {
+            db.close();
+            reject(error instanceof Error ? error : new Error('旧版学习进度迁移失败'));
+          },
+        );
       };
       request.onerror = () => finishError(request.error ?? new Error('IndexedDB 打开失败'));
       request.onblocked = () => finishError(new Error('其他标签页阻止了数据库升级，请关闭旧标签页'));

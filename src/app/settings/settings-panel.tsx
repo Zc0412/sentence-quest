@@ -6,6 +6,7 @@ import { useState } from 'react';
 import { ArrowLeft, BookOpenCheck, Search, X } from 'lucide-react';
 import type { VocabularyListId } from '@/data/vocabulary';
 import { vocabularyLists } from '@/data/vocabulary';
+import { phrasePracticeLists } from '@/data/phrase-practice';
 import DictionaryList from './dictionary-list';
 
 interface Props {
@@ -27,7 +28,7 @@ export default function SettingsPanel({ currentListId }: Props) {
         </Link>
         <div className="relative mb-5">
           <Search size={17} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[#94a3b8]" />
-          <input type="search" value={search} onChange={(event) => setSearch(event.target.value)} placeholder="搜索词典" aria-label="搜索词典" className="h-10 w-full rounded-full border-0 bg-[#f1f5f9] pl-10 pr-9 text-sm outline-none placeholder:text-[#94a3b8] [&::-webkit-search-cancel-button]:appearance-none" />
+          <input type="search" value={search} onChange={(event) => setSearch(event.target.value)} placeholder="搜索词典或练习" aria-label="搜索词典或练习" className="h-10 w-full rounded-full border-0 bg-[#f1f5f9] pl-10 pr-9 text-sm outline-none placeholder:text-[#94a3b8] [&::-webkit-search-cancel-button]:appearance-none" />
           {search && <button type="button" onClick={() => setSearch('')} aria-label="清除搜索" className="absolute right-2 top-1/2 flex h-7 w-7 -translate-y-1/2 items-center justify-center rounded-full text-[#64748b] hover:bg-[#dbeafe]"><X size={15} /></button>}
         </div>
         <p className="mb-2 px-2 text-xs font-medium text-[#64748b]">偏好设置</p>
@@ -41,8 +42,8 @@ export default function SettingsPanel({ currentListId }: Props) {
       <main id="dictionary-settings" className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden px-5 py-7 sm:px-10 md:h-full md:px-12 md:py-9 lg:px-20">
         <div className="mx-auto flex min-h-0 w-full max-w-[960px] flex-1 flex-col">
           <header className="mb-9 shrink-0 md:mb-10">
-            <h1 className="text-[28px] font-semibold tracking-tight">词典</h1>
-            <p className="mt-2 text-sm text-[#64748b]">共 {vocabularyLists.length} 本词典，选择一本开始练习。</p>
+            <h1 className="text-[28px] font-semibold tracking-tight">词典与练习</h1>
+            <p className="mt-2 text-sm text-[#64748b]">共 {vocabularyLists.length + phrasePracticeLists.length} 项练习，选择一项开始练习。</p>
           </header>
 
           <DictionaryList currentListId={currentListId} query={search} />

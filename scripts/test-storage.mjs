@@ -31,8 +31,10 @@ for (const file of files) {
 
 function createMockIndexedDB() {
   const records = new Map();
-  const database = {
-    objectStoreNames: { contains: (name) => name === 'progress' },
+  const legacyRecords = new Map();
+  let legacyHasStore = false;
+  const createDatabase = (databaseRecords, hasStore = true) => ({
+    objectStoreNames: { contains: (name) => hasStore && name === 'progress' },
     createObjectStore() { return {}; },
     close() {},
     transaction() {
@@ -53,18 +55,25 @@ function createMockIndexedDB() {
             return req;
           }
           return {
-            get: (key) => request(() => records.get(key)),
-            put: (record) => request(() => { records.set(record.profileId, structuredClone(record)); }),
+            get: (key) => request(() => databaseRecords.get(key)),
+            getAll: () => request(() => [...databaseRecords.values()]),
+            put: (record) => request(() => { databaseRecords.set(record.profileId, structuredClone(record)); }),
           };
         },
       };
       return transaction;
     },
-  };
+  });
+  const database = createDatabase(records);
   return {
     records,
-    open() {
-      const req = { result: database, onsuccess: null, onupgradeneeded: null, onerror: null };
+    legacyRecords,
+    setLegacyHasStore: (value) => { legacyHasStore = value; },
+    open(name) {
+      const result = name === 'sentence-quest'
+        ? createDatabase(legacyRecords, legacyHasStore)
+        : database;
+      const req = { result, onsuccess: null, onupgradeneeded: null, onerror: null };
       queueMicrotask(() => {
         req.onupgradeneeded?.();
         req.onsuccess?.();
@@ -128,15 +137,34 @@ try {
   assert.equal(result.progress.xp, 27);
   assert.equal(result.migrated, false);
 
+  const renamedDatabase = createMockIndexedDB();
+  renamedDatabase.setLegacyHasStore(true);
+  renamedDatabase.legacyRecords.set('guest', {
+    profileId: 'guest',
+    schemaVersion: 1,
+    revision: 6,
+    updatedAt: '2026-10-15T00:00:00.000Z',
+    progress: { ...result.progress, xp: 83 },
+  });
+  globalThis.indexedDB = renamedDatabase;
+  delete require.cache[require.resolve(join(tmp, 'src/repositories/indexeddb-progress.js'))];
+  delete require.cache[require.resolve(join(tmp, 'src/utils/storage.js'))];
+  const renamedStorage = require(join(tmp, 'src/utils/storage.js'));
+  result = await renamedStorage.loadProgress();
+  assert.equal(result.persistence, 'indexeddb');
+  assert.equal(result.progress.xp, 83, '改名后应从旧 IndexedDB 读取学习进度');
+  assert.equal(renamedDatabase.records.get('guest').revision, 6, '迁移应保留旧记录版本');
+  assert.equal(renamedDatabase.legacyRecords.get('guest').progress.xp, 83, '迁移后旧数据库应继续保留原记录');
+
   const snapshot = { ...result.progress, xp: 60, completedIds: ['daily-001', 'daily-002'] };
   await Promise.all([
-    saveProgress({ ...snapshot, xp: 40 }),
-    saveProgress({ ...snapshot, xp: 50 }),
-    saveProgress(snapshot),
+    renamedStorage.saveProgress({ ...snapshot, xp: 40 }),
+    renamedStorage.saveProgress({ ...snapshot, xp: 50 }),
+    renamedStorage.saveProgress(snapshot),
   ]);
-  result = await loadProgress();
+  result = await renamedStorage.loadProgress();
   assert.equal(result.progress.xp, 60, '连续写入后应保留最后一次修改');
-  const saved = globalThis.indexedDB.records.get('guest');
+  const saved = renamedDatabase.records.get('guest');
   assert.ok(saved.revision >= 4);
   assert.equal(saved.schemaVersion, 1);
   assert.equal(saved.profileId, 'guest');

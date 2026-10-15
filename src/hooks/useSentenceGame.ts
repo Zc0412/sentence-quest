@@ -7,8 +7,8 @@ import type { LoadedProgress } from '../utils/storage';
 import { isCorrectWord, isCorrectPrefix } from '../utils/validator';
 import { speakWord, stopSpeech } from '../utils/speech';
 
-function nextUnfinished(completedIds: string[]): Sentence | undefined {
-  return sentences.find((item) => !completedIds.includes(item.id));
+function nextUnfinished(completedIds: string[], sentenceList: Sentence[]): Sentence | undefined {
+  return sentenceList.find((item) => !completedIds.includes(item.id));
 }
 
 function nextInList(ids: string[], currentId: string): string | undefined {
@@ -24,7 +24,7 @@ function localDateKey(date = new Date()): string {
   return `${year}-${month}-${day}`;
 }
 
-export function useSentenceGame() {
+export function useSentenceGame(sentenceList: Sentence[] = sentences) {
   // 服务端与客户端首屏渲染统一使用空进度，避免 hydration mismatch。
   // 浏览器存档只在 mount 后载入，载入完成前禁止将默认数据写回。
   const [progress, setProgress] = useState<Progress>(EMPTY_PROGRESS);
@@ -33,7 +33,7 @@ export function useSentenceGame() {
   const [storageWarning, setStorageWarning] = useState('');
   const skipInitialSave = useRef(true);
   const [mode, setMode] = useState<GameMode>('challenge');
-  const [sentenceId, setSentenceId] = useState<string>(sentences[0].id);
+  const [sentenceId, setSentenceId] = useState<string>(sentenceList[0].id);
   const [phase, setPhase] = useState<GamePhase>('playing');
   const [wordIndex, setWordIndex] = useState(0);
   const [typed, setTyped] = useState('');
@@ -57,8 +57,8 @@ export function useSentenceGame() {
       window.clearTimeout(watchdog);
       const { progress: saved, persistence, warning } = loaded;
       setProgress(saved);
-      const unfinished = nextUnfinished(saved.completedIds);
-      setSentenceId(unfinished?.id ?? sentences[0].id);
+      const unfinished = nextUnfinished(saved.completedIds, sentenceList);
+      setSentenceId(unfinished?.id ?? sentenceList[0].id);
       setPhase(unfinished ? 'playing' : 'allDone');
       setStorageStatus(persistence);
       setStorageWarning(warning ?? '');
@@ -72,7 +72,7 @@ export function useSentenceGame() {
       completeLoading(fallbackProgress(error instanceof Error ? error.message : '读取学习进度失败'));
     });
     return () => { cancelled = true; window.clearTimeout(watchdog); };
-  }, []);
+  }, [sentenceList]);
 
   useEffect(() => {
     if (!hydrated) return;
@@ -92,11 +92,11 @@ export function useSentenceGame() {
     return () => { cancelled = true; };
   }, [progress, hydrated, storageStatus]);
 
-  const sentence = sentences.find((item) => item.id === sentenceId) ?? sentences[0];
-  const courseIndex = sentences.findIndex((item) => item.id === sentence.id);
-  const reviewIds = sentences.filter((item) => (progress.mistakes[item.id] ?? 0) > 0)
+  const sentence = sentenceList.find((item) => item.id === sentenceId) ?? sentenceList[0];
+  const courseIndex = sentenceList.findIndex((item) => item.id === sentence.id);
+  const reviewIds = sentenceList.filter((item) => (progress.mistakes[item.id] ?? 0) > 0)
     .map((item) => item.id);
-  const completedCount = sentences.filter((item) => progress.completedIds.includes(item.id)).length;
+  const completedCount = sentenceList.filter((item) => progress.completedIds.includes(item.id)).length;
   const currentWord = sentence.words[wordIndex] ?? '';
   const revealedLetters = Math.min(currentWord.length, extraRevealed);
 
@@ -192,7 +192,7 @@ export function useSentenceGame() {
 
   function nextSentence() {
     if (isReplaying && mode === 'challenge') {
-      const next = sentences[courseIndex + 1];
+      const next = sentenceList[courseIndex + 1];
       if (next) startSentence(next.id);
       else { setIsReplaying(false); setPhase('allDone'); }
       return;
@@ -203,7 +203,7 @@ export function useSentenceGame() {
       else setPhase('reviewDone');
       return;
     }
-    const remaining = sentences
+    const remaining = sentenceList
       .filter((item) => !progress.completedIds.includes(item.id))
       .map((item) => item.id);
     if (remaining.length === 0) {
@@ -211,7 +211,7 @@ export function useSentenceGame() {
       return;
     }
     // 优先向后继续；最后一题时回绕到最前面的未完成题。
-    const forward = remaining.find((id) => sentences.findIndex((s) => s.id === id) > courseIndex);
+    const forward = remaining.find((id) => sentenceList.findIndex((s) => s.id === id) > courseIndex);
     startSentence(forward ?? remaining[0]);
   }
 
@@ -222,9 +222,17 @@ export function useSentenceGame() {
       if (nextId) startSentence(nextId);
       return;
     }
-    const ids = sentences.map((item) => item.id);
+    const ids = sentenceList.map((item) => item.id);
     const nextId = nextInList(ids, sentence.id);
     if (nextId) startSentence(nextId);
+  }
+
+  function selectSentence(id: string) {
+    if (!sentenceList.some((item) => item.id === id)) return;
+    setIsReplaying(false);
+    setMode('challenge');
+    setStreak(0);
+    startSentence(id);
   }
 
   function changeMode(nextMode: GameMode) {
@@ -238,7 +246,7 @@ export function useSentenceGame() {
       else setPhase('noMistakes');
       return;
     }
-    const next = nextUnfinished(progress.completedIds);
+    const next = nextUnfinished(progress.completedIds, sentenceList);
     if (next) startSentence(next.id);
     else setPhase('allDone');
   }
@@ -248,7 +256,7 @@ export function useSentenceGame() {
     setMode('challenge');
     setStreak(0);
     setReviewedIds([]);
-    startSentence(sentences[0].id);
+    startSentence(sentenceList[0].id);
   }
 
   function resetProgress() {
@@ -258,7 +266,22 @@ export function useSentenceGame() {
     setMode('challenge');
     setStreak(0);
     setReviewedIds([]);
-    startSentence(sentences[0].id);
+    startSentence(sentenceList[0].id);
+  }
+
+  function resetSentenceListProgress() {
+    if (!hydrated) return;
+    const sentenceIds = new Set(sentenceList.map((item) => item.id));
+    setProgress((old) => ({
+      ...old,
+      completedIds: old.completedIds.filter((id) => !sentenceIds.has(id)),
+      mistakes: Object.fromEntries(Object.entries(old.mistakes).filter(([id]) => !sentenceIds.has(id))),
+    }));
+    setIsReplaying(false);
+    setMode('challenge');
+    setStreak(0);
+    setReviewedIds([]);
+    startSentence(sentenceList[0].id);
   }
 
   function setVocabularyIndex(listId: VocabularyListId, index: number) {
@@ -327,10 +350,12 @@ export function useSentenceGame() {
     revealHint,
     nextSentence,
     skipSentence,
+    selectSentence,
     changeMode,
     replayCourse,
     restartSentence: () => startSentence(sentence.id),
     resetProgress,
+    resetSentenceListProgress,
     setVocabularyIndex,
     recordVocabularyCorrect,
   };

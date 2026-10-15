@@ -11,6 +11,7 @@ interface Props {
   promptDetails?: ReactNode;
   description?: string;
   progressDetails?: ReactNode;
+  progressItemLabel?: string;
   children: ReactNode;
 }
 
@@ -23,6 +24,7 @@ export function ExercisePrompt({
   promptDetails,
   description,
   progressDetails,
+  progressItemLabel,
   children,
 }: Props) {
   return (
@@ -39,7 +41,7 @@ export function ExercisePrompt({
       {children}
       <div className="mx-auto mt-auto w-full max-w-3xl shrink-0 pt-4">
         {progressDetails ? (
-          <ProgressFrame value={progress} total={total}>{progressDetails}</ProgressFrame>
+          <ProgressFrame value={progress} total={total} itemLabel={progressItemLabel}>{progressDetails}</ProgressFrame>
         ) : (
           <ProgressBar value={progress} total={total} />
         )}

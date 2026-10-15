@@ -3,7 +3,17 @@
 import { useEffect, useRef, useState } from 'react';
 import type { ReactNode } from 'react';
 
-export function ProgressFrame({ value, total, children }: { value: number; total: number; children: ReactNode }) {
+export function ProgressFrame({
+  value,
+  total,
+  children,
+  itemLabel = '词',
+}: {
+  value: number;
+  total: number;
+  children: ReactNode;
+  itemLabel?: string;
+}) {
   const frameRef = useRef<HTMLDivElement>(null);
   const [size, setSize] = useState({ width: 600, height: 104 });
   const completed = Math.min(Math.max(value, 0), Math.max(total, 0));
@@ -30,11 +40,11 @@ export function ProgressFrame({ value, total, children }: { value: number; total
   return (
     <div>
       <div className="mb-2 flex items-center justify-between px-1 text-[12px] font-medium text-[#64748b]">
-        <span>已掌握 <span className="font-bold tabular-nums text-[#3b82f6]">{completed}</span> / {total} 词</span>
+        <span>已掌握 <span className="font-bold tabular-nums text-[#3b82f6]">{completed}</span> / {total} {itemLabel}</span>
         <span className="tabular-nums">{percent === 100 ? '全部完成' : `${Math.floor(percent)}%`}</span>
       </div>
       <div ref={frameRef} className="relative rounded-[20px] bg-[#f1f5f9]">
-        <svg className="pointer-events-none absolute inset-0 h-full w-full overflow-visible" role="progressbar" aria-label="单词掌握进度" aria-valuemin={0} aria-valuemax={100} aria-valuenow={percent} aria-valuetext={`已掌握 ${completed} / ${total} 词`}>
+        <svg className="pointer-events-none absolute inset-0 h-full w-full overflow-visible" role="progressbar" aria-label={`${itemLabel}掌握进度`} aria-valuemin={0} aria-valuemax={100} aria-valuenow={percent} aria-valuetext={`已掌握 ${completed} / ${total} ${itemLabel}`}>
           <path d={outline} fill="none" stroke="#e2e8f0" strokeWidth={3} />
           <path d={outline} pathLength={100} fill="none" stroke={percent === 100 ? '#22c55e' : '#3b82f6'} strokeWidth={3} strokeLinecap="round" strokeDasharray="100 100" strokeDashoffset={100 - percent} opacity={percent > 0 ? 1 : 0} className="transition-[stroke-dashoffset,stroke,opacity] duration-500 motion-reduce:transition-none" />
         </svg>

@@ -60,7 +60,7 @@ npm run start
 
 ## IndexedDB 数据结构
 
-数据库名：`sentence-quest`，初始版本 `1`。
+数据库名：`sentleap`，初始版本 `1`。
 
 | Object Store | 主键 | 保存内容 |
 | --- | --- | --- |
@@ -82,10 +82,10 @@ interface Progress {
 
 **旧版 v2.0 存档自动迁移**：
 
-1. 优先尝试读取 IndexedDB 中的 `guest` 记录；有记录则直接使用它。
-2. 如果没有记录，尝试读取当前站点同源的 `localStorage['sentence-quest-progress-v1']`。
-3. 先把旧记录写入 IndexedDB 并等待事务完成，成功后才删除 localStorage 旧记录。
-4. 数据库被禁用或保存失败时**不会删除旧副本**。游戏可以暂时在内存里运行，但会显示无法持久保存的警告。
+1. 从旧 IndexedDB 数据库 `sentence-quest` 导入 `guest` 等进度记录到 `sentleap`；目标库已有同一档案时不会覆盖。
+2. 若新库没有进度，再尝试读取当前站点同源的 `localStorage['sentence-quest-progress-v1']`。
+3. 先把 localStorage 旧记录写入新 IndexedDB 并等待事务完成，成功后才删除 localStorage 旧记录。
+4. 旧 IndexedDB 数据库保留不删除；数据库被禁用或迁移失败时也不会删除旧副本。游戏会显示无法持久保存的警告。
 
 **注意同源限制**：IndexedDB 和 localStorage 均按 origin 隔离。原项目若在 `localhost:5173`，新项目在 `localhost:3000`，即使都是 localhost，也**不会自动访问到旧站点的浏览器记录**。部署到不同域名也是一样。跨源迁移以后可以另做导出 / 导入数据功能。
 

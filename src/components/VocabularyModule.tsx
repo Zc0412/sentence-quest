@@ -9,6 +9,7 @@ import { SpellingSlot } from './SpellingSlot';
 import { isCorrectPrefix, isCorrectWord } from '../utils/validator';
 import { Button } from './ui/button';
 import { countTypingAttempt } from '../utils/typingStats';
+import { loadPronunciationAudio } from '../utils/speech';
 
 interface Props {
   words: VocabularyWord[];
@@ -49,6 +50,12 @@ export function VocabularyModule({ words, progress, pronunciationType, onSelectI
     const start = shuffled.indexOf(initialIndex.current);
     setWordOrder([...shuffled.slice(start), ...shuffled.slice(0, start)]);
   }, [words]);
+
+  useEffect(() => {
+    if (!wordOrder) return;
+    const wordsToPreload = [currentWord.name, nextWord?.name].filter((word): word is string => Boolean(word));
+    void Promise.allSettled(wordsToPreload.map((word) => loadPronunciationAudio(word, pronunciationType)));
+  }, [currentWord.name, nextWord?.name, pronunciationType, wordOrder]);
 
   useEffect(() => {
     setTyped('');

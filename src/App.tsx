@@ -146,7 +146,7 @@ export default function App({ listId }: Props) {
             <p className="storage-status text-center text-[12px] leading-5 text-[#64748b]">
               {game.storageStatus === 'memory'
                 ? <span className="font-semibold text-orange-700" role="alert">IndexedDB 读取或保存失败，当前进度只保存在内存，刷新页面可能丢失本次练习。请检查隐私模式、存储权限或关闭其他同站点标签页。{game.storageWarning ? `（${game.storageWarning}）` : ''}</span>
-                : '学习进度自动保存在当前浏览器的 IndexedDB'}
+                : '学习进度自动保存在当前浏览器中'}
             </p>
           </section>
         </main>

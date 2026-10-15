@@ -64,7 +64,12 @@ try {
   assert.equal(local.has(legacyKey), true);
 
   // 3. open 成功，但 get() 事务永远不触发 complete/error。
-  globalThis.indexedDB = { open() {
+  globalThis.indexedDB = { open(name) {
+    if (name === 'sentence-quest') {
+      const request = { result: { objectStoreNames: { contains: () => false }, close() {} } };
+      queueMicrotask(() => request.onsuccess?.());
+      return request;
+    }
     const db = {
       objectStoreNames: { contains: () => true },
       close() {},
