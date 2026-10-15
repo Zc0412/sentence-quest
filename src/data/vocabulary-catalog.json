@@ -1,0 +1,4354 @@
+[
+  {
+    "id": "CET4_T",
+    "label": "CET-4",
+    "description": "大学英语四级词库",
+    "wordCount": 2607,
+    "category": "中国考试",
+    "tags": [
+      "大学英语"
+    ],
+    "sourceId": 1,
+    "sourceUrl": "https://files.typewords.cc/dicts/en/word/CET4_T.json",
+    "sourceWordCount": 2607,
+    "skippedWords": [],
+    "sha256": "6dc78045551f90c687aa5918292d11649c846b436b6b93f47256747e25d35d2b"
+  },
+  {
+    "id": "CET-4-frequency",
+    "label": "CET-4（翻译带频率）",
+    "description": "大学英语四级词库（翻译带频率显示）",
+    "wordCount": 2607,
+    "category": "中国考试",
+    "tags": [
+      "大学英语"
+    ],
+    "sourceId": 252,
+    "sourceUrl": "https://files.typewords.cc/dicts/en/word/CET-4-frequency.json",
+    "sourceWordCount": 2607,
+    "skippedWords": [],
+    "sha256": "5cfc3e3545a37a65a848a14fc5191711db2bb8d1614c1a3f492d92b7b391e5af"
+  },
+  {
+    "id": "CET6_T",
+    "label": "CET-6",
+    "description": "大学英语六级词库",
+    "wordCount": 2345,
+    "category": "中国考试",
+    "tags": [
+      "大学英语"
+    ],
+    "sourceId": 2,
+    "sourceUrl": "https://files.typewords.cc/dicts/en/word/CET6_T.json",
+    "sourceWordCount": 2345,
+    "skippedWords": [],
+    "sha256": "a5a0022a7f8dd75e37f33217d17e3fb3f3f98531baa46e3753b8fa0174c35780"
+  },
+  {
+    "id": "KaoYan_3_T",
+    "label": "考研",
+    "description": "研究生英语入学考试词库",
+    "wordCount": 3725,
+    "category": "中国考试",
+    "tags": [
+      "考研"
+    ],
+    "sourceId": 7,
+    "sourceUrl": "https://files.typewords.cc/dicts/en/word/KaoYan_3_T.json",
+    "sourceWordCount": 3727,
+    "skippedWords": [
+      "vs.",
+      "a."
+    ],
+    "sha256": "3279137bc4e3f5c6b7034de1fc19c80998ab2827a79c446e5acd54842124d9e9"
+  },
+  {
+    "id": "Level4luan_2_T",
+    "label": "专四",
+    "description": "英语专业四级词库",
+    "wordCount": 3994,
+    "category": "中国考试",
+    "tags": [
+      "大学英语"
+    ],
+    "sourceId": 18,
+    "sourceUrl": "https://files.typewords.cc/dicts/en/word/Level4luan_2_T.json",
+    "sourceWordCount": 4025,
+    "skippedWords": [
+      "beak",
+      "dagger",
+      "imaginable",
+      "sweatshirt",
+      "spearhead",
+      "illumination",
+      "synthesize",
+      "confidently",
+      "schoolchild",
+      "hem",
+      "ferocious",
+      "leukemia",
+      "bulldozer",
+      "hideous",
+      "conducive",
+      "truthful",
+      "insistent",
+      "neglected",
+      "delicacy",
+      "hitch",
+      "rehabilitate",
+      "bristle",
+      "gulp",
+      "underside",
+      "sanity",
+      "misty",
+      "throng",
+      "trafficker",
+      "blister",
+      "eyeball",
+      "gloss"
+    ],
+    "sha256": "3a9d749581a0dab0a811a50ad3b43d08cdbf3ca73c4db8cfd92262a601f1400d"
+  },
+  {
+    "id": "Level8luan_2_T",
+    "label": "专八",
+    "description": "英语专业八级词库",
+    "wordCount": 12083,
+    "category": "中国考试",
+    "tags": [
+      "大学英语"
+    ],
+    "sourceId": 19,
+    "sourceUrl": "https://files.typewords.cc/dicts/en/word/Level8luan_2_T.json",
+    "sourceWordCount": 12197,
+    "skippedWords": [
+      "cavern",
+      "intrusive",
+      "methane",
+      "covenant",
+      "edgy",
+      "semantic",
+      "schoolchild",
+      "nibble",
+      "housekeeper",
+      "beige",
+      "bog",
+      "handcuff",
+      "synthesize",
+      "taint",
+      "ludicrous",
+      "accompaniment",
+      "meticulous",
+      "allusion",
+      "subtlety",
+      "imposition",
+      "blister",
+      "bulldozer",
+      "beak",
+      "leukemia",
+      "bookshelf",
+      "rummage",
+      "upstream",
+      "giddy",
+      "bristle",
+      "scoff",
+      "gush",
+      "sinner",
+      "eyeball",
+      "delve",
+      "prolific",
+      "sliver",
+      "insistent",
+      "budge",
+      "truce",
+      "heady",
+      "revolver",
+      "quartet",
+      "dichotomy",
+      "imaginable",
+      "horde",
+      "delicacy",
+      "gloss",
+      "forage",
+      "craftsman",
+      "plutonium",
+      "hitch",
+      "sweatshirt",
+      "prowess",
+      "trample",
+      "homecoming",
+      "hepatitis",
+      "ecologist",
+      "ferocious",
+      "treacherous",
+      "hindsight",
+      "tenuous",
+      "chiefly",
+      "adamant",
+      "hamstring",
+      "underside",
+      "foreman",
+      "infinity",
+      "prenatal",
+      "involuntary",
+      "booze",
+      "onslaught",
+      "dagger",
+      "throng",
+      "thicket",
+      "laurel",
+      "truthful",
+      "corpus",
+      "masculinity",
+      "misty",
+      "smother",
+      "fieldwork",
+      "gulp",
+      "ethos",
+      "ooze",
+      "afloat",
+      "entourage",
+      "trafficker",
+      "rebellious",
+      "espionage",
+      "rehabilitate",
+      "ghostly",
+      "conducive",
+      "frigid",
+      "sanity",
+      "expulsion",
+      "madden",
+      "Arabian",
+      "illumination",
+      "mammoth",
+      "subversive",
+      "fraudulent",
+      "dated",
+      "spearhead",
+      "tinker",
+      "adultery",
+      "ambush",
+      "hanger",
+      "intersect",
+      "imperialism",
+      "sociological",
+      "throttle",
+      "hideous",
+      "hem",
+      "swivel"
+    ],
+    "sha256": "3fc8fe65791f7297c389a637f30469e70fec7fe6292614081905fd3b87b4d92d"
+  },
+  {
+    "id": "IELTS_3_T",
+    "label": "IELTS",
+    "description": "雅思词库",
+    "wordCount": 3557,
+    "category": "国际考试",
+    "tags": [
+      "IELTS"
+    ],
+    "sourceId": 57,
+    "sourceUrl": "https://files.typewords.cc/dicts/en/word/IELTS_3_T.json",
+    "sourceWordCount": 3575,
+    "skippedWords": [
+      "methane",
+      "moderation",
+      "semantic",
+      "rehabilitate",
+      "condone",
+      "overlapping",
+      "cognition",
+      "fieldwork",
+      "verification",
+      "swivel",
+      "solidify",
+      "corpus",
+      "prowess",
+      "gloss",
+      "truce",
+      "smother",
+      "onslaught",
+      "campfire"
+    ],
+    "sha256": "39efcc49ac92dd5c9be286c261da9d797740cebf4d00e498cfbd5673cadaad56"
+  },
+  {
+    "id": "TOEFL_3_T",
+    "label": "TOEFL",
+    "description": "托福考试常见词",
+    "wordCount": 4220,
+    "category": "国际考试",
+    "tags": [
+      "TOEFL"
+    ],
+    "sourceId": 113,
+    "sourceUrl": "https://files.typewords.cc/dicts/en/word/TOEFL_3_T.json",
+    "sourceWordCount": 4263,
+    "skippedWords": [
+      "methane",
+      "conducive",
+      "tinker",
+      "spearhead",
+      "tenuous",
+      "hitch",
+      "ambush",
+      "fervor",
+      "adamant",
+      "frigid",
+      "ooze",
+      "semantic",
+      "diffusion",
+      "fraudulent",
+      "prolific",
+      "craftsman",
+      "rehabilitate",
+      "graphite",
+      "subversive",
+      "cognition",
+      "seismic",
+      "rationality",
+      "beak",
+      "synthesize",
+      "propensity",
+      "corpus",
+      "cavern",
+      "meticulous",
+      "trample",
+      "sidebar",
+      "gush",
+      "rebellious",
+      "gloss",
+      "auditory",
+      "smother",
+      "scoff",
+      "onslaught",
+      "entourage",
+      "mammoth",
+      "afloat",
+      "throng",
+      "forage",
+      "horde"
+    ],
+    "sha256": "92e3c5a05cc371ea3e4cb26e3a4d83d3fd7763236190e271f3fdec6d6551a442"
+  },
+  {
+    "id": "GaoKao_3500",
+    "label": "高考 3500 词",
+    "description": "高考常见词 3500",
+    "wordCount": 3861,
+    "category": "青少年英语",
+    "tags": [
+      "通用"
+    ],
+    "sourceId": 132,
+    "sourceUrl": "https://files.typewords.cc/dicts/en/word/GaoKao_3500.json",
+    "sourceWordCount": 3875,
+    "skippedWords": [
+      "a.m.",
+      "bookshelf",
+      "ad.",
+      "Miss.",
+      "Mr.",
+      "Mrs.",
+      "Ms.",
+      "P.E.",
+      "P.C.",
+      "P.M.",
+      "turning n",
+      "U.K.",
+      "U.N.",
+      "U.S.A."
+    ],
+    "sha256": "0f3d9fc506e65a3a62ef59ef03a70e816bf5667c13adf67de87a26e068c3a7c8"
+  },
+  {
+    "id": "nce-new-1",
+    "label": "新概念英语-1",
+    "description": "新概念英语第一册",
+    "wordCount": 863,
+    "category": "青少年英语",
+    "tags": [
+      "新概念英语"
+    ],
+    "sourceId": 136,
+    "sourceUrl": "https://files.typewords.cc/dicts/en/word/nce-new-1.json",
+    "sourceWordCount": 867,
+    "skippedWords": [
+      "Mr.",
+      "Mrs.",
+      "the U.S.",
+      "Nigerian"
+    ],
+    "sha256": "47fa8c8b1b4f3ca844a1080a256fa459869b13869d9a88472310e0e02c03c482"
+  },
+  {
+    "id": "nce-new-2",
+    "label": "新概念英语-2",
+    "description": "新概念英语第二册",
+    "wordCount": 838,
+    "category": "青少年英语",
+    "tags": [
+      "新概念英语"
+    ],
+    "sourceId": 137,
+    "sourceUrl": "https://files.typewords.cc/dicts/en/word/nce-new-2.json",
+    "sourceWordCount": 839,
+    "skippedWords": [
+      "campfire"
+    ],
+    "sha256": "61cd1ff7e0a1d7d52d157d5fba5a026d947d9070b2f150ecbb4a415a4905451d"
+  },
+  {
+    "id": "nce-new-3",
+    "label": "新概念英语-3",
+    "description": "新概念英语第三册",
+    "wordCount": 1039,
+    "category": "青少年英语",
+    "tags": [
+      "新概念英语"
+    ],
+    "sourceId": 138,
+    "sourceUrl": "https://files.typewords.cc/dicts/en/word/nce-new-3.json",
+    "sourceWordCount": 1050,
+    "skippedWords": [
+      "confidently",
+      "delicacy",
+      "dagger",
+      "mammoth",
+      "insistent",
+      "cavern",
+      "clerical",
+      "horde",
+      "underside",
+      "infinitely",
+      "adamant"
+    ],
+    "sha256": "eec700b48a6f0d010734b1affe96990ac8c235863032f1fd6dac70401b5a6f05"
+  },
+  {
+    "id": "nce-new-4",
+    "label": "新概念英语-4",
+    "description": "新概念英语第四册",
+    "wordCount": 775,
+    "category": "青少年英语",
+    "tags": [
+      "新概念英语"
+    ],
+    "sourceId": 139,
+    "sourceUrl": "https://files.typewords.cc/dicts/en/word/nce-new-4.json",
+    "sourceWordCount": 784,
+    "skippedWords": [
+      "espionage",
+      "Dane",
+      "throng",
+      "auditory",
+      "foreman",
+      "infinity",
+      "accompaniment",
+      "illumination",
+      "heady"
+    ],
+    "sha256": "a7ac03a729b921d6d18d32c802afa9654b047e5b0ab3dcd023b6df09454167f6"
+  },
+  {
+    "id": "xinghuoqiaoji_4",
+    "label": "四级巧记速记",
+    "description": "四级巧记速记",
+    "wordCount": 2417,
+    "category": "中国考试",
+    "tags": [
+      "大学英语"
+    ],
+    "sourceId": 3,
+    "sourceUrl": "https://files.typewords.cc/dicts/en/word/xinghuoqiaoji_4.json",
+    "sourceWordCount": 2522,
+    "skippedWords": [
+      "cognition",
+      "expulsion",
+      "insistent",
+      "revolutionize",
+      "infinitely"
+    ],
+    "sha256": "4464fd63313f33dcc55d8e75b6af4baa8e0a7f035a6193da98627a24144ecc3f"
+  },
+  {
+    "id": "xinghuoqiaoji_6",
+    "label": "六级巧记速记",
+    "description": "六级巧记速记",
+    "wordCount": 5995,
+    "category": "中国考试",
+    "tags": [
+      "大学英语"
+    ],
+    "sourceId": 4,
+    "sourceUrl": "https://files.typewords.cc/dicts/en/word/xinghuoqiaoji_6.json",
+    "sourceWordCount": 7520,
+    "skippedWords": [
+      "standoff",
+      "infinity",
+      "expulsion",
+      "beak",
+      "diffusion",
+      "afloat",
+      "afloat",
+      "infinity",
+      "standoff",
+      "conducive",
+      "delicacy",
+      "meticulous",
+      "rehabilitate"
+    ],
+    "sha256": "6abc4663356df5750954d20cab87762df52d289973ca32c4370ddf4193582a88"
+  },
+  {
+    "id": "DanCiDeJianFa_4",
+    "label": "CET-4-Sub",
+    "description": "单词的减法-四级",
+    "wordCount": 1679,
+    "category": "中国考试",
+    "tags": [
+      "大学英语"
+    ],
+    "sourceId": 5,
+    "sourceUrl": "https://files.typewords.cc/dicts/en/word/DanCiDeJianFa_4.json",
+    "sourceWordCount": 1957,
+    "skippedWords": [],
+    "sha256": "8e04ebdfc3a0d6e3a260c9b079e7038ce5e97dce867a78821b1352a26fe529bc"
+  },
+  {
+    "id": "DanCiDeJianFa_6",
+    "label": "CET-6-Sub",
+    "description": "单词的减法-六级",
+    "wordCount": 1741,
+    "category": "中国考试",
+    "tags": [
+      "大学英语"
+    ],
+    "sourceId": 6,
+    "sourceUrl": "https://files.typewords.cc/dicts/en/word/DanCiDeJianFa_6.json",
+    "sourceWordCount": 1949,
+    "skippedWords": [
+      "revolutionize",
+      "ecologist",
+      "rationality",
+      "determinant",
+      "ambush",
+      "conducive",
+      "delicacy",
+      "conducive",
+      "delicacy"
+    ],
+    "sha256": "ddc87b981343617899035686863d3f5de2dbebe2bf62e81d84ababfc3b02e65c"
+  },
+  {
+    "id": "KaoYan_2024",
+    "label": "考研 2024",
+    "description": "研究生英语入学考试词库 2024",
+    "wordCount": 3722,
+    "category": "中国考试",
+    "tags": [
+      "考研"
+    ],
+    "sourceId": 8,
+    "sourceUrl": "https://files.typewords.cc/dicts/en/word/KaoYan_2024.json",
+    "sourceWordCount": 3731,
+    "skippedWords": [
+      "biotech",
+      "involuntary",
+      "afloat",
+      "craftsman",
+      "imaginable",
+      "powerhouse",
+      "intrusive",
+      "unnamed",
+      "unauthorized"
+    ],
+    "sha256": "fde1642fe3119e52e3c9fe15c30f6318b023f53228298af7ba927178bf3ef8ca"
+  },
+  {
+    "id": "KaoYanShanGuo_2023",
+    "label": "考研闪过 2023",
+    "description": "高中低频词2023",
+    "wordCount": 1771,
+    "category": "中国考试",
+    "tags": [
+      "考研"
+    ],
+    "sourceId": 9,
+    "sourceUrl": "https://files.typewords.cc/dicts/en/word/KaoYanShanGuo_2023.json",
+    "sourceWordCount": 1771,
+    "skippedWords": [],
+    "sha256": "cbad5c712fa00e80068241598145f6a6dd1a1caa5138a86c2869734f5b319dde"
+  },
+  {
+    "id": "926",
+    "label": "考研926词汇",
+    "description": "926核心词汇",
+    "wordCount": 926,
+    "category": "中国考试",
+    "tags": [
+      "考研"
+    ],
+    "sourceId": 10,
+    "sourceUrl": "https://files.typewords.cc/dicts/en/word/926.json",
+    "sourceWordCount": 926,
+    "skippedWords": [],
+    "sha256": "a28645573876d3041adcce2d83f61b0991cf1817f999a4e72d0337eb697bde58"
+  },
+  {
+    "id": "DanCiDeMimi_1",
+    "label": "单词的秘密-英语一",
+    "description": "单词的秘密英语（一）",
+    "wordCount": 4251,
+    "category": "中国考试",
+    "tags": [
+      "考研"
+    ],
+    "sourceId": 11,
+    "sourceUrl": "https://files.typewords.cc/dicts/en/word/DanCiDeMimi_1.json",
+    "sourceWordCount": 4264,
+    "skippedWords": [
+      "chiefly",
+      "diffusion",
+      "improperly",
+      "hindsight",
+      "ecologist",
+      "spontaneously",
+      "unnamed",
+      "knowingly",
+      "imperialism",
+      "allusion",
+      "richly",
+      "scoff",
+      "cognition"
+    ],
+    "sha256": "df15f5279e763a7815735029e5d4071f4786fbbb3541d4a9a35529dfbb9f6d9a"
+  },
+  {
+    "id": "DanCiDeMimi_2",
+    "label": "单词的秘密-英语二",
+    "description": "单词的秘密英语（二）",
+    "wordCount": 2848,
+    "category": "中国考试",
+    "tags": [
+      "考研"
+    ],
+    "sourceId": 12,
+    "sourceUrl": "https://files.typewords.cc/dicts/en/word/DanCiDeMimi_2.json",
+    "sourceWordCount": 2854,
+    "skippedWords": [
+      "chiefly",
+      "ecologist",
+      "allusion",
+      "improperly",
+      "revolutionize",
+      "cognition"
+    ],
+    "sha256": "4e1e36b8670d3605a4b54ba5e6cd5430794e26f9d55605f96033e2de3703f418"
+  },
+  {
+    "id": "2024HongBao_T1",
+    "label": "2024考研英语hongbaoshu(上)",
+    "description": "2024考研英语hongbaoshu必考词（上）",
+    "wordCount": 997,
+    "category": "中国考试",
+    "tags": [
+      "考研"
+    ],
+    "sourceId": 13,
+    "sourceUrl": "https://files.typewords.cc/dicts/en/word/2024HongBao_T1.json",
+    "sourceWordCount": 997,
+    "skippedWords": [],
+    "sha256": "9fe7cb63aea645db43ed87e858551f3b06b0486f163157cb62fdd1c59b89c365"
+  },
+  {
+    "id": "2024HongBao_T2",
+    "label": "2024考研英语hongbaoshu(下)",
+    "description": "2024考研英语hongbaoshu必考词（下）",
+    "wordCount": 854,
+    "category": "中国考试",
+    "tags": [
+      "考研"
+    ],
+    "sourceId": 14,
+    "sourceUrl": "https://files.typewords.cc/dicts/en/word/2024HongBao_T2.json",
+    "sourceWordCount": 854,
+    "skippedWords": [],
+    "sha256": "aa9d40de2524d8fc89c8414b9f9a4cfe62200df73846e7db033627c4fb2d8f3f"
+  },
+  {
+    "id": "hongbaoshu-2026",
+    "label": "2026考研英语 hongbaoshu",
+    "description": "2026 考研词汇 (必考词+基础词+超纲词）",
+    "wordCount": 4770,
+    "category": "中国考试",
+    "tags": [
+      "考研"
+    ],
+    "sourceId": 15,
+    "sourceUrl": "https://files.typewords.cc/dicts/en/word/hongbaoshu-2026.json",
+    "sourceWordCount": 4858,
+    "skippedWords": [],
+    "sha256": "6457a29149e4daee1b9bae7d6ef211733e32118c169f1cf5829ccc4780ef185c"
+  },
+  {
+    "id": "English_II",
+    "label": "英语二单词书",
+    "description": "考研英语二单词书",
+    "wordCount": 4451,
+    "category": "中国考试",
+    "tags": [
+      "考研"
+    ],
+    "sourceId": 16,
+    "sourceUrl": "https://files.typewords.cc/dicts/en/word/English_II.json",
+    "sourceWordCount": 4549,
+    "skippedWords": [
+      "(in)ability to",
+      "(in)capacity to",
+      "adapt......to",
+      "allocate......for",
+      "associate......with",
+      "attach......to",
+      "attitude toward(s)",
+      "c.",
+      "CD(compact disc)",
+      "chiefly",
+      "clear......of",
+      "colo(u)rful",
+      "compare......with",
+      "convince sb. to do sth.",
+      "deny sth. to sb.",
+      "distinguish......from",
+      "enable......to",
+      "enrol(l)ment",
+      "etc.",
+      "expect sth. of sb.",
+      "eyeball",
+      "have......at heart",
+      "have......in common",
+      "have......to do with",
+      "housekeeper",
+      "How come......",
+      "identify......as",
+      "identify......with",
+      "impress......on",
+      "infinitely",
+      "keep... from",
+      "keep... in mind",
+      "leave... alone",
+      "mistake......for",
+      "moderation",
+      "Mr.",
+      "neither......nor",
+      "no more(......)than",
+      "no other......than",
+      "not that...",
+      "prevent......from",
+      "protect......from",
+      "put......on record",
+      "put......to use",
+      "regard......as",
+      "relate......to",
+      "remind......of",
+      "rob sb. of sth.",
+      "seismic",
+      "separate......from",
+      "set......as objective",
+      "smother",
+      "so far as... knows",
+      "stop......from",
+      "subtlety",
+      "subversive",
+      "think of... as",
+      "threatening",
+      "timer",
+      "to adapt... to",
+      "to allocate... for",
+      "to associate... with",
+      "to blame... on",
+      "to clear... of",
+      "to compare... with",
+      "to convict... of",
+      "to convince sb. to do sth.",
+      "to deny sth. to sb.",
+      "to distinguish... from",
+      "to enable... to",
+      "to have... at heart",
+      "to have... in common",
+      "to have... to do with",
+      "to identify... as",
+      "to identify... with",
+      "to impress... on",
+      "to keep... in mind",
+      "to keep/bear... in mind",
+      "to kid... into doing",
+      "to look... in the face",
+      "to mistake... for",
+      "to protect... from",
+      "to put... on record",
+      "to refer to... as",
+      "to relate... to",
+      "to remind... of",
+      "to rob sb. of sth.",
+      "to separate... from",
+      "to set... as objective",
+      "to stop... from",
+      "to substitute... for",
+      "to take... easy",
+      "to take... into account",
+      "to think of... as",
+      "to... degree",
+      "Washington D.C.",
+      "well()tempered",
+      "with a view towards (/to)"
+    ],
+    "sha256": "8652ba335593ab6804172bb80f7b422ffe2b8ef0c5894c1907a692b7861ed5ae"
+  },
+  {
+    "id": "kaoyanshanguo2025",
+    "label": "考研 shanguo 2025",
+    "description": "考研 shanguo 2025",
+    "wordCount": 2254,
+    "category": "中国考试",
+    "tags": [
+      "考研"
+    ],
+    "sourceId": 17,
+    "sourceUrl": "https://files.typewords.cc/dicts/en/word/kaoyanshanguo2025.json",
+    "sourceWordCount": 2257,
+    "skippedWords": [],
+    "sha256": "ad7e439fb15031af593f8d818e42d8d4c3313963f74f4074343a704aab537a52"
+  },
+  {
+    "id": "PETS_3",
+    "label": "PETS",
+    "description": "全国英语等级考试常考词汇",
+    "wordCount": 1940,
+    "category": "中国考试",
+    "tags": [
+      "PET"
+    ],
+    "sourceId": 20,
+    "sourceUrl": "https://files.typewords.cc/dicts/en/word/PETS_3.json",
+    "sourceWordCount": 1940,
+    "skippedWords": [],
+    "sha256": "95fe9aa0f3979edfcba4fbfe7cea357dc639cb2fcfdc2ad43b41550cd3954ae4"
+  },
+  {
+    "id": "PETS3-2023",
+    "label": "PETS-2023",
+    "description": "全国英语等级考试常考词汇",
+    "wordCount": 4432,
+    "category": "中国考试",
+    "tags": [
+      "PET"
+    ],
+    "sourceId": 21,
+    "sourceUrl": "https://files.typewords.cc/dicts/en/word/PETS3-2023.json",
+    "sourceWordCount": 4439,
+    "skippedWords": [
+      "P.M.",
+      "Arabian",
+      "B.C.",
+      "etc.",
+      "esp.",
+      "bristle",
+      "throng"
+    ],
+    "sha256": "b5547c4f17dcd7744c903bf6cd467f29cdb7d117854185cf3e9e253f30c14c88"
+  },
+  {
+    "id": "self-study_English1",
+    "label": "自考1800高频单词",
+    "description": "自考1800高频单词",
+    "wordCount": 1797,
+    "category": "中国考试",
+    "tags": [
+      "自考英语二"
+    ],
+    "sourceId": 22,
+    "sourceUrl": "https://files.typewords.cc/dicts/en/word/self-study_English1.json",
+    "sourceWordCount": 1800,
+    "skippedWords": [
+      "mommy"
+    ],
+    "sha256": "84e7aa73d7eb18774959d0b53b7dc46fbf4ed88544fa7062a89364d3b17bf12c"
+  },
+  {
+    "id": "self-study_English2",
+    "label": "自考英语二高频悠悠单词",
+    "description": "自考英语二高频悠悠单词",
+    "wordCount": 2170,
+    "category": "中国考试",
+    "tags": [
+      "自考英语二"
+    ],
+    "sourceId": 23,
+    "sourceUrl": "https://files.typewords.cc/dicts/en/word/self-study_English2.json",
+    "sourceWordCount": 2181,
+    "skippedWords": [
+      "threatening",
+      "chiefly"
+    ],
+    "sha256": "d9a4d4ea2890d4ee3f6c8eb7df4158393ad8eb172805000639d77cb1119794e4"
+  },
+  {
+    "id": "self-study_English3",
+    "label": "自考英语二完整单词",
+    "description": "00015自考英语二完整单词书",
+    "wordCount": 4156,
+    "category": "中国考试",
+    "tags": [
+      "自考英语二"
+    ],
+    "sourceId": 24,
+    "sourceUrl": "https://files.typewords.cc/dicts/en/word/self-study_English3.json",
+    "sourceWordCount": 4603,
+    "skippedWords": [
+      "chiefly",
+      "subtlety",
+      "infinitely",
+      "housekeeper",
+      "eyeball",
+      "smother",
+      "seismic",
+      "subversive",
+      "timer",
+      "moderation",
+      "threatening"
+    ],
+    "sha256": "b096860efc34a9461c55f28da05a1b03f1ee89f431bfaceffbf6cc8285583611"
+  },
+  {
+    "id": "4000_Essential_English_Words-meaning",
+    "label": "Essential Words",
+    "description": "4000 Essential English Words meaning",
+    "wordCount": 3593,
+    "category": "中国考试",
+    "tags": [
+      "其他"
+    ],
+    "sourceId": 25,
+    "sourceUrl": "https://files.typewords.cc/dicts/en/word/4000_Essential_English_Words-meaning.json",
+    "sourceWordCount": 3600,
+    "skippedWords": [],
+    "sha256": "5e3d38b4523b60b606b7ff8fe3b3b3ee06ecc4bc9c55f64c2db2e9eadd2665e1"
+  },
+  {
+    "id": "Longman_Communication_3000",
+    "label": "Longman Communication 3000",
+    "description": "Most frequent words in both spoken and written English",
+    "wordCount": 3157,
+    "category": "中国考试",
+    "tags": [
+      "其他"
+    ],
+    "sourceId": 26,
+    "sourceUrl": "https://files.typewords.cc/dicts/en/word/Longman_Communication_3000.json",
+    "sourceWordCount": 3168,
+    "skippedWords": [
+      "mommy"
+    ],
+    "sha256": "dd32dc77134463f94b05776eed5cba2ef2833b75d30213389bbec6684a7d14da"
+  },
+  {
+    "id": "top2000words",
+    "label": "Top 2000 words",
+    "description": "with highest frequency",
+    "wordCount": 1865,
+    "category": "中国考试",
+    "tags": [
+      "其他"
+    ],
+    "sourceId": 27,
+    "sourceUrl": "https://files.typewords.cc/dicts/en/word/top2000words.json",
+    "sourceWordCount": 1865,
+    "skippedWords": [],
+    "sha256": "85248b3b13c25cf5c32b35baddbfa6d1bb67e6de953ba85edce05a90624a0a98"
+  },
+  {
+    "id": "Top1500NounWords",
+    "label": "Top 1500 Nouns",
+    "description": "with highest frequency",
+    "wordCount": 1525,
+    "category": "中国考试",
+    "tags": [
+      "其他"
+    ],
+    "sourceId": 28,
+    "sourceUrl": "https://files.typewords.cc/dicts/en/word/Top1500NounWords.json",
+    "sourceWordCount": 1525,
+    "skippedWords": [],
+    "sha256": "4c368c87330cea66f90da778c6264b9228a294a581e3f35ae903b4c3024d7d2e"
+  },
+  {
+    "id": "Top1000VerbWords",
+    "label": "Top 1000 Verbs",
+    "description": "with highest frequency",
+    "wordCount": 1011,
+    "category": "中国考试",
+    "tags": [
+      "其他"
+    ],
+    "sourceId": 29,
+    "sourceUrl": "https://files.typewords.cc/dicts/en/word/Top1000VerbWords.json",
+    "sourceWordCount": 1011,
+    "skippedWords": [],
+    "sha256": "a2c504c57fac2b128ffc2e993e43069c8f6e3d09f3e44855263785b23849c8b6"
+  },
+  {
+    "id": "Top500AdjectiveWords",
+    "label": "Top 500 adj.",
+    "description": "with highest frequency",
+    "wordCount": 527,
+    "category": "中国考试",
+    "tags": [
+      "其他"
+    ],
+    "sourceId": 30,
+    "sourceUrl": "https://files.typewords.cc/dicts/en/word/Top500AdjectiveWords.json",
+    "sourceWordCount": 527,
+    "skippedWords": [],
+    "sha256": "4809b50fcbb91e1ee784ef254fed38b913dc78bb0de919934acdfa9682edb5e5"
+  },
+  {
+    "id": "Top250AdverbWords",
+    "label": "Top 250 adv.",
+    "description": "with highest frequency",
+    "wordCount": 255,
+    "category": "中国考试",
+    "tags": [
+      "其他"
+    ],
+    "sourceId": 31,
+    "sourceUrl": "https://files.typewords.cc/dicts/en/word/Top250AdverbWords.json",
+    "sourceWordCount": 255,
+    "skippedWords": [],
+    "sha256": "223eed2bc330fff92ab5bbe336752f8fbf9058b912ecb55523a85cd0804c84e4"
+  },
+  {
+    "id": "Top60Pronouns",
+    "label": "Top 60 pron.",
+    "description": "with highest frequency",
+    "wordCount": 59,
+    "category": "中国考试",
+    "tags": [
+      "其他"
+    ],
+    "sourceId": 32,
+    "sourceUrl": "https://files.typewords.cc/dicts/en/word/Top60Pronouns.json",
+    "sourceWordCount": 59,
+    "skippedWords": [],
+    "sha256": "f1a915edc79427e8f430d284cf7bb504a8a46c3095df96e7e1a16e7aabdd0cb8"
+  },
+  {
+    "id": "Top50Prepositions",
+    "label": "Top 50 prep.",
+    "description": "with highest frequency",
+    "wordCount": 46,
+    "category": "中国考试",
+    "tags": [
+      "其他"
+    ],
+    "sourceId": 33,
+    "sourceUrl": "https://files.typewords.cc/dicts/en/word/Top50Prepositions.json",
+    "sourceWordCount": 46,
+    "skippedWords": [],
+    "sha256": "6f3c5277818c90b7ed92005f04ed70be4912052509b9124602e8bb9c956dc0dd"
+  },
+  {
+    "id": "adult-self-study-examination",
+    "label": "专升本词汇",
+    "description": "专升本词汇",
+    "wordCount": 3690,
+    "category": "中国考试",
+    "tags": [
+      "其他"
+    ],
+    "sourceId": 34,
+    "sourceUrl": "https://files.typewords.cc/dicts/en/word/adult-self-study-examination.json",
+    "sourceWordCount": 3692,
+    "skippedWords": [],
+    "sha256": "8ff3731e72455e606c3ac17c713a399c35019648874c8f0505260b150fee2c8d"
+  },
+  {
+    "id": "zhuan-cha-ben",
+    "label": "专插本英语词汇",
+    "description": "专插本英语词汇",
+    "wordCount": 3214,
+    "category": "中国考试",
+    "tags": [
+      "其他"
+    ],
+    "sourceId": 35,
+    "sourceUrl": "https://files.typewords.cc/dicts/en/word/zhuan-cha-ben.json",
+    "sourceWordCount": 3214,
+    "skippedWords": [],
+    "sha256": "111c7618d3e3ef882cee44b2786cbbeea1cef2b15b37137af67266baebff31f6"
+  },
+  {
+    "id": "xueshiyingyu",
+    "label": "专升本学士学位的英语",
+    "description": "专升本学士学位的英语",
+    "wordCount": 896,
+    "category": "中国考试",
+    "tags": [
+      "其他"
+    ],
+    "sourceId": 36,
+    "sourceUrl": "https://files.typewords.cc/dicts/en/word/xueshiyingyu.json",
+    "sourceWordCount": 896,
+    "skippedWords": [],
+    "sha256": "693c6a43c91ddf831177977916ccca4c2457afa9314709d644cc77aad1f210bf"
+  },
+  {
+    "id": "Oxford5000",
+    "label": "牛津5000词",
+    "description": "牛津5000词",
+    "wordCount": 5448,
+    "category": "中国考试",
+    "tags": [
+      "其他"
+    ],
+    "sourceId": 37,
+    "sourceUrl": "https://files.typewords.cc/dicts/en/word/Oxford5000.json",
+    "sourceWordCount": 5497,
+    "skippedWords": [
+      "a.m.",
+      "beak",
+      "bid 1",
+      "can 1",
+      "can 2",
+      "cheat of",
+      "close 1",
+      "close 2",
+      "confidently",
+      "content 1",
+      "disagree with doing",
+      "do 1",
+      "e.g.",
+      "entrance 1",
+      "etc.",
+      "frighten away/off",
+      "grave 1",
+      "hang about with",
+      "i.e.",
+      "last 1",
+      "lead 1",
+      "leading 1",
+      "lie 1",
+      "lie 2",
+      "live 1",
+      "live 2",
+      "minute 1",
+      "pace 1",
+      "pan 1",
+      "pension 1",
+      "plus 1",
+      "P.M.",
+      "process 1",
+      "refuse 1",
+      "riding",
+      "ring 1",
+      "ring 2",
+      "row 1",
+      "second 1",
+      "tear 1",
+      "tear 2",
+      "threatening",
+      "the unexpected",
+      "used 1",
+      "used 2",
+      "wind 1",
+      "wind 2",
+      "wound 1",
+      "wrongly"
+    ],
+    "sha256": "db608613b38f7da088b0ee66e5cc0148d03b09a62c91847b6586449974f3ee0d"
+  },
+  {
+    "id": "Merriam_Webster_sVocabularyBuilder",
+    "label": "韦氏词根词典",
+    "description": "韦氏词根词典",
+    "wordCount": 1182,
+    "category": "中国考试",
+    "tags": [
+      "其他"
+    ],
+    "sourceId": 38,
+    "sourceUrl": "https://files.typewords.cc/dicts/en/word/Merriam_Webster_sVocabularyBuilder.json",
+    "sourceWordCount": 1191,
+    "skippedWords": [
+      "conducive",
+      "auditory",
+      "cross-cultural",
+      "dichotomy",
+      "construe",
+      "ethos",
+      "hepatitis",
+      "synthesize",
+      "tenuous"
+    ],
+    "sha256": "e5fbfddf4bb127a9873e429f5133bfa03b173b8b10ab77ad4f7ba88dacc2878c"
+  },
+  {
+    "id": "tingshuokaoshi",
+    "label": "听说考试常见词汇",
+    "description": "听说考试16个场景常见词汇量",
+    "wordCount": 537,
+    "category": "中国考试",
+    "tags": [
+      "其他"
+    ],
+    "sourceId": 39,
+    "sourceUrl": "https://files.typewords.cc/dicts/en/word/tingshuokaoshi.json",
+    "sourceWordCount": 539,
+    "skippedWords": [
+      "bookshelf",
+      "misty"
+    ],
+    "sha256": "abb0cf9dbc5bfe23d5e535f2f598e0d178dc6abb7afc582de4e1bc1396ab2b0d"
+  },
+  {
+    "id": "TOEFL_ZhangHongYan",
+    "label": "张红岩的TOEFL词汇书",
+    "description": "张红岩的TOEFL词汇书-词以类记",
+    "wordCount": 3527,
+    "category": "国际考试",
+    "tags": [
+      "TOEFL"
+    ],
+    "sourceId": 40,
+    "sourceUrl": "https://files.typewords.cc/dicts/en/word/TOEFL_ZhangHongYan.json",
+    "sourceWordCount": 4032,
+    "skippedWords": [
+      "beak",
+      "cavern",
+      "institutionalize",
+      "seismic",
+      "garner",
+      "methane",
+      "laurel",
+      "prolific",
+      "ecologist",
+      "throng",
+      "frigid",
+      "condone",
+      "dagger",
+      "intersect",
+      "astonished",
+      "ferocious",
+      "hideous",
+      "propensity",
+      "budge",
+      "sanity",
+      "rehabilitate",
+      "fraudulent",
+      "concerted",
+      "trample",
+      "footbeat",
+      "smother",
+      "tenuous",
+      "chiefly",
+      "splendor",
+      "construe",
+      "nibble",
+      "dated",
+      "gush"
+    ],
+    "sha256": "2806713e745f6b677e2749562bf8cf802e3d450f36cafe720ce8ea997c87d44c"
+  },
+  {
+    "id": "2025KaoYanHongBaoShu",
+    "label": "2025考研英语词汇hongbao书",
+    "description": "2025考研英语词汇hongbao书",
+    "wordCount": 6702,
+    "category": "中国考试",
+    "tags": [
+      "考研"
+    ],
+    "sourceId": 41,
+    "sourceUrl": "https://files.typewords.cc/dicts/en/word/2025KaoYanHongBaoShu.json",
+    "sourceWordCount": 6705,
+    "skippedWords": [],
+    "sha256": "3a87abd0054f3250aea000c745d05be7952b24115972133921dff1b2df2b1a97"
+  },
+  {
+    "id": "3000_ClassRoom_English_Words",
+    "label": "专升本3000词",
+    "description": "专升本词汇",
+    "wordCount": 2986,
+    "category": "中国考试",
+    "tags": [
+      "大学英语"
+    ],
+    "sourceId": 42,
+    "sourceUrl": "https://files.typewords.cc/dicts/en/word/3000_ClassRoom_English_Words.json",
+    "sourceWordCount": 2991,
+    "skippedWords": [
+      "honour\\honor"
+    ],
+    "sha256": "f9c470a423b4a04574d5b96bed8271c088140c209e1cdffb6779183413cfbd2d"
+  },
+  {
+    "id": "frequently_used_word01",
+    "label": "超频单词level 1",
+    "description": "超频单词level 1",
+    "wordCount": 679,
+    "category": "中国考试",
+    "tags": [
+      "其他"
+    ],
+    "sourceId": 43,
+    "sourceUrl": "https://files.typewords.cc/dicts/en/word/frequently_used_word01.json",
+    "sourceWordCount": 679,
+    "skippedWords": [],
+    "sha256": "907dc573fbd71db9064bf2db06488deee44f03377be57b1241e77419c9baddc2"
+  },
+  {
+    "id": "frequently_used_word02",
+    "label": "超频单词level 2",
+    "description": "超频单词level 2",
+    "wordCount": 1040,
+    "category": "中国考试",
+    "tags": [
+      "其他"
+    ],
+    "sourceId": 44,
+    "sourceUrl": "https://files.typewords.cc/dicts/en/word/frequently_used_word02.json",
+    "sourceWordCount": 1040,
+    "skippedWords": [],
+    "sha256": "2e89f6def713928b8d85506d9e955b142de03dd329cf98c06f6b8a42e2c925a1"
+  },
+  {
+    "id": "Macmillan7000",
+    "label": "麦克米伦7000",
+    "description": "麦克米伦7000",
+    "wordCount": 6252,
+    "category": "中国考试",
+    "tags": [
+      "其他"
+    ],
+    "sourceId": 45,
+    "sourceUrl": "https://files.typewords.cc/dicts/en/word/Macmillan7000.json",
+    "sourceWordCount": 6265,
+    "skippedWords": [
+      "astonished",
+      "beak",
+      "bookshelf",
+      "borrowing",
+      "changed",
+      "chiefly",
+      "clerical",
+      "disturbed",
+      "semantic",
+      "true.",
+      "warmly",
+      "woodland",
+      "wrongly"
+    ],
+    "sha256": "b35e6cf30f152945c51aadc5e53d19dc56caf8178bc8ad62ccb79eb210ed2c63"
+  },
+  {
+    "id": "pet-vacabulary-list-2024",
+    "label": "PET-2024",
+    "description": "剑桥英语 - 2024",
+    "wordCount": 1534,
+    "category": "国际考试",
+    "tags": [
+      "PET"
+    ],
+    "sourceId": 46,
+    "sourceUrl": "https://files.typewords.cc/dicts/en/word/pet-vacabulary-list-2024.json",
+    "sourceWordCount": 1871,
+    "skippedWords": [
+      "sweatshirt",
+      "sweatshirt",
+      "bookshelf",
+      "bookshelf",
+      "riding"
+    ],
+    "sha256": "1d3c7ad694c1be434ed15d66371aafad393d83cea8e45e64d02ba699bd618669"
+  },
+  {
+    "id": "GMAT_3_T",
+    "label": "GMAT",
+    "description": "GMAT 词库",
+    "wordCount": 3032,
+    "category": "国际考试",
+    "tags": [
+      "GMAT"
+    ],
+    "sourceId": 47,
+    "sourceUrl": "https://files.typewords.cc/dicts/en/word/GMAT_3_T.json",
+    "sourceWordCount": 3047,
+    "skippedWords": [
+      "seismic",
+      "methane",
+      "synthesize",
+      "upstream",
+      "accompaniment",
+      "intersect",
+      "delicacy",
+      "expulsion",
+      "dichotomy",
+      "graphite",
+      "truce",
+      "imposition",
+      "delve",
+      "laurel",
+      "forage"
+    ],
+    "sha256": "88da98ae3630eadd23cbbf3af09c51622e00cdc844f200608c75006d6f8cd883"
+  },
+  {
+    "id": "GRE_3_T",
+    "label": "GRE",
+    "description": "GRE 词库",
+    "wordCount": 6451,
+    "category": "国际考试",
+    "tags": [
+      "GRE"
+    ],
+    "sourceId": 48,
+    "sourceUrl": "https://files.typewords.cc/dicts/en/word/GRE_3_T.json",
+    "sourceWordCount": 6514,
+    "skippedWords": [
+      "nibble",
+      "conducive",
+      "ambush",
+      "fervor",
+      "adamant",
+      "diffusion",
+      "fraudulent",
+      "subdued",
+      "far-reaching",
+      "subversive",
+      "covenant",
+      "confidently",
+      "seismic",
+      "involuntary",
+      "ethos",
+      "allusion",
+      "murderous",
+      "restored",
+      "aspiring",
+      "gulp",
+      "gush",
+      "prowess",
+      "sanity",
+      "rebellious",
+      "treacherous",
+      "smother",
+      "ferocious",
+      "troll",
+      "tenuous",
+      "contemplation",
+      "bloated",
+      "espionage",
+      "frigid",
+      "ooze",
+      "prolific",
+      "expulsion",
+      "collage",
+      "rehabilitate",
+      "usable",
+      "heady",
+      "condone",
+      "institutionalize",
+      "edgy",
+      "verification",
+      "determinant",
+      "synthesize",
+      "propensity",
+      "solidify",
+      "giddy",
+      "sliver",
+      "trample",
+      "spree",
+      "intersect",
+      "scowl",
+      "dichotomy",
+      "construe",
+      "truce",
+      "scoff",
+      "onslaught",
+      "entourage",
+      "delve",
+      "garner",
+      "throng"
+    ],
+    "sha256": "beb64d5f6180b86b3d315afabaf9b06e18528cc7fda1ff4bcf87844e4427bb0c"
+  },
+  {
+    "id": "GRE_1500",
+    "label": "GRE重点1500词-fen哥",
+    "description": "GRE & TEM8 重叠高频词汇",
+    "wordCount": 1504,
+    "category": "国际考试",
+    "tags": [
+      "GRE"
+    ],
+    "sourceId": 49,
+    "sourceUrl": "https://files.typewords.cc/dicts/en/word/GRE_1500.json",
+    "sourceWordCount": 1532,
+    "skippedWords": [
+      "prowess",
+      "gloss",
+      "delve",
+      "frigid",
+      "delicacy",
+      "giddy",
+      "tinker",
+      "nibble",
+      "truce",
+      "rehabilitate",
+      "ludicrous",
+      "budge",
+      "scowl",
+      "tenuous",
+      "adamant",
+      "hideous",
+      "forage",
+      "conducive",
+      "meticulous",
+      "throng",
+      "fraudulent",
+      "bristle",
+      "treacherous",
+      "smother",
+      "fervor",
+      "scoff",
+      "ethos",
+      "gush"
+    ],
+    "sha256": "d0f410835a7b0450d16fbb577144646f947e361eb73e1c93b7039ee27642304f"
+  },
+  {
+    "id": "GRE3000_3_T",
+    "label": "GRE3000",
+    "description": "GRE3000 词库",
+    "wordCount": 2997,
+    "category": "国际考试",
+    "tags": [
+      "GRE"
+    ],
+    "sourceId": 50,
+    "sourceUrl": "https://files.typewords.cc/dicts/en/word/GRE3000_3_T.json",
+    "sourceWordCount": 3036,
+    "skippedWords": [
+      "scowl",
+      "conducive",
+      "delicacy",
+      "condone",
+      "hideous",
+      "delve",
+      "rehabilitate",
+      "treacherous",
+      "truce",
+      "budge",
+      "concerted",
+      "dated",
+      "scoff",
+      "smother",
+      "beige",
+      "hamstring",
+      "ludicrous",
+      "prowess",
+      "dichotomy",
+      "frigid",
+      "tenuous",
+      "ethos",
+      "gloss",
+      "nibble",
+      "tinker",
+      "propensity",
+      "sanity",
+      "quirky",
+      "pedagogical",
+      "giddy",
+      "bristle",
+      "fraudulent",
+      "ferocious",
+      "meticulous",
+      "adamant",
+      "taint",
+      "throng",
+      "forage",
+      "gush"
+    ],
+    "sha256": "68d69bccc7a60f3cdd4889eb04d81c94638e62963f9e4b4dccbd07744e0b1102"
+  },
+  {
+    "id": "GRE-computer-based-test",
+    "label": "GRE机经词汇",
+    "description": "GRE机经词汇",
+    "wordCount": 1435,
+    "category": "国际考试",
+    "tags": [
+      "GRE"
+    ],
+    "sourceId": 51,
+    "sourceUrl": "https://files.typewords.cc/dicts/en/word/GRE-computer-based-test.json",
+    "sourceWordCount": 1451,
+    "skippedWords": [
+      "clerical",
+      "conducive",
+      "construe",
+      "dated",
+      "fervor",
+      "fraudulent",
+      "hamstring",
+      "hitch",
+      "ludicrous",
+      "meticulous",
+      "quirky",
+      "rehabilitate",
+      "sanity",
+      "smother",
+      "taint",
+      "tenuous"
+    ],
+    "sha256": "49a4618ba87af35e1c72af35b1383867c04f79d7561269ab659be9c62bcb78a1"
+  },
+  {
+    "id": "ZaiYaoNiMing_GRE3000",
+    "label": "再要你命GRE3000",
+    "description": "再要你命GRE3000词库-有词性新版",
+    "wordCount": 2995,
+    "category": "国际考试",
+    "tags": [
+      "GRE"
+    ],
+    "sourceId": 52,
+    "sourceUrl": "https://files.typewords.cc/dicts/en/word/ZaiYaoNiMing_GRE3000.json",
+    "sourceWordCount": 3041,
+    "skippedWords": [
+      "adamant",
+      "bristle",
+      "budge",
+      "concerted",
+      "condone",
+      "conducive",
+      "delicacy",
+      "delve",
+      "fraudulent",
+      "frigid",
+      "giddy",
+      "gloss",
+      "gush",
+      "hamstring",
+      "hideous",
+      "meticulous",
+      "nibble",
+      "propensity",
+      "prowess",
+      "quirky",
+      "rehabilitate",
+      "scoff",
+      "scowl",
+      "smother",
+      "sanity",
+      "taint",
+      "tenuous",
+      "throng",
+      "tinker",
+      "treacherous",
+      "truce",
+      "beige",
+      "dated",
+      "dichotomy",
+      "ethos",
+      "ferocious",
+      "forage",
+      "ludicrous",
+      "pedagogical"
+    ],
+    "sha256": "87b14339b67bde031c0e4016fdbd3cafdb50ffe8069a72ce9719c8edec2965f8"
+  },
+  {
+    "id": "GRE_equivalent",
+    "label": "GRE等价词",
+    "description": "GRE等价词",
+    "wordCount": 818,
+    "category": "国际考试",
+    "tags": [
+      "GRE"
+    ],
+    "sourceId": 53,
+    "sourceUrl": "https://files.typewords.cc/dicts/en/word/GRE_equivalent.json",
+    "sourceWordCount": 827,
+    "skippedWords": [
+      "tenuous",
+      "hamstring",
+      "construe",
+      "fraudulent",
+      "rehabilitate",
+      "ludicrous",
+      "hitch",
+      "meticulous",
+      "quirky"
+    ],
+    "sha256": "effdd714792f3c57f972b4912823a7b0f334b118e987fd490173f03e7cb8c7d0"
+  },
+  {
+    "id": "gre-ciyileiji",
+    "label": "GRE词以类记",
+    "description": "GRE词以类记",
+    "wordCount": 8299,
+    "category": "国际考试",
+    "tags": [
+      "GRE"
+    ],
+    "sourceId": 54,
+    "sourceUrl": "https://files.typewords.cc/dicts/en/word/gre-ciyileiji.json",
+    "sourceWordCount": 8384,
+    "skippedWords": [
+      "cavern",
+      "frigid",
+      "seismic",
+      "bog",
+      "graphite",
+      "thicket",
+      "oatmeal",
+      "forage",
+      "hamstring",
+      "hepatitis",
+      "semantic",
+      "collage",
+      "quartet",
+      "truce",
+      "ethos",
+      "ecologist",
+      "entourage",
+      "tinker",
+      "illumination",
+      "gloss",
+      "ooze",
+      "gush",
+      "dagger",
+      "espionage",
+      "covenant",
+      "concerted",
+      "galley",
+      "shingle",
+      "taint",
+      "infinity",
+      "mammoth",
+      "tenuous",
+      "corpus",
+      "prolific",
+      "throng",
+      "hindsight",
+      "far-reaching",
+      "splendor",
+      "prowess",
+      "fervor",
+      "involuntary",
+      "sanity",
+      "subdued",
+      "meticulous",
+      "delicacy",
+      "delve",
+      "bloated",
+      "ferocious",
+      "giddy",
+      "hideous",
+      "adamant",
+      "bristle",
+      "scowl",
+      "scoff",
+      "ludicrous",
+      "propensity",
+      "allusion",
+      "dichotomy",
+      "sliver",
+      "condone",
+      "trappings",
+      "trample",
+      "conducive",
+      "hem",
+      "gulp",
+      "nibble",
+      "rebellious",
+      "treacherous",
+      "onslaught",
+      "solidify",
+      "subversive",
+      "intersect",
+      "expulsion",
+      "construe",
+      "ambush",
+      "smother",
+      "garner",
+      "reassuring",
+      "subtlety",
+      "throttle",
+      "budge",
+      "restored",
+      "rehabilitate",
+      "fraudulent",
+      "determinant"
+    ],
+    "sha256": "c99af8981ce8975a36463fefc3e5ef9c2d0e51357999b9d8f7d7bcb4e710ca7e"
+  },
+  {
+    "id": "IELTS_tinglichangjing",
+    "label": "雅思听力场景词汇",
+    "description": "雅思听力场景词汇",
+    "wordCount": 1169,
+    "category": "国际考试",
+    "tags": [
+      "IELTS"
+    ],
+    "sourceId": 55,
+    "sourceUrl": "https://files.typewords.cc/dicts/en/word/IELTS_tinglichangjing.json",
+    "sourceWordCount": 1204,
+    "skippedWords": [
+      "ignition",
+      "around the corner to theright"
+    ],
+    "sha256": "ca0fccc016cadc037436011e73c4703a35cc64591989f4384eab378412a33e15"
+  },
+  {
+    "id": "IELTS_disorder",
+    "label": "IELTS乱序完整版",
+    "description": "IELTS乱序完整版",
+    "wordCount": 9316,
+    "category": "国际考试",
+    "tags": [
+      "IELTS"
+    ],
+    "sourceId": 56,
+    "sourceUrl": "https://files.typewords.cc/dicts/en/word/IELTS_disorder.json",
+    "sourceWordCount": 9387,
+    "skippedWords": [
+      "construe",
+      "Mrs.",
+      "hanger",
+      "bookshelf",
+      "a.m.",
+      "solidify",
+      "contemplation",
+      "dagger",
+      "throng",
+      "madden",
+      "truce",
+      "meticulous",
+      "imperialism",
+      "warmly",
+      "hepatitis",
+      "gulp",
+      "verification",
+      "accompaniment",
+      "truthful",
+      "prolific",
+      "infinity",
+      "cavern",
+      "beak",
+      "overlapping",
+      "concerted",
+      "i.e.",
+      "ferocious",
+      "Mr.",
+      "gush",
+      "expulsion",
+      "craftsman",
+      "hideous",
+      "seismic",
+      "rehabilitate",
+      "foreman",
+      "No.",
+      "o.k.",
+      "masculinity",
+      "chiefly",
+      "etc.",
+      "oatmeal",
+      "trample",
+      "infinitely",
+      "bristle",
+      "Ms.",
+      "A.D.",
+      "housekeeper",
+      "Arabian",
+      "ignition",
+      "insistent",
+      "nibble",
+      "sanity",
+      "gloss",
+      "e.g.",
+      "smother",
+      "misty",
+      "B.C.",
+      "eyeball",
+      "delicacy",
+      "urgently",
+      "wrongly",
+      "conducive",
+      "scoff",
+      "imposition",
+      "afloat",
+      "ludicrous",
+      "P.M.",
+      "stillness",
+      "tinker",
+      "synthesize",
+      "handcuff"
+    ],
+    "sha256": "a2214728408ea104b6393647501f43c46b148fdf710a5145628ab1b231d584bb"
+  },
+  {
+    "id": "HeQiong_IELTS",
+    "label": "heQiong雅思听力必考词汇",
+    "description": "综合测试",
+    "wordCount": 2463,
+    "category": "国际考试",
+    "tags": [
+      "IELTS"
+    ],
+    "sourceId": 58,
+    "sourceUrl": "https://files.typewords.cc/dicts/en/word/HeQiong_IELTS.json",
+    "sourceWordCount": 2470,
+    "skippedWords": [
+      "craftsman",
+      "staffing",
+      "insistent",
+      "verification",
+      "conducive",
+      "auditory",
+      "spree"
+    ],
+    "sha256": "e3abef1605cecd1177510430406839aeb79632469d01ff273476fd825c405ea6"
+  },
+  {
+    "id": "DuckCircle_IELTS",
+    "label": "鸭圈雅思核心词",
+    "description": "鸭圈雅思核心词",
+    "wordCount": 2604,
+    "category": "国际考试",
+    "tags": [
+      "IELTS"
+    ],
+    "sourceId": 63,
+    "sourceUrl": "https://files.typewords.cc/dicts/en/word/DuckCircle_IELTS.json",
+    "sourceWordCount": 2644,
+    "skippedWords": [
+      "woodland",
+      "fieldwork",
+      "auditory"
+    ],
+    "sha256": "172eb43e133bc43db560b614eaa6c0be5840562278796b118cf2987d22ecf6f6"
+  },
+  {
+    "id": "IELTSVocabularyBible",
+    "label": "雅思词汇真经",
+    "description": "雅思词汇真经",
+    "wordCount": 3618,
+    "category": "国际考试",
+    "tags": [
+      "IELTS"
+    ],
+    "sourceId": 64,
+    "sourceUrl": "https://files.typewords.cc/dicts/en/word/IELTSVocabularyBible.json",
+    "sourceWordCount": 3673,
+    "skippedWords": [
+      "seismic",
+      "frigid",
+      "gush",
+      "ecologist",
+      "throng",
+      "beak",
+      "bristle",
+      "semantic",
+      "craftsman",
+      "arabian",
+      "ooze",
+      "corpus"
+    ],
+    "sha256": "bb5460f8871142eec18e1ee4272f19fceaba09e2f3f395b8514fe3d6958a9f1d"
+  },
+  {
+    "id": "ielts-807",
+    "label": "雅思 wanglu 807",
+    "description": "雅思 wanglu 807",
+    "wordCount": 4109,
+    "category": "国际考试",
+    "tags": [
+      "IELTS"
+    ],
+    "sourceId": 65,
+    "sourceUrl": "https://files.typewords.cc/dicts/en/word/ielts-807.json",
+    "sourceWordCount": 4113,
+    "skippedWords": [
+      "bookshelf",
+      "cognition",
+      "woodland",
+      "riding"
+    ],
+    "sha256": "94e550e88eea870884a358d41961e2c256ee72acfadb0e95b8fde36327190584"
+  },
+  {
+    "id": "ielts-real-high",
+    "label": "雅思 real 词汇 高频",
+    "description": "雅思 real 词汇（高频词汇）",
+    "wordCount": 522,
+    "category": "国际考试",
+    "tags": [
+      "IELTS"
+    ],
+    "sourceId": 66,
+    "sourceUrl": "https://files.typewords.cc/dicts/en/word/ielts-real-high.json",
+    "sourceWordCount": 524,
+    "skippedWords": [
+      "corpus",
+      "forage"
+    ],
+    "sha256": "7126c307df4348cb5da8ea7933f68ef9d40cd8efdfd22ef2cfce32783c0f6613"
+  },
+  {
+    "id": "IELTSKingLu807",
+    "label": "王陆807雅思词汇听力第2版",
+    "description": "王陆807雅思词汇听力第2版",
+    "wordCount": 1852,
+    "category": "国际考试",
+    "tags": [
+      "IELTS"
+    ],
+    "sourceId": 72,
+    "sourceUrl": "https://files.typewords.cc/dicts/en/word/IELTSKingLu807.json",
+    "sourceWordCount": 1852,
+    "skippedWords": [],
+    "sha256": "0334138da9acf1b361488620d5084a0a10c5366a971554d10a08c200cf04656f"
+  },
+  {
+    "id": "IELTS_XDF_7000",
+    "label": "100个句子记完7000个雅思单词",
+    "description": "xdf 100个句子记完7000个雅思单词 词汇表",
+    "wordCount": 5428,
+    "category": "国际考试",
+    "tags": [
+      "IELTS"
+    ],
+    "sourceId": 73,
+    "sourceUrl": "https://files.typewords.cc/dicts/en/word/IELTS_XDF_7000.json",
+    "sourceWordCount": 5474,
+    "skippedWords": [
+      "onslaught",
+      "truce",
+      "horde",
+      "condone",
+      "tinker",
+      "cavern",
+      "ecologist",
+      "think of sb./sth. as sth.",
+      "dated",
+      "titanium",
+      "rebellious",
+      "laurel",
+      "be credited to...",
+      "hepatitis",
+      "leukemia",
+      "imaginable",
+      "methane",
+      "seismic",
+      "concerted",
+      "infinity",
+      "intersect",
+      "fervor",
+      "aspiring",
+      "forgiving",
+      "clear of sth.",
+      "the arrival of...",
+      "smother",
+      "cognition",
+      "on the brink of...",
+      "dementia",
+      "prolific",
+      "propensity",
+      "first-class",
+      "frigid",
+      "misty",
+      "beak",
+      "pricey",
+      "gush",
+      "abduction",
+      "adultery",
+      "fieldwork",
+      "mammoth",
+      "intrusive",
+      "auditory",
+      "tenuous",
+      "solidify"
+    ],
+    "sha256": "79296c35fa0213449de49948e225e18e198399301be16f266bbdfb43a32661b8"
+  },
+  {
+    "id": "ket2021",
+    "label": "KET",
+    "description": "KET 2021单词",
+    "wordCount": 888,
+    "category": "国际考试",
+    "tags": [
+      "KET"
+    ],
+    "sourceId": 111,
+    "sourceUrl": "https://files.typewords.cc/dicts/en/word/ket2021.json",
+    "sourceWordCount": 892,
+    "skippedWords": [
+      "bookshelf",
+      "riding",
+      "a.m./p.m.",
+      "driver's licence"
+    ],
+    "sha256": "5a34c8bc72710edcee9db934dab457733f54ed5bd34e128e14d953197041b09d"
+  },
+  {
+    "id": "SAT_3_T",
+    "label": "SAT",
+    "description": "美国 SAT 考试词库",
+    "wordCount": 4426,
+    "category": "国际考试",
+    "tags": [
+      "SAT"
+    ],
+    "sourceId": 112,
+    "sourceUrl": "https://files.typewords.cc/dicts/en/word/SAT_3_T.json",
+    "sourceWordCount": 4463,
+    "skippedWords": [
+      "methane",
+      "timer",
+      "tenuous",
+      "contemplation",
+      "ambush",
+      "fervor",
+      "adamant",
+      "hideous",
+      "ludicrous",
+      "frigid",
+      "diffusion",
+      "fraudulent",
+      "abduction",
+      "prolific",
+      "accompaniment",
+      "expulsion",
+      "collage",
+      "rehabilitate",
+      "ignition",
+      "condone",
+      "verification",
+      "rationality",
+      "synthesize",
+      "allusion",
+      "murderous",
+      "subtlety",
+      "meticulous",
+      "prowess",
+      "intersect",
+      "bristle",
+      "scowl",
+      "rebellious",
+      "treacherous",
+      "auditory",
+      "garner",
+      "ferocious",
+      "forage"
+    ],
+    "sha256": "4debe9942c58a23da885d4f5d52304fe68be6e63acf2d2891142c5b921be3619"
+  },
+  {
+    "id": "BEC_2_T",
+    "label": "商务英语",
+    "description": "商务英语常见词",
+    "wordCount": 2752,
+    "category": "国际考试",
+    "tags": [
+      "BEC"
+    ],
+    "sourceId": 114,
+    "sourceUrl": "https://files.typewords.cc/dicts/en/word/BEC_2_T.json",
+    "sourceWordCount": 2752,
+    "skippedWords": [],
+    "sha256": "96e193333c1bdf1ea94c3ad37b2c4f5609acde4a8ce68fe5b5b8fb0fa947ab4c"
+  },
+  {
+    "id": "BEC_3_T",
+    "label": "BEC",
+    "description": "BEC考试常见词",
+    "wordCount": 2821,
+    "category": "国际考试",
+    "tags": [
+      "BEC"
+    ],
+    "sourceId": 115,
+    "sourceUrl": "https://files.typewords.cc/dicts/en/word/BEC_3_T.json",
+    "sourceWordCount": 2824,
+    "skippedWords": [
+      "p.a.",
+      "Encl.",
+      "neomercantilist"
+    ],
+    "sha256": "99c4d1bcd7fa8ec3c466f1887f7fd917246ca9d57e0513ca003721b0affadcf8"
+  },
+  {
+    "id": "PTE_junior",
+    "label": "PTE 基础词汇",
+    "description": "PTE 基础词汇",
+    "wordCount": 2651,
+    "category": "国际考试",
+    "tags": [
+      "PTE"
+    ],
+    "sourceId": 116,
+    "sourceUrl": "https://files.typewords.cc/dicts/en/word/PTE_junior.json",
+    "sourceWordCount": 2651,
+    "skippedWords": [],
+    "sha256": "0e58021923889054f09664c0c7d107cf6f60b8333b91cb8b8eec4c1a0141ba7b"
+  },
+  {
+    "id": "PTE_senior",
+    "label": "PTE 高阶词汇",
+    "description": "PTE 高阶词汇",
+    "wordCount": 3147,
+    "category": "国际考试",
+    "tags": [
+      "PTE"
+    ],
+    "sourceId": 117,
+    "sourceUrl": "https://files.typewords.cc/dicts/en/word/PTE_senior.json",
+    "sourceWordCount": 3170,
+    "skippedWords": [
+      "meticulous",
+      "gush",
+      "articulation",
+      "revolutionize",
+      "frigid",
+      "propensity",
+      "methane",
+      "cross-cultural",
+      "cognition",
+      "entourage",
+      "dichotomy",
+      "ignition",
+      "delicacy",
+      "pricey",
+      "hamstring",
+      "tenuous",
+      "condone",
+      "adultery",
+      "infinitely",
+      "auditory",
+      "institutionalize",
+      "moderation",
+      "jut"
+    ],
+    "sha256": "5a9b55f4e9a557a0578b786dde536c22c1cba2b08b7dfacf4cf8fdd6873b9fed"
+  },
+  {
+    "id": "PTE_FIB_R_junior",
+    "label": "阅读 FIB 基础机经词汇",
+    "description": "阅读 FIB 基础机经词汇",
+    "wordCount": 940,
+    "category": "国际考试",
+    "tags": [
+      "PTE"
+    ],
+    "sourceId": 118,
+    "sourceUrl": "https://files.typewords.cc/dicts/en/word/PTE_FIB_R_junior.json",
+    "sourceWordCount": 941,
+    "skippedWords": [
+      "republica"
+    ],
+    "sha256": "72867dd78bb922a5c5e4a3eeb83c1d7f77fb96365c87f75903bc238b5fcdb775"
+  },
+  {
+    "id": "PTE_FIB_R_senior",
+    "label": "阅读 FIB 高阶机经词汇",
+    "description": "阅读 FIB 高阶机经词汇",
+    "wordCount": 1259,
+    "category": "国际考试",
+    "tags": [
+      "PTE"
+    ],
+    "sourceId": 119,
+    "sourceUrl": "https://files.typewords.cc/dicts/en/word/PTE_FIB_R_senior.json",
+    "sourceWordCount": 1272,
+    "skippedWords": [
+      "delicacy",
+      "prolific",
+      "delve",
+      "forage",
+      "frigid",
+      "mammoth",
+      "auditory",
+      "sociological",
+      "hamstring",
+      "rebellious",
+      "determinant",
+      "involuntary",
+      "articulation"
+    ],
+    "sha256": "01ff8affd61d84fd23f1d5e29a7c1e137890cf045b5bd547ce187525f644c7f7"
+  },
+  {
+    "id": "PTE_WFD",
+    "label": "WFD 机经词汇",
+    "description": "WFD 机经词汇",
+    "wordCount": 1209,
+    "category": "国际考试",
+    "tags": [
+      "PTE"
+    ],
+    "sourceId": 120,
+    "sourceUrl": "https://files.typewords.cc/dicts/en/word/PTE_WFD.json",
+    "sourceWordCount": 1212,
+    "skippedWords": [
+      "spontaneously",
+      "fieldwork",
+      "time-restricted"
+    ],
+    "sha256": "785ed89cd6bf1bf9a8086a5162c25f9a6fac7f2ff223153e4f743192bbc96ca1"
+  },
+  {
+    "id": "PTE_FIB_L",
+    "label": "听力 FIB 机经词汇",
+    "description": "听力 FIB 机经词汇",
+    "wordCount": 643,
+    "category": "国际考试",
+    "tags": [
+      "PTE"
+    ],
+    "sourceId": 121,
+    "sourceUrl": "https://files.typewords.cc/dicts/en/word/PTE_FIB_L.json",
+    "sourceWordCount": 646,
+    "skippedWords": [
+      "auditory",
+      "unpublished",
+      "rationality"
+    ],
+    "sha256": "4fee85b9918ee708809146db467eeb5956d0649801e7df620337c47fc39c7a52"
+  },
+  {
+    "id": "PTE_Basic_apeuni",
+    "label": "PTE 基础词汇 xingji",
+    "description": "PTE 基础词汇 xingji",
+    "wordCount": 2651,
+    "category": "国际考试",
+    "tags": [
+      "PTE"
+    ],
+    "sourceId": 122,
+    "sourceUrl": "https://files.typewords.cc/dicts/en/word/PTE_Basic_apeuni.json",
+    "sourceWordCount": 2652,
+    "skippedWords": [],
+    "sha256": "7987942b16cf980e8675cba891f1fa1533cb08ad899711c1e7c0c7310db2863f"
+  },
+  {
+    "id": "PTE_Advanced_apeuni",
+    "label": "PTE 高阶词汇 xingji",
+    "description": "PTE 高阶词汇 xingji",
+    "wordCount": 3146,
+    "category": "国际考试",
+    "tags": [
+      "PTE"
+    ],
+    "sourceId": 123,
+    "sourceUrl": "https://files.typewords.cc/dicts/en/word/PTE_Advanced_apeuni.json",
+    "sourceWordCount": 3169,
+    "skippedWords": [
+      "meticulous",
+      "gush",
+      "articulation",
+      "revolutionize",
+      "frigid",
+      "propensity",
+      "methane",
+      "cross-cultural",
+      "cognition",
+      "entourage",
+      "dichotomy",
+      "ignition",
+      "delicacy",
+      "pricey",
+      "hamstring",
+      "tenuous",
+      "condone",
+      "auditory",
+      "adultery",
+      "infinitely",
+      "institutionalize",
+      "moderation",
+      "jut"
+    ],
+    "sha256": "b8c8f1ce47cb8177ef13fe8e2a1ebb6760ed08501d8101a7bf75b5d604b59735"
+  },
+  {
+    "id": "PTE_Read_apeuni",
+    "label": "PTE 阅读FIB机经词汇 xingji",
+    "description": "PTE 阅读FIB机经词汇 xingji",
+    "wordCount": 621,
+    "category": "国际考试",
+    "tags": [
+      "PTE"
+    ],
+    "sourceId": 124,
+    "sourceUrl": "https://files.typewords.cc/dicts/en/word/PTE_Read_apeuni.json",
+    "sourceWordCount": 630,
+    "skippedWords": [
+      "delicacy",
+      "hamstring",
+      "institutionalize",
+      "adultery",
+      "entourage",
+      "gush",
+      "methane",
+      "frigid",
+      "infinitely"
+    ],
+    "sha256": "c7a547486052104f2313407ac326410becd61d0482a052d66470abc347955d7b"
+  },
+  {
+    "id": "PTE_Listening_apeuni",
+    "label": "PTE 听力FIB机经词汇 xingji",
+    "description": "PTE 听力FIB机经词汇 xingji",
+    "wordCount": 671,
+    "category": "国际考试",
+    "tags": [
+      "PTE"
+    ],
+    "sourceId": 125,
+    "sourceUrl": "https://files.typewords.cc/dicts/en/word/PTE_Listening_apeuni.json",
+    "sourceWordCount": 674,
+    "skippedWords": [
+      "moderation",
+      "articulation",
+      "auditory"
+    ],
+    "sha256": "d694ebe1d4ca443e531625a3396869db163b895d974dd03a13ab88215821e438"
+  },
+  {
+    "id": "TOEIC",
+    "label": "TOEIC 词汇",
+    "description": "TOEIC 词汇",
+    "wordCount": 1646,
+    "category": "国际考试",
+    "tags": [
+      "TOEIC"
+    ],
+    "sourceId": 126,
+    "sourceUrl": "https://files.typewords.cc/dicts/en/word/TOEIC.json",
+    "sourceWordCount": 1694,
+    "skippedWords": [
+      "duplicte",
+      "puncturality",
+      "emplyer",
+      "sonnel2",
+      "acquisiton",
+      "buyout/buy",
+      "lauch",
+      "pengding",
+      "cell(ular)phone",
+      "searchi",
+      "floppy(disk)",
+      "tansmission",
+      "jotdown",
+      "ASAP=as",
+      "converance",
+      "VIP=very",
+      "delicacy",
+      "baggage%20claim",
+      "boarding%20pass",
+      "bottom%20line",
+      "cabin%20crew",
+      "scripwriter",
+      "cell%20phone",
+      "chain%20store",
+      "check%20in",
+      "check%20out",
+      "rnner-up",
+      "control%20panel",
+      "cover%20letter",
+      "cutting%20edge",
+      "depend%20on",
+      "hideous",
+      "ressure",
+      "fill%20out",
+      "flight%20attendant",
+      "head%20office",
+      "lay%20off",
+      "log%20on",
+      "log%20out",
+      "package%20tour",
+      "parking%20lot",
+      "plug%20in",
+      "raw%20materials",
+      "right%20away",
+      "search%20engine",
+      "spare%20part",
+      "spare%20time",
+      "utility%20bill"
+    ],
+    "sha256": "e31dd8d8b74b698781e063b9a23a458e4b305e37db5e68099791ae83e121089c"
+  },
+  {
+    "id": "Duolingo_Vocabulary_B1",
+    "label": "多邻国分级词汇B1",
+    "description": "多邻国分级词汇B1",
+    "wordCount": 801,
+    "category": "国际考试",
+    "tags": [
+      "CEFR"
+    ],
+    "sourceId": 127,
+    "sourceUrl": "https://files.typewords.cc/dicts/en/word/Duolingo_Vocabulary_B1.json",
+    "sourceWordCount": 801,
+    "skippedWords": [],
+    "sha256": "f555d736eb8c3a89c7c2752a6b5914827918dce6c5e487f264faed7602496f25"
+  },
+  {
+    "id": "Duolingo_Vocabulary_B2",
+    "label": "多邻国分级词汇B2",
+    "description": "多邻国分级词汇B2",
+    "wordCount": 1423,
+    "category": "国际考试",
+    "tags": [
+      "CEFR"
+    ],
+    "sourceId": 128,
+    "sourceUrl": "https://files.typewords.cc/dicts/en/word/Duolingo_Vocabulary_B2.json",
+    "sourceWordCount": 1423,
+    "skippedWords": [],
+    "sha256": "8e0cbb5bf6a2e93e6d8bc5de40ba761e5fc5c04349dcb34b00ba651a7c85ca61"
+  },
+  {
+    "id": "Duolingo_Vocabulary_C1",
+    "label": "多邻国分级词汇C1",
+    "description": "多邻国分级词汇C1",
+    "wordCount": 1313,
+    "category": "国际考试",
+    "tags": [
+      "CEFR"
+    ],
+    "sourceId": 129,
+    "sourceUrl": "https://files.typewords.cc/dicts/en/word/Duolingo_Vocabulary_C1.json",
+    "sourceWordCount": 1314,
+    "skippedWords": [],
+    "sha256": "e1392944b2747c147e76b9857069620ed7387d3b123dc24011cef72c1bead731"
+  },
+  {
+    "id": "Oxford3000",
+    "label": "牛津3000词",
+    "description": "牛津3000词",
+    "wordCount": 1339,
+    "category": "国际考试",
+    "tags": [
+      "牛津版"
+    ],
+    "sourceId": 130,
+    "sourceUrl": "https://files.typewords.cc/dicts/en/word/Oxford3000.json",
+    "sourceWordCount": 1339,
+    "skippedWords": [],
+    "sha256": "ed645375ec36460668f59b6cf7b8ee392ffca96044264c4a2431ebe2c542f4db"
+  },
+  {
+    "id": "voa",
+    "label": "VOA 基础词库",
+    "description": "VOA 基础词库",
+    "wordCount": 1502,
+    "category": "国际考试",
+    "tags": [
+      "其他"
+    ],
+    "sourceId": 131,
+    "sourceUrl": "https://files.typewords.cc/dicts/en/word/voa.json",
+    "sourceWordCount": 1503,
+    "skippedWords": [
+      "truce"
+    ],
+    "sha256": "c7b823837fb127cce43b2a8a2e4ffe2d3928efdcbdbc27f90fd5c626e12ab129"
+  },
+  {
+    "id": "GaoKaoZhenTiHeXinGaoPin",
+    "label": "高考历年真题核心高频",
+    "description": "高考历年真题核心高频",
+    "wordCount": 689,
+    "category": "青少年英语",
+    "tags": [
+      "通用"
+    ],
+    "sourceId": 133,
+    "sourceUrl": "https://files.typewords.cc/dicts/en/word/GaoKaoZhenTiHeXinGaoPin.json",
+    "sourceWordCount": 799,
+    "skippedWords": [],
+    "sha256": "8dde947992b9d2aa057995b627ad3f24d98817eabd10d35904856cabc885cc98"
+  },
+  {
+    "id": "gaokao-yuedu-gaopin",
+    "label": "高考英语阅读高频词汇",
+    "description": "高考英语阅读高频词汇",
+    "wordCount": 681,
+    "category": "青少年英语",
+    "tags": [
+      "通用"
+    ],
+    "sourceId": 134,
+    "sourceUrl": "https://files.typewords.cc/dicts/en/word/gaokao-yuedu-gaopin.json",
+    "sourceWordCount": 688,
+    "skippedWords": [],
+    "sha256": "e5d64a3a817c085e24b80ddafa5141e57995c313049ff81a53165f25c1d761c3"
+  },
+  {
+    "id": "ZhongKaoHeXin",
+    "label": "中考核心词",
+    "description": "中考核心词",
+    "wordCount": 2132,
+    "category": "青少年英语",
+    "tags": [
+      "通用"
+    ],
+    "sourceId": 135,
+    "sourceUrl": "https://files.typewords.cc/dicts/en/word/ZhongKaoHeXin.json",
+    "sourceWordCount": 2135,
+    "skippedWords": [
+      "truthful",
+      "P.M.",
+      "a.m."
+    ],
+    "sha256": "d0237fbe852fe6612c1fdb58bf7ae63998253d0a443e62ea2bac28b67ee59f2e"
+  },
+  {
+    "id": "OxfordVocabulary_juniorMiddleSH",
+    "label": "上海初中牛津词汇",
+    "description": "上海初中牛津词汇",
+    "wordCount": 1257,
+    "category": "青少年英语",
+    "tags": [
+      "牛津版"
+    ],
+    "sourceId": 140,
+    "sourceUrl": "https://files.typewords.cc/dicts/en/word/OxfordVocabulary_juniorMiddleSH.json",
+    "sourceWordCount": 1270,
+    "skippedWords": [
+      "iced"
+    ],
+    "sha256": "a3903c527b46942d6c66845f0de406e503a136b57d3e76d66ec4b24b791a5599"
+  },
+  {
+    "id": "PEPXiaoXue3_1_T",
+    "label": "三年级上",
+    "description": "人教版三年级上册",
+    "wordCount": 64,
+    "category": "青少年英语",
+    "tags": [
+      "人教版"
+    ],
+    "sourceId": 141,
+    "sourceUrl": "https://files.typewords.cc/dicts/en/word/PEPXiaoXue3_1_T.json",
+    "sourceWordCount": 64,
+    "skippedWords": [],
+    "sha256": "b1701babdbe71bf995577d9c3fc6adf186c2d578f9d2621e665505feafbaebee"
+  },
+  {
+    "id": "PEPXiaoXue3_2_T",
+    "label": "三年级下",
+    "description": "人教版三年级下册",
+    "wordCount": 72,
+    "category": "青少年英语",
+    "tags": [
+      "人教版"
+    ],
+    "sourceId": 142,
+    "sourceUrl": "https://files.typewords.cc/dicts/en/word/PEPXiaoXue3_2_T.json",
+    "sourceWordCount": 72,
+    "skippedWords": [],
+    "sha256": "6744d3b45594e78012f92b566db2bfebbf7f3fe4fa01696b53467d8df751cceb"
+  },
+  {
+    "id": "PEPXiaoXue4_1_T",
+    "label": "四年级上",
+    "description": "人教版四年级上册",
+    "wordCount": 84,
+    "category": "青少年英语",
+    "tags": [
+      "人教版"
+    ],
+    "sourceId": 143,
+    "sourceUrl": "https://files.typewords.cc/dicts/en/word/PEPXiaoXue4_1_T.json",
+    "sourceWordCount": 84,
+    "skippedWords": [],
+    "sha256": "4a9ef0ea72dea3e6ee57f518c52b7ed251c5885f036db4297a16bd14cebee3d7"
+  },
+  {
+    "id": "PEPXiaoXue4_2_T",
+    "label": "四年级下",
+    "description": "人教版四年级下册",
+    "wordCount": 104,
+    "category": "青少年英语",
+    "tags": [
+      "人教版"
+    ],
+    "sourceId": 144,
+    "sourceUrl": "https://files.typewords.cc/dicts/en/word/PEPXiaoXue4_2_T.json",
+    "sourceWordCount": 104,
+    "skippedWords": [],
+    "sha256": "606195b0efa4b91dbb5d67c4be31d2df0beba7ef8433e48ab5f8947aed698dd1"
+  },
+  {
+    "id": "PEPXiaoXue5_1_T",
+    "label": "五年级上",
+    "description": "人教版五年级上册",
+    "wordCount": 130,
+    "category": "青少年英语",
+    "tags": [
+      "人教版"
+    ],
+    "sourceId": 145,
+    "sourceUrl": "https://files.typewords.cc/dicts/en/word/PEPXiaoXue5_1_T.json",
+    "sourceWordCount": 131,
+    "skippedWords": [],
+    "sha256": "d69b7899aae4d145c6c9e9fd47943d1129ec623fb6ead60ab4113b3f14cf309d"
+  },
+  {
+    "id": "PEPXiaoXue5_2_T",
+    "label": "五年级下",
+    "description": "人教版五年级下册",
+    "wordCount": 155,
+    "category": "青少年英语",
+    "tags": [
+      "人教版"
+    ],
+    "sourceId": 146,
+    "sourceUrl": "https://files.typewords.cc/dicts/en/word/PEPXiaoXue5_2_T.json",
+    "sourceWordCount": 156,
+    "skippedWords": [],
+    "sha256": "a252c774b1ac0b8a7397e44390c05bfb9a5cc2167ce83a8e51c83a28e84eff6c"
+  },
+  {
+    "id": "PEPXiaoXue6_1_T",
+    "label": "六年级上",
+    "description": "人教版六年级上册",
+    "wordCount": 129,
+    "category": "青少年英语",
+    "tags": [
+      "人教版"
+    ],
+    "sourceId": 147,
+    "sourceUrl": "https://files.typewords.cc/dicts/en/word/PEPXiaoXue6_1_T.json",
+    "sourceWordCount": 130,
+    "skippedWords": [],
+    "sha256": "cc72fb4a687c859439d725d8b2e213651750c97b5e3b16e26f2bc89b6918ef59"
+  },
+  {
+    "id": "PEPXiaoXue6_2_T",
+    "label": "六年级下",
+    "description": "人教版六年级下册",
+    "wordCount": 108,
+    "category": "青少年英语",
+    "tags": [
+      "人教版"
+    ],
+    "sourceId": 148,
+    "sourceUrl": "https://files.typewords.cc/dicts/en/word/PEPXiaoXue6_2_T.json",
+    "sourceWordCount": 108,
+    "skippedWords": [],
+    "sha256": "a7a892d7c73d9f73e00695999ef78e1ec94ff1418b5fc5faf2fc431be23e3b99"
+  },
+  {
+    "id": "PEP_SL_XiaoXue1_1_t",
+    "label": "人教版(新起点)一年级上",
+    "description": "人教版一年级上册",
+    "wordCount": 52,
+    "category": "青少年英语",
+    "tags": [
+      "人教版"
+    ],
+    "sourceId": 149,
+    "sourceUrl": "https://files.typewords.cc/dicts/en/word/PEP_SL_XiaoXue1_1_t.json",
+    "sourceWordCount": 52,
+    "skippedWords": [],
+    "sha256": "9a0f9206ffae032a1de097d5e625320b24f7428126a97c052508b17af2c50fcd"
+  },
+  {
+    "id": "PEP_SL_XiaoXue1_2_t",
+    "label": "人教版(新起点)一年级下",
+    "description": "人教版一年级下册",
+    "wordCount": 45,
+    "category": "青少年英语",
+    "tags": [
+      "人教版"
+    ],
+    "sourceId": 150,
+    "sourceUrl": "https://files.typewords.cc/dicts/en/word/PEP_SL_XiaoXue1_2_t.json",
+    "sourceWordCount": 45,
+    "skippedWords": [],
+    "sha256": "c86d3df3a59d7ea43256d4f00e1738e91b63e07b6e6603281edeeaf532dfe73e"
+  },
+  {
+    "id": "PEP_SL_XiaoXue2_1_t",
+    "label": "人教版(新起点)二年级上",
+    "description": "人教版二年级上册",
+    "wordCount": 54,
+    "category": "青少年英语",
+    "tags": [
+      "人教版"
+    ],
+    "sourceId": 151,
+    "sourceUrl": "https://files.typewords.cc/dicts/en/word/PEP_SL_XiaoXue2_1_t.json",
+    "sourceWordCount": 54,
+    "skippedWords": [],
+    "sha256": "4b04ebc4b6d580c869af4bf5e55c21589faa705e51aff374eb7cfbb3d5169e03"
+  },
+  {
+    "id": "PEP_SL_XiaoXue2_2_t",
+    "label": "人教版(新起点)二年级下",
+    "description": "人教版二年级下册",
+    "wordCount": 55,
+    "category": "青少年英语",
+    "tags": [
+      "人教版"
+    ],
+    "sourceId": 152,
+    "sourceUrl": "https://files.typewords.cc/dicts/en/word/PEP_SL_XiaoXue2_2_t.json",
+    "sourceWordCount": 55,
+    "skippedWords": [],
+    "sha256": "4a8dbfcda0a190a339dfd31becd44aa88f0ebb62237550294394be576ea6c935"
+  },
+  {
+    "id": "PEP_SL_XiaoXue3_1_t",
+    "label": "人教版(新起点)三年级上",
+    "description": "人教版三年级上册",
+    "wordCount": 101,
+    "category": "青少年英语",
+    "tags": [
+      "人教版"
+    ],
+    "sourceId": 153,
+    "sourceUrl": "https://files.typewords.cc/dicts/en/word/PEP_SL_XiaoXue3_1_t.json",
+    "sourceWordCount": 103,
+    "skippedWords": [],
+    "sha256": "ce4630fc3c594b1c2e65bdc87074866a52d8f34f47402a3279976910b4cf4649"
+  },
+  {
+    "id": "PEP_SL_XiaoXue3_2_t",
+    "label": "人教版(新起点)三年级下",
+    "description": "人教版三年级下册",
+    "wordCount": 84,
+    "category": "青少年英语",
+    "tags": [
+      "人教版"
+    ],
+    "sourceId": 154,
+    "sourceUrl": "https://files.typewords.cc/dicts/en/word/PEP_SL_XiaoXue3_2_t.json",
+    "sourceWordCount": 84,
+    "skippedWords": [],
+    "sha256": "807b19a1b36c2f293d4d8a6fd1c075076406f8c880dbe7542d625c76ec6a6efd"
+  },
+  {
+    "id": "PEP_SL_XiaoXue4_1_t",
+    "label": "人教版(新起点)四年级上",
+    "description": "人教版四年级上册",
+    "wordCount": 115,
+    "category": "青少年英语",
+    "tags": [
+      "人教版"
+    ],
+    "sourceId": 155,
+    "sourceUrl": "https://files.typewords.cc/dicts/en/word/PEP_SL_XiaoXue4_1_t.json",
+    "sourceWordCount": 115,
+    "skippedWords": [],
+    "sha256": "cd732a7ae1c606e3e72e3eb579c957f738e63a25622430cfe832fd5084e6226d"
+  },
+  {
+    "id": "PEP_SL_XiaoXue4_2_t",
+    "label": "人教版(新起点)四年级下",
+    "description": "人教版四年级下册",
+    "wordCount": 85,
+    "category": "青少年英语",
+    "tags": [
+      "人教版"
+    ],
+    "sourceId": 156,
+    "sourceUrl": "https://files.typewords.cc/dicts/en/word/PEP_SL_XiaoXue4_2_t.json",
+    "sourceWordCount": 87,
+    "skippedWords": [
+      "campfire"
+    ],
+    "sha256": "a545e27692d43a883976d291fbc029fcf068345babca492b54dd2c7a6eeed662"
+  },
+  {
+    "id": "PEP_SL_XiaoXue5_1_t",
+    "label": "人教版(新起点)五年级上",
+    "description": "人教版五年级上册",
+    "wordCount": 66,
+    "category": "青少年英语",
+    "tags": [
+      "人教版"
+    ],
+    "sourceId": 157,
+    "sourceUrl": "https://files.typewords.cc/dicts/en/word/PEP_SL_XiaoXue5_1_t.json",
+    "sourceWordCount": 66,
+    "skippedWords": [],
+    "sha256": "dbcc0d5d8fa1113ed9aec7ee524c6bd11ed37460bf8a3981f03f8e9bf075c72c"
+  },
+  {
+    "id": "PEP_SL_XiaoXue5_2_t",
+    "label": "人教版(新起点)五年级下",
+    "description": "人教版五年级下册",
+    "wordCount": 96,
+    "category": "青少年英语",
+    "tags": [
+      "人教版"
+    ],
+    "sourceId": 158,
+    "sourceUrl": "https://files.typewords.cc/dicts/en/word/PEP_SL_XiaoXue5_2_t.json",
+    "sourceWordCount": 96,
+    "skippedWords": [],
+    "sha256": "619ff7411a0f5e8af3bf5350b12b465e5578518ce47b0963ba5a8d562d3f7066"
+  },
+  {
+    "id": "PEP_SL_XiaoXue6_1_t",
+    "label": "人教版(新起点)六年级上",
+    "description": "人教版六年级上册",
+    "wordCount": 100,
+    "category": "青少年英语",
+    "tags": [
+      "人教版"
+    ],
+    "sourceId": 159,
+    "sourceUrl": "https://files.typewords.cc/dicts/en/word/PEP_SL_XiaoXue6_1_t.json",
+    "sourceWordCount": 102,
+    "skippedWords": [],
+    "sha256": "d04b5eb17edd6b764f350c29427d0ef4e256f2f3cb56a984ae069db6d35f5058"
+  },
+  {
+    "id": "PEP_SL_XiaoXue6_2_t",
+    "label": "人教版(新起点)六年级下",
+    "description": "人教版六年级下册",
+    "wordCount": 41,
+    "category": "青少年英语",
+    "tags": [
+      "人教版"
+    ],
+    "sourceId": 160,
+    "sourceUrl": "https://files.typewords.cc/dicts/en/word/PEP_SL_XiaoXue6_2_t.json",
+    "sourceWordCount": 41,
+    "skippedWords": [],
+    "sha256": "44394a0c085b2742bc5b8d2a8e6669a4403e7cd9fada477812b7fcb0c7f8642e"
+  },
+  {
+    "id": "PEPChuZhong7_1_T",
+    "label": "七年级上",
+    "description": "人教版七年级上册",
+    "wordCount": 386,
+    "category": "青少年英语",
+    "tags": [
+      "人教版"
+    ],
+    "sourceId": 161,
+    "sourceUrl": "https://files.typewords.cc/dicts/en/word/PEPChuZhong7_1_T.json",
+    "sourceWordCount": 392,
+    "skippedWords": [],
+    "sha256": "f2109af4438ad22b5cdbab23d59ee914261d336c28cae9de3c994e7f16357d04"
+  },
+  {
+    "id": "PEPChuZhong7_2_T",
+    "label": "七年级下",
+    "description": "人教版七年级下册",
+    "wordCount": 492,
+    "category": "青少年英语",
+    "tags": [
+      "人教版"
+    ],
+    "sourceId": 162,
+    "sourceUrl": "https://files.typewords.cc/dicts/en/word/PEPChuZhong7_2_T.json",
+    "sourceWordCount": 492,
+    "skippedWords": [],
+    "sha256": "4439f85489ae47a23582aa41e8d3bb58767bb8e7ef7aeb291a9529878c6e44b7"
+  },
+  {
+    "id": "PEPChuZhong8_1_T",
+    "label": "八年级上",
+    "description": "人教版八年级上册",
+    "wordCount": 418,
+    "category": "青少年英语",
+    "tags": [
+      "人教版"
+    ],
+    "sourceId": 163,
+    "sourceUrl": "https://files.typewords.cc/dicts/en/word/PEPChuZhong8_1_T.json",
+    "sourceWordCount": 419,
+    "skippedWords": [],
+    "sha256": "caf198abaae1cfa25d2cf1d308fec618c5185cb383cb89f4906608a3d3a7e288"
+  },
+  {
+    "id": "PEPChuZhong8_2_T",
+    "label": "八年级下",
+    "description": "人教版八年级下册",
+    "wordCount": 462,
+    "category": "青少年英语",
+    "tags": [
+      "人教版"
+    ],
+    "sourceId": 164,
+    "sourceUrl": "https://files.typewords.cc/dicts/en/word/PEPChuZhong8_2_T.json",
+    "sourceWordCount": 466,
+    "skippedWords": [
+      "truthful"
+    ],
+    "sha256": "1b9ff008f2c6a89442b80ea4cc5877e728902c51c7f11fbf12f715b87298113b"
+  },
+  {
+    "id": "PEPChuZhong9_1_T",
+    "label": "九年级",
+    "description": "人教版九年级全册",
+    "wordCount": 549,
+    "category": "青少年英语",
+    "tags": [
+      "人教版"
+    ],
+    "sourceId": 165,
+    "sourceUrl": "https://files.typewords.cc/dicts/en/word/PEPChuZhong9_1_T.json",
+    "sourceWordCount": 551,
+    "skippedWords": [
+      "sliver"
+    ],
+    "sha256": "1f66319b53a17ee20a43b4d53f66fc88aa0096cfa806e4e8ec1a01e7bb27570a"
+  },
+  {
+    "id": "PEPGaoZhong_1_T",
+    "label": "高中必修1",
+    "description": "人教版高中必修1",
+    "wordCount": 311,
+    "category": "青少年英语",
+    "tags": [
+      "人教版"
+    ],
+    "sourceId": 166,
+    "sourceUrl": "https://files.typewords.cc/dicts/en/word/PEPGaoZhong_1_T.json",
+    "sourceWordCount": 311,
+    "skippedWords": [],
+    "sha256": "804df610d7a91f4017234bdcaec6252cb21b23265075fed065b2adbae17457f7"
+  },
+  {
+    "id": "PEPGaoZhong_2_T",
+    "label": "高中必修2",
+    "description": "人教版高中必修2",
+    "wordCount": 319,
+    "category": "青少年英语",
+    "tags": [
+      "人教版"
+    ],
+    "sourceId": 167,
+    "sourceUrl": "https://files.typewords.cc/dicts/en/word/PEPGaoZhong_2_T.json",
+    "sourceWordCount": 319,
+    "skippedWords": [],
+    "sha256": "7a5fb784074c5a22048f73f0eff55738ceb35ed96612996b3b8df328f95bd578"
+  },
+  {
+    "id": "PEPGaoZhong_3_T",
+    "label": "高中必修3",
+    "description": "人教版高中必修3",
+    "wordCount": 365,
+    "category": "青少年英语",
+    "tags": [
+      "人教版"
+    ],
+    "sourceId": 168,
+    "sourceUrl": "https://files.typewords.cc/dicts/en/word/PEPGaoZhong_3_T.json",
+    "sourceWordCount": 366,
+    "skippedWords": [
+      "misty"
+    ],
+    "sha256": "299447ce8e9f62260348864c2773f6c4005813c062899977021649fa9afeb3d3"
+  },
+  {
+    "id": "PEPGaoZhong_4_T",
+    "label": "高中必修4",
+    "description": "人教版高中必修4",
+    "wordCount": 306,
+    "category": "青少年英语",
+    "tags": [
+      "人教版"
+    ],
+    "sourceId": 169,
+    "sourceUrl": "https://files.typewords.cc/dicts/en/word/PEPGaoZhong_4_T.json",
+    "sourceWordCount": 307,
+    "skippedWords": [
+      "craftsman"
+    ],
+    "sha256": "1778f91c49a6aec8fb74a64e80379aac9d45c788201de07566a7c2c74e794625"
+  },
+  {
+    "id": "PEPGaoZhong_5_T",
+    "label": "高中必修5",
+    "description": "人教版高中必修5",
+    "wordCount": 356,
+    "category": "青少年英语",
+    "tags": [
+      "人教版"
+    ],
+    "sourceId": 170,
+    "sourceUrl": "https://files.typewords.cc/dicts/en/word/PEPGaoZhong_5_T.json",
+    "sourceWordCount": 357,
+    "skippedWords": [
+      "blister"
+    ],
+    "sha256": "a093c0af021848fc91179ce04dc4fc1e31bfea34e57220cc176b3873c5f5b735"
+  },
+  {
+    "id": "PEPGaoZhong_6_T",
+    "label": "高中选修6",
+    "description": "人教版高中选修6",
+    "wordCount": 390,
+    "category": "青少年英语",
+    "tags": [
+      "人教版"
+    ],
+    "sourceId": 171,
+    "sourceUrl": "https://files.typewords.cc/dicts/en/word/PEPGaoZhong_6_T.json",
+    "sourceWordCount": 391,
+    "skippedWords": [
+      "methane"
+    ],
+    "sha256": "e9ba557a73bb3723c35c0fcc4d1787a1003399be26d9d7fec071e50347f48029"
+  },
+  {
+    "id": "PEPGaoZhong_7_T",
+    "label": "高中选修7",
+    "description": "人教版高中选修7",
+    "wordCount": 384,
+    "category": "青少年英语",
+    "tags": [
+      "人教版"
+    ],
+    "sourceId": 172,
+    "sourceUrl": "https://files.typewords.cc/dicts/en/word/PEPGaoZhong_7_T.json",
+    "sourceWordCount": 384,
+    "skippedWords": [],
+    "sha256": "f4c7a9b6143adcd9219f473ac61e5c57f9c46bbcbe7f20e5c2ca69e79c74b063"
+  },
+  {
+    "id": "PEPGaoZhong_8_T",
+    "label": "高中选修8",
+    "description": "人教版高中选修8",
+    "wordCount": 420,
+    "category": "青少年英语",
+    "tags": [
+      "人教版"
+    ],
+    "sourceId": 173,
+    "sourceUrl": "https://files.typewords.cc/dicts/en/word/PEPGaoZhong_8_T.json",
+    "sourceWordCount": 420,
+    "skippedWords": [],
+    "sha256": "75fca47d44d937104141c5bff44a922e7428d02982ec2fc4bbde8c180fa409d5"
+  },
+  {
+    "id": "PEPGaoZhong_9_T",
+    "label": "高中选修9",
+    "description": "人教版高中选修9",
+    "wordCount": 352,
+    "category": "青少年英语",
+    "tags": [
+      "人教版"
+    ],
+    "sourceId": 174,
+    "sourceUrl": "https://files.typewords.cc/dicts/en/word/PEPGaoZhong_9_T.json",
+    "sourceWordCount": 352,
+    "skippedWords": [],
+    "sha256": "5510c2f722f8c587231b6bbb4e34a7e59cd327b7676d12d3143d49ed6074810d"
+  },
+  {
+    "id": "PEPGaoZhong_10_T",
+    "label": "高中选修10",
+    "description": "人教版高中选修10",
+    "wordCount": 360,
+    "category": "青少年英语",
+    "tags": [
+      "人教版"
+    ],
+    "sourceId": 175,
+    "sourceUrl": "https://files.typewords.cc/dicts/en/word/PEPGaoZhong_10_T.json",
+    "sourceWordCount": 361,
+    "skippedWords": [
+      "auditory"
+    ],
+    "sha256": "623a2208091af20847b7e61a236cef50c96d0a074e8f5f9f68227b23ebb11ff5"
+  },
+  {
+    "id": "PEPGaoZhong_11_T",
+    "label": "高中选修11",
+    "description": "人教版高中选修11",
+    "wordCount": 308,
+    "category": "青少年英语",
+    "tags": [
+      "人教版"
+    ],
+    "sourceId": 176,
+    "sourceUrl": "https://files.typewords.cc/dicts/en/word/PEPGaoZhong_11_T.json",
+    "sourceWordCount": 309,
+    "skippedWords": [
+      "ethos"
+    ],
+    "sha256": "f740cde46b6eea58bdf983a929a2e3616a39d801ca00bf20a4545b7bcb0a6c9b"
+  },
+  {
+    "id": "WaiYanSheChuZhong_1_T",
+    "label": "外研七年级上册",
+    "description": "外研版七年级上册",
+    "wordCount": 619,
+    "category": "青少年英语",
+    "tags": [
+      "外研版"
+    ],
+    "sourceId": 177,
+    "sourceUrl": "https://files.typewords.cc/dicts/en/word/WaiYanSheChuZhong_1_T.json",
+    "sourceWordCount": 629,
+    "skippedWords": [],
+    "sha256": "59b718a40151e1809f526a2fbd2606d61fc527a7a5867d8e547c95f2a505f5da"
+  },
+  {
+    "id": "Newwaiyan7-1",
+    "label": "新外研七年级上册",
+    "description": "新外研版七年级上册",
+    "wordCount": 294,
+    "category": "青少年英语",
+    "tags": [
+      "外研版"
+    ],
+    "sourceId": 178,
+    "sourceUrl": "https://files.typewords.cc/dicts/en/word/Newwaiyan7-1.json",
+    "sourceWordCount": 294,
+    "skippedWords": [],
+    "sha256": "9cded0b62ac5f29edace370eb475978e9d1c9622050821751715c481b7c0840a"
+  },
+  {
+    "id": "Newwaiyan7-2",
+    "label": "新外研七年级下册",
+    "description": "新外研版七年级下册",
+    "wordCount": 305,
+    "category": "青少年英语",
+    "tags": [
+      "外研版"
+    ],
+    "sourceId": 179,
+    "sourceUrl": "https://files.typewords.cc/dicts/en/word/Newwaiyan7-2.json",
+    "sourceWordCount": 305,
+    "skippedWords": [],
+    "sha256": "843724b07e938cbe9b4c2c829b0dbca639265edecff2de2dd289b530700c238e"
+  },
+  {
+    "id": "WaiYanSheChuZhong_2_T",
+    "label": "外研七年级下册",
+    "description": "外研版七年级下册",
+    "wordCount": 430,
+    "category": "青少年英语",
+    "tags": [
+      "外研版"
+    ],
+    "sourceId": 180,
+    "sourceUrl": "https://files.typewords.cc/dicts/en/word/WaiYanSheChuZhong_2_T.json",
+    "sourceWordCount": 438,
+    "skippedWords": [],
+    "sha256": "47d4a5cab2ba8ad59a709f93264ae74af8a0fd7ec5daabc1da2a5f126251bc79"
+  },
+  {
+    "id": "WaiYanSheChuZhong_3_T",
+    "label": "外研八年级上册",
+    "description": "外研版八年级上册",
+    "wordCount": 317,
+    "category": "青少年英语",
+    "tags": [
+      "外研版"
+    ],
+    "sourceId": 181,
+    "sourceUrl": "https://files.typewords.cc/dicts/en/word/WaiYanSheChuZhong_3_T.json",
+    "sourceWordCount": 320,
+    "skippedWords": [],
+    "sha256": "3b822802ad93b0391d4de5e3e4efe59b3c45cc74d40ffb61b12b794f02b2ea56"
+  },
+  {
+    "id": "WaiYanSheChuZhong_4_T",
+    "label": "外研八年级下册",
+    "description": "外研版八年级下册",
+    "wordCount": 263,
+    "category": "青少年英语",
+    "tags": [
+      "外研版"
+    ],
+    "sourceId": 182,
+    "sourceUrl": "https://files.typewords.cc/dicts/en/word/WaiYanSheChuZhong_4_T.json",
+    "sourceWordCount": 266,
+    "skippedWords": [],
+    "sha256": "2b7b4a2cb633b1372b30febde53c5769e0d842f4f608a56076c84f147f24659a"
+  },
+  {
+    "id": "WaiYanSheChuZhong_5_T",
+    "label": "外研九年级上册",
+    "description": "外研版九年级上册",
+    "wordCount": 377,
+    "category": "青少年英语",
+    "tags": [
+      "外研版"
+    ],
+    "sourceId": 183,
+    "sourceUrl": "https://files.typewords.cc/dicts/en/word/WaiYanSheChuZhong_5_T.json",
+    "sourceWordCount": 381,
+    "skippedWords": [
+      "riding"
+    ],
+    "sha256": "e627f1bb5b91370351e3082ce41f75319f86c56aa6c8db8e9115d576da7093b7"
+  },
+  {
+    "id": "WaiYanSheChuZhong_6_T",
+    "label": "外研九年级下册",
+    "description": "外研版九年级下册",
+    "wordCount": 127,
+    "category": "青少年英语",
+    "tags": [
+      "外研版"
+    ],
+    "sourceId": 184,
+    "sourceUrl": "https://files.typewords.cc/dicts/en/word/WaiYanSheChuZhong_6_T.json",
+    "sourceWordCount": 128,
+    "skippedWords": [],
+    "sha256": "517f68c4a38d319e46eba38104d5497795b24a34fb1b76da9508f91184c2160c"
+  },
+  {
+    "id": "WaiYanSheGaoZhong_1_T",
+    "label": "外研高中必修1",
+    "description": "外研高中必修1",
+    "wordCount": 410,
+    "category": "青少年英语",
+    "tags": [
+      "外研版"
+    ],
+    "sourceId": 185,
+    "sourceUrl": "https://files.typewords.cc/dicts/en/word/WaiYanSheGaoZhong_1_T.json",
+    "sourceWordCount": 411,
+    "skippedWords": [],
+    "sha256": "7eed0daa589688907d1151790ee32aad1eceac140fdc512abb1f1a3b4290a397"
+  },
+  {
+    "id": "WaiYanSheGaoZhong_2_T",
+    "label": "外研高中必修2",
+    "description": "外研高中必修2",
+    "wordCount": 272,
+    "category": "青少年英语",
+    "tags": [
+      "外研版"
+    ],
+    "sourceId": 186,
+    "sourceUrl": "https://files.typewords.cc/dicts/en/word/WaiYanSheGaoZhong_2_T.json",
+    "sourceWordCount": 272,
+    "skippedWords": [],
+    "sha256": "f8ac4bb141ab59e208dcc7bcd4b20a6d18303d2baf8d9d97e3326d489b8d7f4c"
+  },
+  {
+    "id": "WaiYanSheChuZhong_1-Volume-up",
+    "label": "外研一年级上册",
+    "description": "外研一年级上册",
+    "wordCount": 138,
+    "category": "青少年英语",
+    "tags": [
+      "外研版"
+    ],
+    "sourceId": 187,
+    "sourceUrl": "https://files.typewords.cc/dicts/en/word/WaiYanSheChuZhong_1-Volume-up.json",
+    "sourceWordCount": 138,
+    "skippedWords": [],
+    "sha256": "1b0a86c70ce62bb63a888fb00d95ab8cadf94946b6d5c35cb6f161835a7052dd"
+  },
+  {
+    "id": "WaiYanSheChuZhong_1-Volume-down",
+    "label": "外研一年级下册",
+    "description": "外研一年级下册",
+    "wordCount": 118,
+    "category": "青少年英语",
+    "tags": [
+      "外研版"
+    ],
+    "sourceId": 188,
+    "sourceUrl": "https://files.typewords.cc/dicts/en/word/WaiYanSheChuZhong_1-Volume-down.json",
+    "sourceWordCount": 118,
+    "skippedWords": [],
+    "sha256": "f42b2ffae3b17c1135c22effcb6d29d0a1c2672301657f3facc2952965c22c17"
+  },
+  {
+    "id": "WaiYanSheChuZhong_2-Volume-top",
+    "label": "外研二年级上册",
+    "description": "外研二年级上册",
+    "wordCount": 117,
+    "category": "青少年英语",
+    "tags": [
+      "外研版"
+    ],
+    "sourceId": 189,
+    "sourceUrl": "https://files.typewords.cc/dicts/en/word/WaiYanSheChuZhong_2-Volume-top.json",
+    "sourceWordCount": 118,
+    "skippedWords": [],
+    "sha256": "92978816bf78fecb629ddea528183dd1492aaa320b53846d29e8fc8d3366f2bf"
+  },
+  {
+    "id": "WaiYanSheChuZhong_2-Volume-down",
+    "label": "外研二年级下册",
+    "description": "外研二年级下册",
+    "wordCount": 109,
+    "category": "青少年英语",
+    "tags": [
+      "外研版"
+    ],
+    "sourceId": 190,
+    "sourceUrl": "https://files.typewords.cc/dicts/en/word/WaiYanSheChuZhong_2-Volume-down.json",
+    "sourceWordCount": 110,
+    "skippedWords": [],
+    "sha256": "74e43ff1493a9dd5b6a3c9e0a222bba8d18874158862c39e27d7dcfc1600a6d3"
+  },
+  {
+    "id": "WaiYanSheChuZhong_3-Volume-top",
+    "label": "外研三年级上册",
+    "description": "外研三年级上册",
+    "wordCount": 82,
+    "category": "青少年英语",
+    "tags": [
+      "外研版"
+    ],
+    "sourceId": 191,
+    "sourceUrl": "https://files.typewords.cc/dicts/en/word/WaiYanSheChuZhong_3-Volume-top.json",
+    "sourceWordCount": 82,
+    "skippedWords": [],
+    "sha256": "a9a1e189405c11eb5bbcc33c990acb547d8fc79325f123384dd213220239909d"
+  },
+  {
+    "id": "WaiYanSheChuZhong_3-Volume-down",
+    "label": "外研三年级下册",
+    "description": "外研三年级下册",
+    "wordCount": 104,
+    "category": "青少年英语",
+    "tags": [
+      "外研版"
+    ],
+    "sourceId": 192,
+    "sourceUrl": "https://files.typewords.cc/dicts/en/word/WaiYanSheChuZhong_3-Volume-down.json",
+    "sourceWordCount": 106,
+    "skippedWords": [],
+    "sha256": "57f7c4283e23ac3c0156cb23a60e8f687acbaba191fe596b7119a1c9960a57e8"
+  },
+  {
+    "id": "WaiYanSheChuZhong_4-Volume-top",
+    "label": "外研四年级上册",
+    "description": "外研四年级上册",
+    "wordCount": 111,
+    "category": "青少年英语",
+    "tags": [
+      "外研版"
+    ],
+    "sourceId": 193,
+    "sourceUrl": "https://files.typewords.cc/dicts/en/word/WaiYanSheChuZhong_4-Volume-top.json",
+    "sourceWordCount": 116,
+    "skippedWords": [],
+    "sha256": "4eaabe0472abc7efad83054a2e881cb4715391e44ab24ad0892700d01d1de1f9"
+  },
+  {
+    "id": "WaiYanSheChuZhong_4-Volume-down",
+    "label": "外研四年级下册",
+    "description": "外研四年级下册",
+    "wordCount": 78,
+    "category": "青少年英语",
+    "tags": [
+      "外研版"
+    ],
+    "sourceId": 194,
+    "sourceUrl": "https://files.typewords.cc/dicts/en/word/WaiYanSheChuZhong_4-Volume-down.json",
+    "sourceWordCount": 78,
+    "skippedWords": [],
+    "sha256": "127f67e85a875e9a129244c5cb07f7ba83e0d02a87083e4dae75cbdba2008062"
+  },
+  {
+    "id": "WaiYanSheChuZhong_5-Volume-top",
+    "label": "外研五年级上册",
+    "description": "外研五年级上册",
+    "wordCount": 80,
+    "category": "青少年英语",
+    "tags": [
+      "外研版"
+    ],
+    "sourceId": 195,
+    "sourceUrl": "https://files.typewords.cc/dicts/en/word/WaiYanSheChuZhong_5-Volume-top.json",
+    "sourceWordCount": 80,
+    "skippedWords": [],
+    "sha256": "f727ca4ba1e3c9a92e0d8573b332bceb1da8c4bb18dc17a4a415982a855fce20"
+  },
+  {
+    "id": "WaiYanSheChuZhong_5-Volume-down",
+    "label": "外研五年级下册",
+    "description": "外研五年级下册",
+    "wordCount": 71,
+    "category": "青少年英语",
+    "tags": [
+      "外研版"
+    ],
+    "sourceId": 196,
+    "sourceUrl": "https://files.typewords.cc/dicts/en/word/WaiYanSheChuZhong_5-Volume-down.json",
+    "sourceWordCount": 72,
+    "skippedWords": [],
+    "sha256": "5858117d5640b37f2a7fd6f7f915fba135c777cd3d224b3e37a1c7a1fdf377e5"
+  },
+  {
+    "id": "WaiYanSheChuZhong_6-Volume-top",
+    "label": "外研六年级上册",
+    "description": "外研六年级上册",
+    "wordCount": 61,
+    "category": "青少年英语",
+    "tags": [
+      "外研版"
+    ],
+    "sourceId": 197,
+    "sourceUrl": "https://files.typewords.cc/dicts/en/word/WaiYanSheChuZhong_6-Volume-top.json",
+    "sourceWordCount": 61,
+    "skippedWords": [],
+    "sha256": "16555e03ff5260f5ead5db889ed47e27007644a0ffb7af2db1803cd608c7994c"
+  },
+  {
+    "id": "WaiYanSheChuZhong_6-Volume-down",
+    "label": "外研六年级下册",
+    "description": "外研六年级下册",
+    "wordCount": 91,
+    "category": "青少年英语",
+    "tags": [
+      "外研版"
+    ],
+    "sourceId": 198,
+    "sourceUrl": "https://files.typewords.cc/dicts/en/word/WaiYanSheChuZhong_6-Volume-down.json",
+    "sourceWordCount": 91,
+    "skippedWords": [],
+    "sha256": "38a9ee1bad58547356c1cde5a70448bb6baf41aae12fcfe01404861cfea8cb7a"
+  },
+  {
+    "id": "waiyan-xin-3-1",
+    "label": "外研新起点三年级上册",
+    "description": "外研新起点三年级上册",
+    "wordCount": 134,
+    "category": "青少年英语",
+    "tags": [
+      "外研版"
+    ],
+    "sourceId": 199,
+    "sourceUrl": "https://files.typewords.cc/dicts/en/word/waiyan-xin-3-1.json",
+    "sourceWordCount": 134,
+    "skippedWords": [],
+    "sha256": "2f9702a1337e1c6dbce2b5a9acac5ae93f4e3c8461fec86095239b542480a8de"
+  },
+  {
+    "id": "waiyan-xin-3-2",
+    "label": "外研新起点三年级下册",
+    "description": "外研新起点三年级下册",
+    "wordCount": 154,
+    "category": "青少年英语",
+    "tags": [
+      "外研版"
+    ],
+    "sourceId": 200,
+    "sourceUrl": "https://files.typewords.cc/dicts/en/word/waiyan-xin-3-2.json",
+    "sourceWordCount": 154,
+    "skippedWords": [],
+    "sha256": "561dcd5aa14c19228c0d520cdeb79b5aa40bb71a8ef7620c2f9fb3168c51f93d"
+  },
+  {
+    "id": "waiyan-xin-4-1",
+    "label": "外研新起点四年级上册",
+    "description": "外研新起点四年级上册",
+    "wordCount": 142,
+    "category": "青少年英语",
+    "tags": [
+      "外研版"
+    ],
+    "sourceId": 201,
+    "sourceUrl": "https://files.typewords.cc/dicts/en/word/waiyan-xin-4-1.json",
+    "sourceWordCount": 144,
+    "skippedWords": [
+      "No.",
+      "Merry Christmas!"
+    ],
+    "sha256": "3a15333aa67f742f2c3412800be250f39625ee21b82c5bef2cfc61f9815d9e8c"
+  },
+  {
+    "id": "waiyan-xin-4-2",
+    "label": "外研新起点四年级下册",
+    "description": "外研新起点四年级下册",
+    "wordCount": 130,
+    "category": "青少年英语",
+    "tags": [
+      "外研版"
+    ],
+    "sourceId": 202,
+    "sourceUrl": "https://files.typewords.cc/dicts/en/word/waiyan-xin-4-2.json",
+    "sourceWordCount": 130,
+    "skippedWords": [],
+    "sha256": "4d3d94aba4a7151a813162165bca3bcabd29bcd0adb986fca4a9abcf5abccc26"
+  },
+  {
+    "id": "waiyan-xin-5-1",
+    "label": "外研新起点五年级上册",
+    "description": "外研新起点五年级上册",
+    "wordCount": 150,
+    "category": "青少年英语",
+    "tags": [
+      "外研版"
+    ],
+    "sourceId": 203,
+    "sourceUrl": "https://files.typewords.cc/dicts/en/word/waiyan-xin-5-1.json",
+    "sourceWordCount": 150,
+    "skippedWords": [],
+    "sha256": "8abce3f08ef72d91463a11bb2a035024884efc3ff8bdd4e2b1beb0e133927c00"
+  },
+  {
+    "id": "waiyan-xin-5-2",
+    "label": "外研新起点五年级下册",
+    "description": "外研新起点五年级下册",
+    "wordCount": 144,
+    "category": "青少年英语",
+    "tags": [
+      "外研版"
+    ],
+    "sourceId": 204,
+    "sourceUrl": "https://files.typewords.cc/dicts/en/word/waiyan-xin-5-2.json",
+    "sourceWordCount": 144,
+    "skippedWords": [],
+    "sha256": "b6a07235978ca6ac00a0dd8a399c4798bcb7f6e4f729429cd7234fae51a820ec"
+  },
+  {
+    "id": "waiyan-xin-6-1",
+    "label": "外研新起点六年级上册",
+    "description": "外研新起点六年级上册",
+    "wordCount": 83,
+    "category": "青少年英语",
+    "tags": [
+      "外研版"
+    ],
+    "sourceId": 205,
+    "sourceUrl": "https://files.typewords.cc/dicts/en/word/waiyan-xin-6-1.json",
+    "sourceWordCount": 83,
+    "skippedWords": [],
+    "sha256": "4f071a1b7c28067c2dd0331667bae14c72f20e5ebce53fcf53d5a0faa41a8565"
+  },
+  {
+    "id": "waiyan-xin-6-2",
+    "label": "外研新起点六年级下册",
+    "description": "外研新起点六年级下册",
+    "wordCount": 105,
+    "category": "青少年英语",
+    "tags": [
+      "外研版"
+    ],
+    "sourceId": 206,
+    "sourceUrl": "https://files.typewords.cc/dicts/en/word/waiyan-xin-6-2.json",
+    "sourceWordCount": 105,
+    "skippedWords": [],
+    "sha256": "b36ac91416f1a359a9a38cf408752ee3e904474b1951277f0f59f62d00384c5f"
+  },
+  {
+    "id": "shanghai-6-2-word",
+    "label": "上海新教材六年级下",
+    "description": "上海新教材六年级下",
+    "wordCount": 274,
+    "category": "青少年英语",
+    "tags": [
+      "上海版"
+    ],
+    "sourceId": 207,
+    "sourceUrl": "https://files.typewords.cc/dicts/en/word/shanghai-6-2-word.json",
+    "sourceWordCount": 274,
+    "skippedWords": [],
+    "sha256": "42f24a077b0cb341c637f079138690346fe6ec5bd2f57cbfc2beee875cb4a559"
+  },
+  {
+    "id": "YiLin_1",
+    "label": "高中必修1",
+    "description": "译林版高中必修1",
+    "wordCount": 272,
+    "category": "青少年英语",
+    "tags": [
+      "译林版"
+    ],
+    "sourceId": 208,
+    "sourceUrl": "https://files.typewords.cc/dicts/en/word/YiLin_1.json",
+    "sourceWordCount": 275,
+    "skippedWords": [
+      "a.m.",
+      "P.M.",
+      "come between ... and ..."
+    ],
+    "sha256": "fd8c4b6f6244d42c3eb81efdaf8c50cadc6c72f8231392a990dc6b314d3bc5fd"
+  },
+  {
+    "id": "YiLin_2",
+    "label": "高中必修2",
+    "description": "译林版高中必修2",
+    "wordCount": 294,
+    "category": "青少年英语",
+    "tags": [
+      "译林版"
+    ],
+    "sourceId": 209,
+    "sourceUrl": "https://files.typewords.cc/dicts/en/word/YiLin_2.json",
+    "sourceWordCount": 294,
+    "skippedWords": [],
+    "sha256": "ffa6f9d148b1d977cedd01441968f397e8e9792637bc932d0dc73ad01ca44a3c"
+  },
+  {
+    "id": "YiLin_3",
+    "label": "高中必修3",
+    "description": "译林版高中必修3",
+    "wordCount": 295,
+    "category": "青少年英语",
+    "tags": [
+      "译林版"
+    ],
+    "sourceId": 210,
+    "sourceUrl": "https://files.typewords.cc/dicts/en/word/YiLin_3.json",
+    "sourceWordCount": 295,
+    "skippedWords": [],
+    "sha256": "305d504611fcf54747ad0b42353a195d96451a7b77c220da1133f9f6c75d63cc"
+  },
+  {
+    "id": "BeiShiGaoZhong_1_T",
+    "label": "高中必修1",
+    "description": "北师大版高中必修1",
+    "wordCount": 226,
+    "category": "青少年英语",
+    "tags": [
+      "北师大"
+    ],
+    "sourceId": 211,
+    "sourceUrl": "https://files.typewords.cc/dicts/en/word/BeiShiGaoZhong_1_T.json",
+    "sourceWordCount": 226,
+    "skippedWords": [],
+    "sha256": "43409941d12180feb9e3c03e8faaf7f730bb09125c43b4abe3da83c83f93725b"
+  },
+  {
+    "id": "BeiShiGaoZhong_2_T",
+    "label": "高中必修2",
+    "description": "北师大版高中必修2",
+    "wordCount": 243,
+    "category": "青少年英语",
+    "tags": [
+      "北师大"
+    ],
+    "sourceId": 212,
+    "sourceUrl": "https://files.typewords.cc/dicts/en/word/BeiShiGaoZhong_2_T.json",
+    "sourceWordCount": 244,
+    "skippedWords": [],
+    "sha256": "fce5ead7e33eaf7508fe2eb8236a4559a10fc427370a5d99f1d69ac2244c35aa"
+  },
+  {
+    "id": "BeiShiGaoZhong_3_T",
+    "label": "高中必修3",
+    "description": "北师大版高中必修3",
+    "wordCount": 294,
+    "category": "青少年英语",
+    "tags": [
+      "北师大"
+    ],
+    "sourceId": 213,
+    "sourceUrl": "https://files.typewords.cc/dicts/en/word/BeiShiGaoZhong_3_T.json",
+    "sourceWordCount": 295,
+    "skippedWords": [],
+    "sha256": "ce340e59a8ca1a68b8ad8fdf16aa63ba19d02194689470f22d50d64877d5cac4"
+  },
+  {
+    "id": "BeiShiGaoZhong_4_T",
+    "label": "高中必修4",
+    "description": "北师大版高中必修4",
+    "wordCount": 335,
+    "category": "青少年英语",
+    "tags": [
+      "北师大"
+    ],
+    "sourceId": 214,
+    "sourceUrl": "https://files.typewords.cc/dicts/en/word/BeiShiGaoZhong_4_T.json",
+    "sourceWordCount": 336,
+    "skippedWords": [
+      "see...off"
+    ],
+    "sha256": "bdb6b68f16b641f58b1d2910148c1136e75c97c66193ecaaab949bc14ab86f5d"
+  },
+  {
+    "id": "BeiShiGaoZhong_5_T",
+    "label": "高中必修5",
+    "description": "北师大版高中必修5",
+    "wordCount": 327,
+    "category": "青少年英语",
+    "tags": [
+      "北师大"
+    ],
+    "sourceId": 215,
+    "sourceUrl": "https://files.typewords.cc/dicts/en/word/BeiShiGaoZhong_5_T.json",
+    "sourceWordCount": 327,
+    "skippedWords": [],
+    "sha256": "4424dccc4e930a23d12bee60f8dbe101b0c3ff2c1a5a90e11b056aec8b7e1c54"
+  },
+  {
+    "id": "BeiShiGaoZhong_6_T",
+    "label": "高中选修6",
+    "description": "北师大版高中选修6",
+    "wordCount": 271,
+    "category": "青少年英语",
+    "tags": [
+      "北师大"
+    ],
+    "sourceId": 216,
+    "sourceUrl": "https://files.typewords.cc/dicts/en/word/BeiShiGaoZhong_6_T.json",
+    "sourceWordCount": 271,
+    "skippedWords": [],
+    "sha256": "33b2873b0672fabed16bed42d894183c77555d93dc861731b4b12cfd7b647ebd"
+  },
+  {
+    "id": "BeiShiGaoZhong_7_T",
+    "label": "高中选修7",
+    "description": "北师大版高中选修7",
+    "wordCount": 333,
+    "category": "青少年英语",
+    "tags": [
+      "北师大"
+    ],
+    "sourceId": 217,
+    "sourceUrl": "https://files.typewords.cc/dicts/en/word/BeiShiGaoZhong_7_T.json",
+    "sourceWordCount": 334,
+    "skippedWords": [],
+    "sha256": "67a4f34d99af706326f950d5a9752e817e49b75f9b70b230b18ba1fde7c0ad6f"
+  },
+  {
+    "id": "BeiShiGaoZhong_8_T",
+    "label": "高中选修8",
+    "description": "北师大版高中选修8",
+    "wordCount": 364,
+    "category": "青少年英语",
+    "tags": [
+      "北师大"
+    ],
+    "sourceId": 218,
+    "sourceUrl": "https://files.typewords.cc/dicts/en/word/BeiShiGaoZhong_8_T.json",
+    "sourceWordCount": 364,
+    "skippedWords": [],
+    "sha256": "7d5cbc7b98baa92c9cd339269b9943fa7f48f506ae042f6022ea5baf4449e537"
+  },
+  {
+    "id": "BeiShiGaoZhong_9_T",
+    "label": "高中选修9",
+    "description": "北师大版高中选修9",
+    "wordCount": 298,
+    "category": "青少年英语",
+    "tags": [
+      "北师大"
+    ],
+    "sourceId": 219,
+    "sourceUrl": "https://files.typewords.cc/dicts/en/word/BeiShiGaoZhong_9_T.json",
+    "sourceWordCount": 299,
+    "skippedWords": [
+      "antispit"
+    ],
+    "sha256": "0937e12b2277e46f70b1a1bae08f525749012a28aa642bd807c4149c291eeb4b"
+  },
+  {
+    "id": "BeiShiGaoZhong_10_T",
+    "label": "高中选修10",
+    "description": "北师大版高中选修10",
+    "wordCount": 266,
+    "category": "青少年英语",
+    "tags": [
+      "北师大"
+    ],
+    "sourceId": 220,
+    "sourceUrl": "https://files.typewords.cc/dicts/en/word/BeiShiGaoZhong_10_T.json",
+    "sourceWordCount": 267,
+    "skippedWords": [
+      "ex-gangster"
+    ],
+    "sha256": "832c4e7813b03b8e8d8c473303c8dded6b5f881460a563806f71add0a5a4d871"
+  },
+  {
+    "id": "BeiShiGaoZhong_11_T",
+    "label": "高中选修11",
+    "description": "北师大版高中选修11",
+    "wordCount": 330,
+    "category": "青少年英语",
+    "tags": [
+      "北师大"
+    ],
+    "sourceId": 221,
+    "sourceUrl": "https://files.typewords.cc/dicts/en/word/BeiShiGaoZhong_11_T.json",
+    "sourceWordCount": 330,
+    "skippedWords": [],
+    "sha256": "d05548998148eaf372a566c257ac353af0a80ef266f8efdd88379414280cd0a3"
+  },
+  {
+    "id": "jiJiao3-1",
+    "label": "冀教 3 上",
+    "description": "冀教版三年级起点三年级上",
+    "wordCount": 73,
+    "category": "青少年英语",
+    "tags": [
+      "冀教版"
+    ],
+    "sourceId": 222,
+    "sourceUrl": "https://files.typewords.cc/dicts/en/word/jiJiao3-1.json",
+    "sourceWordCount": 74,
+    "skippedWords": [
+      "Dr."
+    ],
+    "sha256": "f787268f4004b18c11d15f7dc9cd05b24f2f9879fa86d6ed8179555b1f004ef3"
+  },
+  {
+    "id": "jiJiao3-2",
+    "label": "冀教 3 下",
+    "description": "冀教版三年级起点三年级下",
+    "wordCount": 76,
+    "category": "青少年英语",
+    "tags": [
+      "冀教版"
+    ],
+    "sourceId": 223,
+    "sourceUrl": "https://files.typewords.cc/dicts/en/word/jiJiao3-2.json",
+    "sourceWordCount": 76,
+    "skippedWords": [],
+    "sha256": "94ac3539a2513ce12302306553457fd11a5350b7212ede04a83698b514aba355"
+  },
+  {
+    "id": "jiJiao4-1",
+    "label": "冀教 4 上",
+    "description": "冀教版三年级起点四年级上",
+    "wordCount": 78,
+    "category": "青少年英语",
+    "tags": [
+      "冀教版"
+    ],
+    "sourceId": 224,
+    "sourceUrl": "https://files.typewords.cc/dicts/en/word/jiJiao4-1.json",
+    "sourceWordCount": 78,
+    "skippedWords": [],
+    "sha256": "0061664d1cbc5843b0ad6c6ab7f5225d3df73ad5f31b1de7db031492d2daaf0f"
+  },
+  {
+    "id": "jiJiao4-2",
+    "label": "冀教 4 下",
+    "description": "冀教版三年级起点四年级下",
+    "wordCount": 72,
+    "category": "青少年英语",
+    "tags": [
+      "冀教版"
+    ],
+    "sourceId": 225,
+    "sourceUrl": "https://files.typewords.cc/dicts/en/word/jiJiao4-2.json",
+    "sourceWordCount": 83,
+    "skippedWords": [
+      "Jan.",
+      "Feb.",
+      "Mar.",
+      "Apr.",
+      "Jun.",
+      "Jul.",
+      "Aug.",
+      "Sept.",
+      "Oct.",
+      "Nov.",
+      "Dec."
+    ],
+    "sha256": "891355079bc291a790cb00a490aaac5ca7d4532bd071790a8371d2a75de68c2d"
+  },
+  {
+    "id": "jiJiao5-1",
+    "label": "冀教 5 上",
+    "description": "冀教版三年级起点五年级上",
+    "wordCount": 77,
+    "category": "青少年英语",
+    "tags": [
+      "冀教版"
+    ],
+    "sourceId": 226,
+    "sourceUrl": "https://files.typewords.cc/dicts/en/word/jiJiao5-1.json",
+    "sourceWordCount": 78,
+    "skippedWords": [
+      "from ... to ..."
+    ],
+    "sha256": "65aba96fb0e5fc678af96fc214205387f2a1d47fc15893fd823b54387466d231"
+  },
+  {
+    "id": "jiJiao5-2",
+    "label": "冀教 5 下",
+    "description": "冀教版三年级起点五年级下",
+    "wordCount": 89,
+    "category": "青少年英语",
+    "tags": [
+      "冀教版"
+    ],
+    "sourceId": 227,
+    "sourceUrl": "https://files.typewords.cc/dicts/en/word/jiJiao5-2.json",
+    "sourceWordCount": 89,
+    "skippedWords": [],
+    "sha256": "a47ac7c8cdd1933704a74ef318603b6cd7d4581f77108cb0bb39e39933063139"
+  },
+  {
+    "id": "jiJiao6-1",
+    "label": "冀教 6 上",
+    "description": "冀教版三年级起点六年级上",
+    "wordCount": 63,
+    "category": "青少年英语",
+    "tags": [
+      "冀教版"
+    ],
+    "sourceId": 228,
+    "sourceUrl": "https://files.typewords.cc/dicts/en/word/jiJiao6-1.json",
+    "sourceWordCount": 66,
+    "skippedWords": [
+      "Mr.",
+      "Mrs.",
+      "Ms."
+    ],
+    "sha256": "25723661a004bfe527f6c008616471c1cd2456e1fa2a00c189a14c7302106e17"
+  },
+  {
+    "id": "jiJiao6-2",
+    "label": "冀教 6 下",
+    "description": "冀教版三年级起点六年级下",
+    "wordCount": 51,
+    "category": "青少年英语",
+    "tags": [
+      "冀教版"
+    ],
+    "sourceId": 229,
+    "sourceUrl": "https://files.typewords.cc/dicts/en/word/jiJiao6-2.json",
+    "sourceWordCount": 51,
+    "skippedWords": [],
+    "sha256": "43a9f33ce25f3ed535bc7a3b40724be825adec3e9a755de9d846bd50be7587dc"
+  },
+  {
+    "id": "jiJiao7-1",
+    "label": "冀教 7 上",
+    "description": "冀教版三年级起点七年级上",
+    "wordCount": 506,
+    "category": "青少年英语",
+    "tags": [
+      "冀教版"
+    ],
+    "sourceId": 230,
+    "sourceUrl": "https://files.typewords.cc/dicts/en/word/jiJiao7-1.json",
+    "sourceWordCount": 557,
+    "skippedWords": [
+      "Dr.",
+      "P.S.",
+      "U.S.",
+      "U.K.",
+      "be from ...",
+      "My name is ...",
+      "I'm ...",
+      "Nice to meet you, too.",
+      "Good morning.",
+      "Here you are.",
+      "See you later.",
+      "Good afternoon.",
+      "look at ...",
+      "ready for ...",
+      "be ready for ...",
+      "He is ... metres tall.",
+      "She is ... metres tall.",
+      "I'm ... metres tall.",
+      "I feel ...",
+      "I have a stomachache.",
+      "I have a headache.",
+      "You'd better ...",
+      "You had better ...",
+      "Time for ...",
+      "I'd like ...",
+      "I would like ...",
+      "a glass of ...",
+      "a cup of ...",
+      "be full of ...",
+      "No problem.",
+      "a can of ...",
+      "a bottle of ...",
+      "Let me see.",
+      "What does she do? She is a ...",
+      "be close to ...",
+      "be ready to ...",
+      "in front of ...",
+      "He is ...",
+      "She is ...",
+      "He is ... years old.",
+      "She is ... years old.",
+      "I'm ... years old.",
+      "a basket of ...",
+      "lots of ...",
+      "on the front of ...",
+      "Go down this street. Turn left at traffic lights.",
+      "I will take it.",
+      "How is the weather? It is ...",
+      "Thank you for inviting me.",
+      "the same ... as ...",
+      "a list of ..."
+    ],
+    "sha256": "916a0835bc7a3885841e9d57f5367fdad833888cfa36ce6b31757cf0dcba7696"
+  },
+  {
+    "id": "jiJiao7-2",
+    "label": "冀教 7 下",
+    "description": "冀教版三年级起点七年级下",
+    "wordCount": 485,
+    "category": "青少年英语",
+    "tags": [
+      "冀教版"
+    ],
+    "sourceId": 231,
+    "sourceUrl": "https://files.typewords.cc/dicts/en/word/jiJiao7-2.json",
+    "sourceWordCount": 513,
+    "skippedWords": [
+      "at the age of ...",
+      "Well done.",
+      "make ... from ...",
+      "I hope so.",
+      "be interested in ...",
+      "move from ... to ...",
+      "do well in ...",
+      "enjoy doing ...",
+      "add up ...",
+      "in a hurry to do ...",
+      "help ... with ...",
+      "I would love ...",
+      "It's ... away from ...",
+      "be proud of ...",
+      "be afraid to do ...",
+      "communicate with ...",
+      "connect ... with ...",
+      "try to do ...",
+      "look forward to ...",
+      "It is a great season for ...",
+      "It's one's turn to ...",
+      "be different from ...",
+      "worry about ...",
+      "spend ... doing ...",
+      "play against ...",
+      "root for ...",
+      "keep doing ...",
+      "share ... with ..."
+    ],
+    "sha256": "a52fbb3b202e763cbe1d59f3dc08606cd49826c1cb4761263572509b61911109"
+  },
+  {
+    "id": "jiJiao8-1",
+    "label": "冀教 8 上",
+    "description": "冀教版三年级起点八年级上",
+    "wordCount": 381,
+    "category": "青少年英语",
+    "tags": [
+      "冀教版"
+    ],
+    "sourceId": 232,
+    "sourceUrl": "https://files.typewords.cc/dicts/en/word/jiJiao8-1.json",
+    "sourceWordCount": 420,
+    "skippedWords": [
+      "One ... and the other ...",
+      "introduce ... to ...",
+      "advise ... to do ...",
+      "be up to ...",
+      "agree with ...",
+      "spend ... doing ...",
+      "spend ... in doing ...",
+      "feel lucky to do ...",
+      "encourage ... to do ...",
+      "have the pleasure of doing ...",
+      "P.E.",
+      "be convenient for ...",
+      "remind ... of ...",
+      "too ... to ...",
+      "add ... to ...",
+      "stay in touch with ...",
+      "the same size as ...",
+      "best wishes to ...",
+      "go past ...",
+      "go by ...",
+      "Turn right at the ... crossing.",
+      "Turn left at the ... crossing.",
+      "It's ... blocks from ...",
+      "It's ... blocks away from ...",
+      "be busy doing ...",
+      "I'm doing well.",
+      "be nice to ...",
+      "stop ... doing ...",
+      "stop ... from doing ...",
+      "take steps to ...",
+      "no matter what ...",
+      "be interested in doing ...",
+      "not only ... but also ...",
+      "be made of ...",
+      "It's my pleasure.",
+      "continue doing do ...",
+      "continue to do...",
+      "dream of being ...",
+      "Practice makes perfect."
+    ],
+    "sha256": "2b55ac27aac88caae36b309745599cb4b772a10be12dea2df5cfb6ecee68c1ef"
+  },
+  {
+    "id": "jiJiao8-2",
+    "label": "冀教 8 下",
+    "description": "冀教版三年级起点八年级下",
+    "wordCount": 467,
+    "category": "青少年英语",
+    "tags": [
+      "冀教版"
+    ],
+    "sourceId": 233,
+    "sourceUrl": "https://files.typewords.cc/dicts/en/word/jiJiao8-2.json",
+    "sourceWordCount": 487,
+    "skippedWords": [
+      "neither ... nor ...",
+      "as ... as ...",
+      "not ... until ...",
+      "fill ... with ...",
+      "in the bottom of ...",
+      "It's pleasant to do ...",
+      "take energy from ...",
+      "When it comes to ...",
+      "at the top of ...",
+      "at the beginning of ...",
+      "Every coin has two sides.",
+      "I'm afraid I can't afford it.",
+      "be surprised to ...",
+      "compete against ...",
+      "Good point.",
+      "be amazed at ...",
+      "be covered with ...",
+      "be known for ...",
+      "divide ... into ...",
+      "It's one's duty to ..."
+    ],
+    "sha256": "14f3ccd635c03d7ba21dfd8f096fbe2c8f4e342c02a0da064072a8fbe6f00056"
+  },
+  {
+    "id": "jiJiao9",
+    "label": "冀教 9 上",
+    "description": "冀教版三年级起点九年级全册",
+    "wordCount": 610,
+    "category": "青少年英语",
+    "tags": [
+      "冀教版"
+    ],
+    "sourceId": 234,
+    "sourceUrl": "https://files.typewords.cc/dicts/en/word/jiJiao9.json",
+    "sourceWordCount": 636,
+    "skippedWords": [
+      "regret doing ...",
+      "have no choice but to ...",
+      "Fear makes the wolf bigger than he is.",
+      "be rich in ...",
+      "get into the habit of ...",
+      "stay away from ...",
+      "be unable to ...",
+      "dare to ...",
+      "in the field of ...",
+      "together with ...",
+      "T.B.",
+      "be well known for ...",
+      "based on ...",
+      "so ... that ...",
+      "protect ... from doing ...",
+      "compared with ...",
+      "dive into ...",
+      "Honesty truly is the best policy.",
+      "ever since ...",
+      "Me neither.",
+      "provide ... for ...",
+      "take ... as ...",
+      "mean to do ...",
+      "thanks to ...",
+      "fight over ...",
+      "on top of ..."
+    ],
+    "sha256": "432650583659b24d6b7275715351cb46f5cc12c0c3a5ecbdcb4b399e06effd6f"
+  },
+  {
+    "id": "beijing_junior_high_school",
+    "label": "北京初中",
+    "description": "北京初中",
+    "wordCount": 1832,
+    "category": "青少年英语",
+    "tags": [
+      "其他"
+    ],
+    "sourceId": 235,
+    "sourceUrl": "https://files.typewords.cc/dicts/en/word/beijing_junior_high_school.json",
+    "sourceWordCount": 1844,
+    "skippedWords": [
+      "advertisementn",
+      "bikebicycle",
+      "granddaughtern",
+      "gym\nn",
+      "kilogramn",
+      "mathematics\nn",
+      "problemn"
+    ],
+    "sha256": "6fed7588a7022baffbbe19ef780b8449b7cc8881e4cac5210cc8ffe6185f4460"
+  },
+  {
+    "id": "ReadingExplorer3",
+    "label": "Reading Explorer 3",
+    "description": "词汇表来自Reading Explorer 3, Third Edition",
+    "wordCount": 239,
+    "category": "青少年英语",
+    "tags": [
+      "其他"
+    ],
+    "sourceId": 236,
+    "sourceUrl": "https://files.typewords.cc/dicts/en/word/ReadingExplorer3.json",
+    "sourceWordCount": 239,
+    "skippedWords": [],
+    "sha256": "2eb8e573e6b92c7df663a23ce8b97db26d6f7a2f794f60f3d5f608a441692a3e"
+  },
+  {
+    "id": "Cambridge_JOIN_IN",
+    "label": "剑桥小学英语 JOIN IN",
+    "description": "外研社和剑桥大学出版社依据《义务教育英语课程标准》要求联合为我国小学生开发的一套英语教材。",
+    "wordCount": 1231,
+    "category": "青少年英语",
+    "tags": [
+      "其他"
+    ],
+    "sourceId": 237,
+    "sourceUrl": "https://files.typewords.cc/dicts/en/word/Cambridge_JOIN_IN.json",
+    "sourceWordCount": 1350,
+    "skippedWords": [
+      "suprise"
+    ],
+    "sha256": "d080b1455a667b1b24a076ccb5ac5eb879f45b2847c8b0edfd65f6de005605ee"
+  },
+  {
+    "id": "itVocabulary",
+    "label": "计算机专用英语",
+    "description": "大学计算机专业英语词汇",
+    "wordCount": 1665,
+    "category": "代码练习",
+    "tags": [
+      "通用"
+    ],
+    "sourceId": 250,
+    "sourceUrl": "https://files.typewords.cc/dicts/en/word/itVocabulary.json",
+    "sourceWordCount": 1665,
+    "skippedWords": [],
+    "sha256": "e28855eeb1f0d018321bbfe4c461c6f5ecf1be4b6d94d651d6a99b504d927d29"
+  },
+  {
+    "id": "it-words",
+    "label": "程序员常用词",
+    "description": "程序员常见单词词库",
+    "wordCount": 1700,
+    "category": "代码练习",
+    "tags": [
+      "通用"
+    ],
+    "sourceId": 251,
+    "sourceUrl": "https://files.typewords.cc/dicts/en/word/it-words.json",
+    "sourceWordCount": 1700,
+    "skippedWords": [],
+    "sha256": "f8fbfd621558d253ad2914ba533136035dcba3b230e78534153f02400f18bf17"
+  }
+]
