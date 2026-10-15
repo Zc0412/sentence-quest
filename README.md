@@ -1,4 +1,4 @@
-# Sentence Quest v2.2 — Next.js + IndexedDB（初始化超时修复）
+# SentLeap v2.2 — Next.js + IndexedDB（初始化超时修复）
 
 参考 Earthworm 输入手感、从零开发的英语逐词输入小游戏。
 
@@ -199,8 +199,8 @@ Next.js 会向该上游附加 `word` 和 `type`，期待返回音频。生产使
 
 ## TypeWords 词典集成
 
-- `/dict-list`：浏览、搜索及按类别 / 教材系列筛选全部 194 本词典。
-- 练习页点击词库名称，或从设置页“浏览全部词典”进入。
+- `/settings` 的“词典”页面：浏览、搜索及按类别 / 教材系列筛选全部 194 本词典。
+- 练习页点击词库名称或设置按钮，即可进入词典列表。
 - `/practice/[listId]`：按需加载本地词库，每本词库独立保存进度。
 - 数据文件：`public/dictionaries/words/*.json`；目录：`src/data/vocabulary-catalog.json`。
 - 当前快照共 272,281 个可练习词条（不同词典之间可能重复），缺少释义的源词条已记录在目录的 `skippedWords`。

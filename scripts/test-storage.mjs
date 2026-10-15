@@ -11,7 +11,7 @@ import { fileURLToPath } from 'node:url';
 const require = createRequire(import.meta.url);
 const ts = require('typescript');
 const root = fileURLToPath(new URL('../', import.meta.url));
-const tmp = mkdtempSync(join(tmpdir(), 'sentence-quest-test-'));
+const tmp = mkdtempSync(join(tmpdir(), 'sentleap-test-'));
 const files = [
   'src/types/game.ts',
   'src/repositories/progress.ts',

@@ -50,9 +50,9 @@ export function ActivityHeatmap({ activityByDate }: Props) {
   return (
     <div>
       <div className="grid grid-cols-3 gap-3">
-        <Card className="stat-tile"><strong className="block text-xl text-ink">{totals.words}</strong><span className="mt-1 block text-xs text-[#968faa]">完成单词</span></Card>
-        <Card className="stat-tile"><strong className="block text-xl text-ink">{totals.sentences}</strong><span className="mt-1 block text-xs text-[#968faa]">完成句子</span></Card>
-        <Card className="stat-tile"><strong className="block text-xl text-ink">{activeDays}</strong><span className="mt-1 block text-xs text-[#968faa]">学习天数</span></Card>
+        <Card className="stat-tile"><strong className="block text-xl text-ink">{totals.words}</strong><span className="mt-1 block text-xs text-[#64748b]">完成单词</span></Card>
+        <Card className="stat-tile"><strong className="block text-xl text-ink">{totals.sentences}</strong><span className="mt-1 block text-xs text-[#64748b]">完成句子</span></Card>
+        <Card className="stat-tile"><strong className="block text-xl text-ink">{activeDays}</strong><span className="mt-1 block text-xs text-[#64748b]">学习天数</span></Card>
       </div>
 
       <div className="mt-6 overflow-x-auto pb-2" aria-label="近一年学习热力图">
@@ -61,14 +61,14 @@ export function ActivityHeatmap({ activityByDate }: Props) {
             <span />
             <div className="relative h-4">
               {monthLabels.map(({ index, label }) => (
-                <span key={`${index}-${label}`} className="absolute text-[10px] text-[#968faa]" style={{ left: `calc(${(index / 53) * 100}% + 2px)` }}>
+                <span key={`${index}-${label}`} className="absolute text-[10px] text-[#64748b]" style={{ left: `calc(${(index / 53) * 100}% + 2px)` }}>
                   {label}
                 </span>
               ))}
             </div>
           </div>
           <div className="grid grid-cols-[26px_1fr] gap-2">
-            <div className="grid grid-rows-7 gap-[3px] text-[9px] text-[#968faa]">
+            <div className="grid grid-rows-7 gap-[3px] text-[9px] text-[#64748b]">
               <span>日</span><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span>
             </div>
             <div className="grid grid-flow-col grid-rows-7 gap-[3px]">
@@ -91,7 +91,7 @@ export function ActivityHeatmap({ activityByDate }: Props) {
         </div>
       </div>
 
-      <div className="mt-3 flex flex-wrap items-center justify-between gap-2 text-[11px] text-[#968faa]">
+      <div className="mt-3 flex flex-wrap items-center justify-between gap-2 text-[11px] text-[#64748b]">
         <span>每天完成练习后自动统计</span>
         <div className="flex items-center gap-1.5" aria-label="学习数量图例">
           <span>少</span>

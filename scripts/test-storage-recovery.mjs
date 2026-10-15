@@ -8,7 +8,7 @@ import { fileURLToPath } from 'node:url';
 const require = createRequire(import.meta.url);
 const ts = require('typescript');
 const root = fileURLToPath(new URL('../', import.meta.url));
-const tmp = mkdtempSync(join(tmpdir(), 'sentence-quest-recovery-'));
+const tmp = mkdtempSync(join(tmpdir(), 'sentleap-recovery-'));
 const files = ['src/types/game.ts', 'src/repositories/progress.ts', 'src/repositories/indexeddb-progress.ts', 'src/utils/storage.ts'];
 for (const file of files) {
   const filename = join(root, file);

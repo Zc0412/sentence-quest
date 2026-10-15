@@ -8,8 +8,8 @@ const config: Config = {
         sans: ['Inter', 'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei', 'system-ui', 'sans-serif'],
       },
       colors: {
-        ink: '#282344',
-        lilac: '#7658dd',
+        ink: '#0F172A',
+        lilac: '#3B82F6',
         border: 'hsl(var(--border))',
         input: 'hsl(var(--input))',
         ring: 'hsl(var(--ring))',

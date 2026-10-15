@@ -29,14 +29,14 @@ export function ProgressFrame({ value, total, children }: { value: number; total
 
   return (
     <div>
-      <div className="mb-2 flex items-center justify-between px-1 text-[12px] font-medium text-[#a49bb5]">
-        <span>已掌握 <span className="font-bold tabular-nums text-[#8a70e4]">{completed}</span> / {total} 词</span>
+      <div className="mb-2 flex items-center justify-between px-1 text-[12px] font-medium text-[#64748b]">
+        <span>已掌握 <span className="font-bold tabular-nums text-[#3b82f6]">{completed}</span> / {total} 词</span>
         <span className="tabular-nums">{percent === 100 ? '全部完成' : `${Math.floor(percent)}%`}</span>
       </div>
-      <div ref={frameRef} className="relative rounded-[20px] bg-[#f7f4fb]">
+      <div ref={frameRef} className="relative rounded-[20px] bg-[#f1f5f9]">
         <svg className="pointer-events-none absolute inset-0 h-full w-full overflow-visible" role="progressbar" aria-label="单词掌握进度" aria-valuemin={0} aria-valuemax={100} aria-valuenow={percent} aria-valuetext={`已掌握 ${completed} / ${total} 词`}>
-          <path d={outline} fill="none" stroke="#e7e1f3" strokeWidth={3} />
-          <path d={outline} pathLength={100} fill="none" stroke={percent === 100 ? '#2e9c70' : '#8a70e4'} strokeWidth={3} strokeLinecap="round" strokeDasharray="100 100" strokeDashoffset={100 - percent} opacity={percent > 0 ? 1 : 0} className="transition-[stroke-dashoffset,stroke,opacity] duration-500 motion-reduce:transition-none" />
+          <path d={outline} fill="none" stroke="#e2e8f0" strokeWidth={3} />
+          <path d={outline} pathLength={100} fill="none" stroke={percent === 100 ? '#22c55e' : '#3b82f6'} strokeWidth={3} strokeLinecap="round" strokeDasharray="100 100" strokeDashoffset={100 - percent} opacity={percent > 0 ? 1 : 0} className="transition-[stroke-dashoffset,stroke,opacity] duration-500 motion-reduce:transition-none" />
         </svg>
         {children}
       </div>

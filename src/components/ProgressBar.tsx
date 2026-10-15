@@ -22,8 +22,8 @@ export function ProgressBar({ value, total, label }: Props) {
         aria-valuenow={value}
         aria-valuemin={0}
         aria-valuemax={total}
-        className="h-2.5 bg-[#efedf7]"
-        indicatorClassName="bg-gradient-to-r from-[#8e78ea] to-[#7860df] transition-all duration-500"
+        className="h-2.5 bg-[#e2e8f0]"
+        indicatorClassName="bg-gradient-to-r from-[#3b82f6] to-[#14b8a6] transition-all duration-500"
       />
     </div>
   );
