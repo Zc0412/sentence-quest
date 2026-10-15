@@ -1,11 +1,11 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
+import { createHash } from 'node:crypto';
 
 const sentences = JSON.parse(readFileSync(new URL('../src/data/sentences.json', import.meta.url), 'utf8'));
-const vocabularyLists = [
-  { label: 'CET-4 T', url: new URL('../src/data/words/CET4_T.json', import.meta.url) },
-  { label: 'CET-6 T', url: new URL('../src/data/words/CET6_T.json', import.meta.url) },
-];
+const vocabularyLists = JSON.parse(readFileSync(new URL('../src/data/vocabulary-catalog.json', import.meta.url), 'utf8'));
+assert.ok(vocabularyLists.length > 0, '词典目录不能为空');
+assert.equal(new Set(vocabularyLists.map((list) => list.id)).size, vocabularyLists.length, '词典 ID 必须唯一');
 const ids = new Set();
 
 assert.ok(Array.isArray(sentences) && sentences.length > 0, '题库不能为空');
@@ -42,8 +42,12 @@ for (const [index, sentence] of sentences.entries()) {
 
 console.log(`✅ 题库检查通过：${sentences.length} 道题，ID 唯一，英文字段与单词数组一致。`);
 
-for (const { label, url } of vocabularyLists) {
-  const vocabulary = JSON.parse(readFileSync(url, 'utf8'));
+for (const { id, label, wordCount, sha256 } of vocabularyLists) {
+  assert.match(id, /^[A-Za-z0-9_.-]+$/, '词典 ID 无效');
+  const content = readFileSync(new URL(`../public/dictionaries/words/${id}.json`, import.meta.url), 'utf8');
+  assert.equal(createHash('sha256').update(content).digest('hex'), sha256, `${label} 文件校验失败`);
+  const vocabulary = JSON.parse(content);
+  assert.equal(vocabulary.length, wordCount, `${label} 目录词数不一致`);
   assert.ok(Array.isArray(vocabulary) && vocabulary.length > 0, `${label} 词库不能为空`);
   const vocabularyNames = new Set();
   for (const [index, word] of vocabulary.entries()) {
@@ -57,5 +61,7 @@ for (const { label, url } of vocabularyLists) {
       assert.ok(word[key] === undefined || typeof word[key] === 'string', `${prefix} ${key} 必须为字符串`);
     }
   }
-  console.log(`✅ ${label} 词库检查通过：${vocabulary.length} 个单词，名称唯一，释义和音标字段有效。`);
+
 }
+
+console.log(`✅ ${vocabularyLists.length} 本词库：文件摘要、词数、名称唯一性、释义和音标检查通过。`);

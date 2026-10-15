@@ -43,6 +43,21 @@ assert.ok(isCorrectWord("don't", 'don’t'));
 assert.ok(isCorrectPrefix('mor', 'morning'));
 assert.ok(!isCorrectPrefix('mux', 'music'));
 assert.equal(normalizeWord('Apple.'), 'apple');
+assert.ok(isCorrectWord('cafe', 'café'), '重音字母支持普通字母输入');
+assert.ok(isCorrectWord('office', 'oﬃce'), '兼容连字词条');
+assert.ok(isCorrectWord('in addition to', 'in addition to'));
+const { getTypingKey } = await loadTS('src/utils/typingKey.ts');
+const key = (code, keyValue = 'Process', shiftKey = false, characters = '') => getTypingKey({ code, key: keyValue, shiftKey }, characters);
+assert.equal(key('KeyA'), 'a', '中文输入法仍按实体键输入');
+assert.equal(key('Space', ' ', false, 'in addition'), ' ');
+assert.equal(key('Space', ' '), null, '普通单词不接收多余空格');
+assert.equal(key('Digit3', 'Process', false, 'MP3'), '3');
+assert.equal(key('Slash', 'Process', false, 'and/or'), '/');
+assert.equal(key('Period', 'Process', false, 'U.S.'), '.');
+assert.equal(key('Digit2', 'Process', true, 'at/@'), '@');
+assert.equal(key('Backspace'), 'Backspace');
+assert.equal(key('Escape'), 'Escape');
+
 
 const route = await loadTS('src/app/api/pronunciation/route.ts');
 let response = await route.GET(new Request('http://localhost:3000/api/pronunciation?word=%3Cscript%3E'));

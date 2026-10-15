@@ -1,45 +1,46 @@
 import type { ReactNode } from 'react';
 import { ProgressBar } from './ProgressBar';
-import { Badge } from './ui/badge';
+import { ProgressFrame } from './ProgressFrame';
 
 interface Props {
-  badge: string;
-  position: string;
   progress: number;
   total: number;
+  navigation: ReactNode;
   promptLabel: ReactNode;
   prompt: string;
-  description: string;
+  description?: string;
+  progressDetails?: ReactNode;
   children: ReactNode;
 }
 
 export function ExercisePrompt({
-  badge,
-  position,
   progress,
   total,
+  navigation,
   promptLabel,
   prompt,
   description,
+  progressDetails,
   children,
 }: Props) {
   return (
     <>
-      <div className="flex items-center justify-between gap-3">
-        <Badge variant="secondary" className="rounded-full border-transparent bg-[#f3f0ff] px-3.5 py-1.5 text-[11px] font-black tracking-[0.12em] text-[#8a70e4]">{badge}</Badge>
-        <span className="text-[13px] font-bold text-[#aaa2bb]">{position}</span>
-      </div>
-      <div className="mt-4">
-        <ProgressBar value={progress} total={total} />
-      </div>
+      {navigation}
       <div className="sentence-prompt text-center">
         <div className="mb-4 flex items-center justify-center gap-2 text-[12px] font-bold uppercase tracking-[0.16em] text-[#a09ab4]">
           {promptLabel}
         </div>
         <h1 className="text-[27px] font-extrabold leading-[1.55] tracking-tight text-ink sm:text-[36px]">{prompt}</h1>
-        <p className="mt-4 text-[14px] text-[#a39ab5]">{description}</p>
+        {description && <p className="mt-4 text-[14px] text-[#a39ab5]">{description}</p>}
       </div>
       {children}
+      <div className="mx-auto mt-auto w-full max-w-3xl shrink-0 pt-4">
+        {progressDetails ? (
+          <ProgressFrame value={progress} total={total}>{progressDetails}</ProgressFrame>
+        ) : (
+          <ProgressBar value={progress} total={total} />
+        )}
+      </div>
     </>
   );
 }

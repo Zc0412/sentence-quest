@@ -11,6 +11,7 @@ interface Props {
   revealedLetters: number;
   error: string;
   focusSignal: number;
+  suppressIme?: boolean;
   onChange?: (value: string) => void;
   onSpeakWord: (word: string) => void;
 }
@@ -24,6 +25,7 @@ export function SpellingSlot({
   revealedLetters,
   error,
   focusSignal,
+  suppressIme,
   onChange,
   onSpeakWord,
 }: Props) {
@@ -40,13 +42,13 @@ export function SpellingSlot({
               const good = entered && isCorrectPrefix(typed.slice(0, letterIndex + 1), word);
               return (
                 <span key={letterIndex} className={`spelling-letter ${entered ? good ? 'is-correct' : 'is-wrong' : hinted ? 'is-hint' : 'is-hidden'}`}>
-                  <span className="letter-width">{letter}</span>
-                  <span className="letter-display">{entered ? typed[letterIndex] : hinted ? letter : '·'}</span>
+                  <span className="letter-width">{letter === ' ' ? '\u00a0' : letter}</span>
+                  <span className="letter-display">{entered ? typed[letterIndex] === ' ' ? '\u00a0' : typed[letterIndex] : hinted ? letter === ' ' ? '\u00a0' : letter : '·'}</span>
                 </span>
               );
             })}
           </span>
-          {active && onChange && <WordInput value={typed} onChange={onChange} wordNumber={index + 1} error={error} focusSignal={focusSignal} />}
+          {active && onChange && <WordInput value={typed} onChange={onChange} wordNumber={index + 1} error={error} focusSignal={focusSignal} suppressIme={suppressIme} inputCharacters={word} />}
         </div>
       )}
     </div>

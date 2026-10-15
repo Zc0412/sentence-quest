@@ -1,5 +1,7 @@
 export function normalizeWord(word: string): string {
   return word
+    .normalize('NFKD')
+    .replace(/[\u0300-\u036f]/g, '')
     .trim()
     .toLocaleLowerCase('en-US')
     .replace(/[\u2018\u2019]/g, "'")

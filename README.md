@@ -4,9 +4,9 @@
 
 - **Next.js App Router + React + TypeScript + Tailwind CSS**
 - **shadcn/ui** integrated: Buttons, inputs, selectors, dialogs, cards, badges, progress indicators, and the vocabulary command menu use reusable components in `src/components/ui`
+- 首页提供独立词库选择；选择 CET-4 T 或 CET-6 T 后进入对应练习路由，词库按需加载
 - 无可见的传统输入框；在单词位置直接输入、逐字反馈、拼对自动切换下一词
-- 默认隐藏全部字母，点击「多给一个字母」可从首字母开始逐个显示；包含 11 道入门句子、闯关 XP、错题复习
-- CET-4 T 单词学习：支持搜索、英美音发音、释义回忆、掌握标记和学习进度记录
+- 支持英美音发音、释义回忆、逐字提示、顺序切换和各词库独立的学习进度
 - 浏览器 **IndexedDB** 离线持久化，首次自动迁移旧版 localStorage 数据
 - **v2.2 修复加载卡死**：数据库打开和读取/写入事务有 4 秒超时，初始化另有 9 秒最终保护；失败后退出加载页进入内存模式，显示保存风险，绝不自动清空原 IndexedDB
 - 保留 Next.js `/api/pronunciation`，通过有道音频地址或你的独立签名服务发音
@@ -102,7 +102,7 @@ src/
 ├── components/                      # 句子闯关、词汇卡片、输入与进度组件
 ├── hooks/useSentenceGame.ts         # 游戏逻辑 / IndexedDB 异步初始化
 ├── data/sentences.json              # 句子题库
-├── data/words/CET4_T.json           # CET-4 T 词库
+├── data/vocabulary-catalog.json     # 词典索引（词库文件位于 public/dictionaries/words）
 ├── types/game.ts                    # Progress 等类型
 ├── repositories/
 │   ├── progress.ts                   # 可替换的持久化接口
@@ -113,7 +113,7 @@ src/
     └── validator.ts                 # 单词校验
 ```
 
-单词模块使用 `src/data/words/CET4_T.json`，包含单词、中文释义和英美音标。学习者根据中文释义逐字输入英文单词，拼对后自动进入下一个词；也可以搜索定位、播放发音或跳过。答对的单词和词表位置会保存，每次拼对都会计入每日学习热力图。词库由 `npm run check:data` 检查单词唯一性、释义及音标字段。
+单词模块使用 `public/dictionaries/words/*.json`，包含单词、中文释义和英美音标。学习者根据中文释义逐字输入英文单词，拼对后自动进入下一个词；也可以搜索定位、播放发音或跳过。答对的单词和词表位置会保存，每次拼对都会计入每日学习热力图。词库由 `npm run check:data` 检查单词唯一性、释义及音标字段。
 
 ## 为后续云数据库做了什么？
 
@@ -195,3 +195,15 @@ Next.js 会向该上游附加 `word` 和 `type`，期待返回音频。生产使
 - `npm run test:storage`：新增三种挂起/阻塞场景的模拟测试。
 
 如果页面进入了“内存模式”并出现红色提示，说明浏览器本次无法可靠读写 IndexedDB。**先不要点击清空学习记录，也不要急着清站点数据。** 请在浏览器开发者工具 Console 检查错误，确认浏览器允许站点存储，关闭同域的其他旧标签页，然后重新加载。内存模式练习的新增进度刷新后可能丢失。
+
+
+## TypeWords 词典集成
+
+- `/dict-list`：浏览、搜索及按类别 / 教材系列筛选全部 194 本词典。
+- 练习页点击词库名称，或从设置页“浏览全部词典”进入。
+- `/practice/[listId]`：按需加载本地词库，每本词库独立保存进度。
+- 数据文件：`public/dictionaries/words/*.json`；目录：`src/data/vocabulary-catalog.json`。
+- 当前快照共 272,281 个可练习词条（不同词典之间可能重复），缺少释义的源词条已记录在目录的 `skippedWords`。
+- `python3 scripts/sync-typewords.py` 可重新同步公开目录，需要网络；同步后运行 `npm run check`。
+- 保留原有四级、六级的 ID、词条顺序和学习记录。支持短语空格、数字、标点及重音字母的普通字母输入。
+- 来源与许可说明见 [TypeWords 数据说明](docs/third-party/TypeWords.md)。上游项目代码许可不等同于各词典内容的独立授权。
