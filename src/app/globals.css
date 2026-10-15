@@ -114,9 +114,9 @@ kbd { display:inline-block; padding: 1px 6px; border: 1px solid #cbd5e1; border-
 .annotated-word { display:flex; min-width:20px; flex-direction:column; align-items:stretch; text-align:center; }
 .word-phonetic { color:#7a8190; font-size:14px; font-weight:500; line-height:1.7; white-space:nowrap; }
 .word-spelling { position:relative; display:flex; justify-content:center; align-items:center; min-height:72px; font-family:Arial,Helvetica,sans-serif; font-size:clamp(32px,3.2vw,54px); font-weight:700; line-height:1.25; letter-spacing:-.025em; }
-.completed-word { font:inherit; color:#111827; white-space:nowrap; border-radius:5px; }
+.completed-word { display:flex; height:auto; margin:0; padding:0; border:0; background:transparent; font:inherit; letter-spacing:inherit; color:#111827; white-space:nowrap; border-radius:5px; cursor:pointer; }
 .completed-word:hover { color:var(--word-color); }
-.typing-word { position:relative; cursor:text; }
+.typing-word { position:relative; display:flex; cursor:text; }
 .spelling-letters { display:inline-flex; }
 .spelling-letter { position:relative; display:inline-grid; flex-shrink:0; }
 /* 两层共用同一网格，由较宽字母决定宽度，避免绝对定位导致错误字母溢出。 */
@@ -226,7 +226,9 @@ html, body { height:100%; overflow:hidden; overscroll-behavior:none; }
   .app-header>div:first-child>div:first-child { width:36px; height:36px; border-radius:12px; }
   .app-header>div:first-child>div:nth-child(2)>div { font-size:16px; }
   .app-header>div:first-child p { font-size:10px; }
-  .app-header>div:last-child>div { padding:8px 10px; font-size:12px; }
+  .app-header>div:last-child>div:not([role="group"]) { padding:8px 10px; font-size:12px; }
+  .app-header [role="group"][aria-label="发音口音"] { height:40px; padding:3px; border-radius:16px; }
+  .app-header [role="group"][aria-label="发音口音"] button { height:32px; padding:0 6px; font-size:12px; }
   .game-card { padding:12px 14px; border-radius:20px; }
   .exercise-toolbar { min-height:22px; }
   .exercise-toolbar button { font-size:11px; padding-top:3px; padding-bottom:3px; }

@@ -11,6 +11,7 @@ interface Props {
   error: string;
   suppressIme?: boolean;
   inputCharacters?: string;
+  onMoveWord?: (direction: number) => void;
 }
 
 
@@ -18,7 +19,7 @@ interface Props {
  * 真正的 input 仍保留（移动端软键盘、输入法、辅助技术都需要它），
  * 但覆盖在当前单词卡片之上且透明；用户看到的是卡片内的逐字反馈。
  */
-export function WordInput({ value, onChange, wordNumber, focusSignal, error, suppressIme = false, inputCharacters = '' }: Props) {
+export function WordInput({ value, onChange, wordNumber, focusSignal, error, suppressIme = false, inputCharacters = '', onMoveWord }: Props) {
   const inputRef = useRef<HTMLInputElement>(null);
   const composing = useRef(false);
   const physicalComposition = useRef(false);
@@ -79,6 +80,11 @@ export function WordInput({ value, onChange, wordNumber, focusSignal, error, sup
 
   function handleKeyDown(event: KeyboardEvent<HTMLInputElement>) {
     if (event.ctrlKey || event.metaKey || event.altKey) return;
+    if (event.key === 'Tab' && onMoveWord && !composing.current && !event.nativeEvent.isComposing) {
+      event.preventDefault();
+      onMoveWord(event.shiftKey ? -1 : 1);
+      return;
+    }
     const key = getTypingKey(event, inputCharacters);
     if (key) {
       event.preventDefault();

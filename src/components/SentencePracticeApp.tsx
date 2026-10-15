@@ -1,13 +1,14 @@
 'use client';
 
 import { useState } from 'react';
-import Image from 'next/image';
+import { Logo } from './Logo';
 import Link from 'next/link';
 import {
   ArrowRight, BookOpen, BookOpenText, CalendarDays, Flame, Lightbulb, RotateCcw,
   Settings, SkipForward, Sparkles, Trophy, Volume2, Zap,
 } from 'lucide-react';
 import { useSentenceGame } from '@/hooks/useSentenceGame';
+import { useListenShortcut } from '@/hooks/useListenShortcut';
 import { sentences } from '@/data';
 import type { Sentence } from '@/types/game';
 import { ActivityHeatmap } from './ActivityHeatmap';
@@ -28,19 +29,25 @@ export function SentencePracticeApp({
   title = '句子练习',
   allowReset = true,
   isPhrasePractice = false,
+  listId = 'CET4_T',
+  categoryName,
 }: {
   sentenceList?: Sentence[];
   title?: string;
   allowReset?: boolean;
   isPhrasePractice?: boolean;
+  listId?: string;
+  categoryName?: string;
 }) {
-  const game = useSentenceGame(sentenceList);
+  const game = useSentenceGame(sentenceList, { readWholeOnCompletion: isPhrasePractice });
   const [pronunciationType, setSelectedPronunciationType] = useState<PronunciationType>('1');
   const [showInstructions, setShowInstructions] = useState(false);
   const [showReset, setShowReset] = useState(false);
   const [showActivity, setShowActivity] = useState(false);
   const isPlaying = game.ready && game.phase === 'playing';
+  useListenShortcut(game.currentWord, game.speakWord, isPlaying && !showInstructions && !showReset && !showActivity);
   const isFinished = game.ready && game.phase === 'success';
+  const settingsHref = `/settings?listId=${encodeURIComponent(listId)}${categoryName ? `&category=${encodeURIComponent(categoryName)}` : ''}`;
 
   return (
     <div className="app-background viewport-app">
@@ -49,14 +56,14 @@ export function SentencePracticeApp({
       <div className="app-shell" inert={showInstructions || showReset || showActivity}>
         <header className="app-header flex items-center justify-between gap-3">
           <div className="flex min-w-0 items-center gap-3">
-            <Image src="/sentleap-logo.png" alt="句跃 SentLeap" width={2172} height={724} priority className="h-10 w-auto shrink-0" />
+            <Logo />
           </div>
           <div className="flex shrink-0 items-center gap-2">
-            <Button asChild type="button" variant="outline" size="icon" className="h-10 w-10 rounded-2xl border-[#e2e8f0] bg-white text-[#475569] shadow-sm hover:bg-[#eff6ff]" aria-label="单词练习">
+            {!isPhrasePractice && <Button asChild type="button" variant="outline" size="icon" className="h-10 w-10 rounded-2xl border-[#e2e8f0] bg-white text-[#475569] shadow-sm hover:bg-[#eff6ff]" aria-label="单词练习">
               <Link href="/practice/CET4_T"><BookOpenText size={18} /></Link>
-            </Button>
+            </Button>}
             <Button asChild type="button" variant="outline" size="icon" className="h-10 w-10 rounded-2xl border-[#e2e8f0] bg-white text-[#475569] shadow-sm hover:bg-[#eff6ff]" aria-label="打开设置">
-              <Link href="/settings?listId=CET4_T"><Settings size={18} /></Link>
+              <Link href={settingsHref}><Settings size={18} /></Link>
             </Button>
             <Button type="button" variant="outline" onClick={() => setShowActivity(true)} className="flex h-auto items-center gap-1.5 rounded-2xl border-[#e2e8f0] bg-white px-2.5 py-2.5 text-[12px] font-bold text-[#475569] shadow-sm hover:bg-[#eff6ff] sm:px-3" aria-label="查看学习热力图">
               <CalendarDays size={17} /><span className="hidden sm:inline">学习统计</span>
@@ -97,11 +104,11 @@ export function SentencePracticeApp({
                 <span className="shrink-0">{isPhrasePractice ? '短语练习' : '句子练习'}</span>
                 <span aria-hidden="true">/</span>
                 {isPhrasePractice
-                  ? <Link href="/settings?listId=CET4_T" className="truncate font-bold text-[#0f172a] hover:text-[#2563eb]" title="切换练习">{title}</Link>
+                  ? <Link href={settingsHref} className="truncate font-bold text-[#0f172a] hover:text-[#2563eb]" title="切换练习">{title}</Link>
                   : <span className="truncate font-bold text-[#0f172a]">{game.mode === 'review' ? '错题复习' : `第 ${game.courseIndex + 1} 题`}</span>}
               </div>
               <div className="flex shrink-0 items-center gap-1">
-                {(allowReset || isPhrasePractice) && <Button type="button" variant="ghost" onClick={() => setShowReset(true)} disabled={!game.ready} className="reset-action" aria-label={isPhrasePractice ? '清空当前题库学习记录' : '清空全部学习记录'}><RotateCcw size={15} /></Button>}
+                {(allowReset || isPhrasePractice) && <Button type="button" variant="ghost" onClick={() => setShowReset(true)} disabled={!game.ready} className="reset-action" aria-label={isPhrasePractice ? '清空当前练习学习记录' : '清空全部学习记录'}><RotateCcw size={15} /></Button>}
                 <Button type="button" variant="ghost" onClick={() => setShowInstructions(true)} className="flex h-auto items-center gap-1.5 rounded-full px-3 py-1.5 text-[13px] font-semibold text-[#2563eb] hover:bg-white/70"><Lightbulb size={16} />玩法说明</Button>
               </div>
             </div>
@@ -145,7 +152,7 @@ export function SentencePracticeApp({
                     {game.error || <><span className="sm:hidden">点击高亮单词输入，拼对自动进入下一词</span><span className="hidden sm:inline">直接敲键盘，拼对自动通过 · <kbd>Backspace</kbd> 删除 · <kbd>Esc</kbd> 清空</span></>}
                   </div>
                   <div className="typing-actions flex flex-wrap items-center justify-center gap-2">
-                    <Button type="button" variant="ghost" onClick={() => game.speakWord(game.currentWord)} className="text-action h-auto"><Volume2 size={17} />听当前单词</Button>
+                    <Button type="button" variant="ghost" onClick={() => game.speakWord(game.currentWord)} aria-keyshortcuts="Alt+p" className="text-action h-auto"><Volume2 size={17} />听当前单词</Button>
                     <Button type="button" variant="ghost" onClick={game.revealHint} disabled={game.revealedLetters >= game.currentWord.length} className="text-action h-auto"><Lightbulb size={17} />多给一个字母</Button>
                     <Button type="button" variant="ghost" onClick={game.skipSentence} className="text-action h-auto"><SkipForward size={17} />跳过这句</Button>
                   </div>
@@ -153,7 +160,7 @@ export function SentencePracticeApp({
               )}
               {isFinished && (
                 <div className="completion-container">
-                  <CompletionPanel sentence={game.sentence} earnedXp={game.earnedXp} mistakes={game.mistakesThisSentence} hints={game.hintsThisSentence} onNext={game.nextSentence} onReplay={game.restartSentence} />
+                  <CompletionPanel sentence={game.sentence} earnedXp={game.earnedXp} mistakes={game.mistakesThisSentence} hints={game.hintsThisSentence} onNext={game.nextSentence} onReplay={game.restartSentence} shortcutsEnabled={!showInstructions && !showReset && !showActivity} />
                 </div>
               )}
               {game.ready && game.phase === 'allDone' && (
@@ -225,8 +232,8 @@ export function SentencePracticeApp({
       {(allowReset || isPhrasePractice) && <Dialog open={showReset} onOpenChange={setShowReset}>
         <DialogContent className="modal-content">
           <div className="modal-icon !bg-orange-50 !text-orange-700"><RotateCcw size={23} /></div>
-          <DialogTitle id="reset-title" className="mt-4 text-[23px] font-black text-ink">{isPhrasePractice ? '确定清空当前题库的学习记录？' : '确定清空全部学习记录？'}</DialogTitle>
-          <DialogDescription className="mt-3 text-sm leading-7 text-[#64748b]">{isPhrasePractice ? '当前短语题库的完成进度和错题记录将被清除，其他题库和积分不受影响。' : '句子、单词进度、每日学习统计、积分和错题记录都会被删除，且无法恢复。'}</DialogDescription>
+          <DialogTitle id="reset-title" className="mt-4 text-[23px] font-black text-ink">{isPhrasePractice ? `确定清空当前${categoryName ? '分类' : '题库'}的学习记录？` : '确定清空全部学习记录？'}</DialogTitle>
+          <DialogDescription className="mt-3 text-sm leading-7 text-[#64748b]">{isPhrasePractice ? `当前${categoryName ? '分类' : '短语题库'}的完成进度和错题记录将被清除，其他分类、题库和积分不受影响。` : '句子、单词进度、每日学习统计、积分和错题记录都会被删除，且无法恢复。'}</DialogDescription>
           <div className="mt-7 flex gap-3">
             <Button type="button" variant="secondary" className="secondary-button flex-1" onClick={() => setShowReset(false)}>取消</Button>
             <Button type="button" variant="destructive" className="primary-button flex-1 !bg-orange-500 hover:!bg-orange-600" onClick={() => { if (isPhrasePractice) game.resetSentenceListProgress(); else game.resetProgress(); setShowReset(false); }}>确认清空</Button>

@@ -4,7 +4,7 @@ import type { VocabularyListId } from '../data';
 import type { GameMode, GamePhase, Progress, Sentence } from '../types/game';
 import { EMPTY_PROGRESS, fallbackProgress, loadProgress, saveProgress } from '../utils/storage';
 import type { LoadedProgress } from '../utils/storage';
-import { isCorrectWord, isCorrectPrefix } from '../utils/validator';
+import { isCorrectWord, isCorrectPrefix, nextHintLength } from '../utils/validator';
 import { speakWord, stopSpeech } from '../utils/speech';
 
 function nextUnfinished(completedIds: string[], sentenceList: Sentence[]): Sentence | undefined {
@@ -24,7 +24,10 @@ function localDateKey(date = new Date()): string {
   return `${year}-${month}-${day}`;
 }
 
-export function useSentenceGame(sentenceList: Sentence[] = sentences) {
+export function useSentenceGame(
+  sentenceList: Sentence[] = sentences,
+  { readWholeOnCompletion = false }: { readWholeOnCompletion?: boolean } = {},
+) {
   // 服务端与客户端首屏渲染统一使用空进度，避免 hydration mismatch。
   // 浏览器存档只在 mount 后载入，载入完成前禁止将默认数据写回。
   const [progress, setProgress] = useState<Progress>(EMPTY_PROGRESS);
@@ -46,6 +49,8 @@ export function useSentenceGame(sentenceList: Sentence[] = sentences) {
   const [reviewedIds, setReviewedIds] = useState<string[]>([]);
   const [focusSignal, setFocusSignal] = useState(0);
   const [isReplaying, setIsReplaying] = useState(false);
+  const [completedWordIndices, setCompletedWordIndices] = useState<number[]>([]);
+  const [wordDrafts, setWordDrafts] = useState<Record<number, { typed: string; error: string; revealed: number }>>({});
 
   useEffect(() => {
     let cancelled = false;
@@ -104,6 +109,8 @@ export function useSentenceGame(sentenceList: Sentence[] = sentences) {
     stopSpeech();
     setSentenceId(id);
     setWordIndex(0);
+    setCompletedWordIndices([]);
+    setWordDrafts({});
     setTyped('');
     setError('');
     setMistakesThisSentence(0);
@@ -115,7 +122,10 @@ export function useSentenceGame(sentenceList: Sentence[] = sentences) {
   }
 
   function acceptCurrentWord() {
-    const sentenceFinished = wordIndex + 1 === sentence.words.length;
+    if (completedWordIndices.includes(wordIndex)) return;
+    const completed = [...completedWordIndices, wordIndex];
+    setCompletedWordIndices(completed);
+    const sentenceFinished = completed.length === sentence.words.length;
     const today = localDateKey();
     setProgress((old) => {
       const todayActivity = old.activityByDate[today] ?? { words: 0, sentences: 0 };
@@ -135,10 +145,12 @@ export function useSentenceGame(sentenceList: Sentence[] = sentences) {
     setError('');
     setExtraRevealed(0);
     setStreak((value) => value + 1);
-    speakWord(currentWord);
+    speakWord(sentenceFinished && readWholeOnCompletion ? sentence.english : currentWord);
 
-    if (wordIndex + 1 < sentence.words.length) {
-      setWordIndex(wordIndex + 1);
+    if (!sentenceFinished) {
+      const nextIndex = Array.from({ length: sentence.words.length }, (_, offset) => (wordIndex + offset + 1) % sentence.words.length)
+        .find((index) => !completed.includes(index))!;
+      restoreWord(nextIndex);
       return;
     }
 
@@ -156,6 +168,29 @@ export function useSentenceGame(sentenceList: Sentence[] = sentences) {
       xp: old.xp + reward,
       perfectSentences: old.perfectSentences + (isFirstPass && isPerfect ? 1 : 0),
     }));
+  }
+
+  function restoreWord(index: number) {
+    const draft = wordDrafts[index];
+    setWordIndex(index);
+    setTyped(draft?.typed ?? '');
+    setError(draft?.error ?? '');
+    setExtraRevealed(draft?.revealed ?? 0);
+    setFocusSignal((value) => value + 1);
+  }
+
+  function selectWord(index: number) {
+    if (phase !== 'playing' || index < 0 || index >= sentence.words.length || completedWordIndices.includes(index)) return;
+    setWordDrafts((drafts) => ({ ...drafts, [wordIndex]: { typed, error, revealed: extraRevealed } }));
+    if (index === wordIndex) { setFocusSignal((value) => value + 1); return; }
+    restoreWord(index);
+  }
+
+  function moveWord(direction: number) {
+    for (let offset = 1; offset <= sentence.words.length; offset += 1) {
+      const index = (wordIndex + direction * offset + sentence.words.length) % sentence.words.length;
+      if (!completedWordIndices.includes(index)) { selectWord(index); return; }
+    }
   }
 
   // 逐字即时验证；打完正确单词即自动通过，无需按空格、回车或按钮。
@@ -185,7 +220,7 @@ export function useSentenceGame(sentenceList: Sentence[] = sentences) {
 
   function revealHint() {
     if (phase !== 'playing' || extraRevealed >= currentWord.length) return;
-    setExtraRevealed((count) => count + 1);
+    setExtraRevealed((count) => nextHintLength(typed, currentWord, count));
     setHintsThisSentence((count) => count + 1);
     setFocusSignal((value) => value + 1);
   }
@@ -336,6 +371,10 @@ export function useSentenceGame(sentenceList: Sentence[] = sentences) {
     completedCount,
     reviewCount: reviewIds.length,
     wordIndex,
+    completedWordIndices,
+    wordDrafts,
+    selectWord,
+    moveWord,
     currentWord,
     revealedLetters,
     typed,

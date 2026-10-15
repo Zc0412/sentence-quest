@@ -6,25 +6,37 @@ export interface PhrasePracticeList {
   category: '短语练习';
   tags: string[];
   wordCount: number;
+  categories: { name: string; count: number }[];
 }
 
 export const phrasePracticeLists: PhrasePracticeList[] = [
   {
     id: 'phrase-sentences',
-    label: '短语练习 · 中文题库',
-    description: '根据中文提示逐词拼写英文，练习常用短语和表达。',
-    file: '/dictionaries/words/phrase-sentences.json',
+    label: '常用表达 · 场景篇',
+    description: '涵盖日常生活、饮食购物、职场办公、旅行交通等十类场景，看中文逐词拼写英文，完成后听完整表达。',
+    file: '/dictionaries/words/everyday-expressions-900.json',
     category: '短语练习',
-    tags: ['短语题库'],
+    tags: ['常用表达'],
     wordCount: 900,
+    categories: ['日常生活', '饮食购物', '家庭朋友', '学校学习', '职场办公', '旅行交通', '健康运动', '时间天气', '社交沟通', '兴趣成长'].map((name) => ({ name, count: 90 })),
   },
   {
     id: 'phrase-english-sentences',
-    label: '短语练习 · 英文题库',
-    description: '练习第二组短语与例句，学习进度独立保存。',
-    file: '/dictionaries/words/phrase-english-sentences.json',
+    label: '常用表达 · 句型篇',
+    description: '从 be 动词、指示代词到常用动词、否定句与 can 句型，看中文逐词拼写英文，巩固基础句型。',
+    file: '/dictionaries/words/basic-sentence-patterns-1000.json',
     category: '短语练习',
-    tags: ['短语题库'],
+    tags: ['常用表达'],
     wordCount: 1000,
+    categories: [
+      { name: '日常生活', count: 158 },
+      { name: '学校', count: 188 },
+      { name: '饮食', count: 189 },
+      { name: '购物', count: 69 },
+      { name: '出行', count: 110 },
+      { name: '家庭', count: 93 },
+      { name: '工作', count: 94 },
+      { name: '爱好', count: 99 },
+    ],
   },
 ];

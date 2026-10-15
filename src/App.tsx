@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
+import { Logo } from './components/Logo';
 import {
   ArrowRight, CalendarDays, Flame, Lightbulb, Settings,
   RotateCcw, Zap,
@@ -63,7 +63,7 @@ export default function App({ listId }: Props) {
       <div className="app-shell" inert={showInstructions || showReset || showActivity}>
         <header className="app-header flex items-center justify-between gap-3">
           <div className="flex min-w-0 items-center gap-3">
-            <Image src="/sentleap-logo.png" alt="句跃 SentLeap" width={2172} height={724} priority className="h-10 w-auto shrink-0" />
+            <Logo />
           </div>
           <div className="flex shrink-0 items-center gap-2">
             <Button asChild type="button" variant="outline" size="icon" className="h-10 w-10 rounded-2xl border-[#e2e8f0] bg-white text-[#475569] shadow-sm hover:bg-[#eff6ff]" aria-label="打开设置">

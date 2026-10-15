@@ -45,7 +45,10 @@ console.log(`✅ 题库检查通过：${sentences.length} 道题，ID 唯一，�
 for (const { id, label, wordCount, sha256 } of vocabularyLists) {
   assert.match(id, /^[A-Za-z0-9_.-]+$/, '词典 ID 无效');
   const content = readFileSync(new URL(`../public/dictionaries/words/${id}.json`, import.meta.url), 'utf8');
-  assert.equal(createHash('sha256').update(content).digest('hex'), sha256, `${label} 文件校验失败`);
+  // Git may check text files out with CRLF on Windows. Hash normalized content so
+  // the catalog checksum represents the data rather than the local line endings.
+  const normalizedContent = content.replace(/\r\n/g, '\n');
+  assert.equal(createHash('sha256').update(normalizedContent).digest('hex'), sha256, `${label} 文件校验失败`);
   const vocabulary = JSON.parse(content);
   assert.equal(vocabulary.length, wordCount, `${label} 目录词数不一致`);
   assert.ok(Array.isArray(vocabulary) && vocabulary.length > 0, `${label} 词库不能为空`);

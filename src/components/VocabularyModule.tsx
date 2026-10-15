@@ -1,15 +1,15 @@
 'use client';
 
 import { useEffect, useMemo, useRef, useState } from 'react';
-import type { CSSProperties } from 'react';
 import { ChevronLeft, ChevronRight, Lightbulb, SkipForward, Sparkles, Volume2 } from 'lucide-react';
 import type { VocabularyProgress, VocabularyWord } from '../types/game';
 import { ExercisePrompt } from './ExercisePrompt';
-import { SpellingSlot } from './SpellingSlot';
-import { isCorrectPrefix, isCorrectWord } from '../utils/validator';
+import { PracticeSpellingBoard } from './PracticeSpellingBoard';
+import { isCorrectPrefix, isCorrectWord, nextHintLength } from '../utils/validator';
 import { Button } from './ui/button';
 import { countTypingAttempt } from '../utils/typingStats';
 import { loadPronunciationAudio } from '../utils/speech';
+import { useListenShortcut } from '../hooks/useListenShortcut';
 
 interface Props {
   words: VocabularyWord[];
@@ -31,6 +31,7 @@ export function VocabularyModule({ words, progress, pronunciationType, onSelectI
   const order = wordOrder ?? words.map((_, index) => index);
   const currentPosition = order.indexOf(currentIndex);
   const currentWord = words[currentIndex];
+  useListenShortcut(currentWord.name, onSpeak);
   const firstMeaning = currentWord.trans[0]?.trim() ?? '';
   const coreMeaning = firstMeaning.split(/[；;]/).slice(0, 2).join('；');
   const shortMeaning = coreMeaning.length > 48 ? `${coreMeaning.slice(0, 48)}…` : coreMeaning;
@@ -124,7 +125,7 @@ export function VocabularyModule({ words, progress, pronunciationType, onSelectI
           }
           navigation={
             <div className="-mx-2 mt-3 grid grid-cols-[minmax(0,1fr)_minmax(0,2fr)_minmax(0,1fr)] items-start gap-2 sm:-mx-8 sm:gap-4">
-              <Button type="button" variant="ghost" onClick={() => previousIndex !== undefined && moveTo(previousIndex)} disabled={!previousWord} className="text-action h-auto min-w-0 w-full justify-start px-0 sm:px-2">
+              <Button type="button" variant="ghost" onClick={() => previousIndex !== undefined && moveTo(previousIndex)} disabled={!previousWord} className="text-action h-auto min-w-0 w-fit max-w-full justify-self-start justify-start px-0 sm:max-w-48 sm:px-2">
                 <ChevronLeft size={17} className="shrink-0" /> <span className="truncate">{previousWord ? `上一个：${previousWord.name}` : '已经是第一个'}</span>
               </Button>
               <div className="min-w-0 text-center">
@@ -150,42 +151,31 @@ export function VocabularyModule({ words, progress, pronunciationType, onSelectI
                 </details>
               )}
               </div>
-              <Button type="button" variant="ghost" onClick={() => nextIndex !== undefined && moveTo(nextIndex)} disabled={!nextWord} className="text-action h-auto min-w-0 w-full justify-end px-0 sm:px-2">
+              <Button type="button" variant="ghost" onClick={() => nextIndex !== undefined && moveTo(nextIndex)} disabled={!nextWord} className="text-action h-auto min-w-0 w-fit max-w-full justify-self-end justify-end px-0 sm:max-w-48 sm:px-2">
                 <span className="truncate">{nextWord ? `下一个：${nextWord.name}` : '已经是最后一个'}</span> <ChevronRight size={17} className="shrink-0" />
               </Button>
             </div>
           }
 
         >
-          <div className="sentence-typing-board" aria-label="根据中文释义拼写英文单词">
-            <div className="grammar-group vocabulary-grammar-group" style={{ '--group-color': '#3b82f6', '--vocabulary-font-size': `clamp(16px, ${Math.min(12, 125 / spellingWord.length)}vw, 108px)` } as CSSProperties} role="group" aria-label="单词拼写">
-              <div className="grammar-group-words">
-                <div className={`annotated-word annotated-word-active ${error ? 'annotated-word-incorrect' : ''}`} style={{ '--word-color': '#3b82f6' } as CSSProperties}>
-                  <span className="word-phonetic">{phonetic ? `/${phonetic}/` : ''}</span>
-                  <SpellingSlot
-                    suppressIme
-                    word={spellingWord}
-                    index={currentIndex}
-                    active
-                    passed={false}
-                    typed={typed}
-                    revealedLetters={revealedLetters}
-                    error={error}
-                    focusSignal={currentIndex}
-                    onChange={changeTyped}
-                    onSpeakWord={onSpeak}
-                  />
-                  <span className={`word-color-line ${error ? 'word-color-line-incorrect' : ''}`} />
-                </div>
-              </div>
-            </div>
-          </div>
+          <PracticeSpellingBoard
+            words={[spellingWord]}
+            phonetics={[phonetic ? `/${phonetic}/` : '']}
+            activeIndex={0}
+            typed={typed}
+            revealedLetters={revealedLetters}
+            error={error}
+            focusSignal={currentIndex}
+            label="根据中文释义拼写英文单词"
+            onChange={changeTyped}
+            onSpeakWord={onSpeak}
+          />
           <div id="typing-feedback" role="status" aria-live="polite" className={`typing-feedback text-center text-[13px] font-medium ${error ? 'text-orange-600' : 'text-[#64748b]'}`}>
             {error ? '' : '根据中文释义拼写英文单词，拼对后自动进入下一词'}
           </div>
           <div className="typing-actions flex flex-wrap items-center justify-center gap-2">
-            <Button type="button" variant="ghost" onClick={() => onSpeak(currentWord.name)} className="text-action h-auto"><Volume2 size={17} /> 听当前单词</Button>
-            <Button type="button" variant="ghost" onClick={() => setRevealedLetters((count) => Math.min(spellingWord.length, count + 1))} disabled={revealedLetters >= spellingWord.length} className="text-action h-auto"><Lightbulb size={17} /> 多给一个字母</Button>
+            <Button type="button" variant="ghost" onClick={() => onSpeak(currentWord.name)} aria-keyshortcuts="Alt+p" className="text-action h-auto"><Volume2 size={17} /> 听当前单词</Button>
+            <Button type="button" variant="ghost" onClick={() => setRevealedLetters((count) => nextHintLength(typed, spellingWord, count))} disabled={revealedLetters >= spellingWord.length} className="text-action h-auto"><Lightbulb size={17} /> 多给一个字母</Button>
             <Button type="button" variant="ghost" onClick={skipCurrent} disabled={!nextWord} className="text-action h-auto"><SkipForward size={17} /> 跳过当前词</Button>
           </div>
         </ExercisePrompt>

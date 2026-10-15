@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import type { PhrasePracticeList } from '@/data/phrase-practice';
 import { SentencePracticeApp } from '@/components/SentencePracticeApp';
 import type { Sentence } from '@/types/game';
@@ -21,10 +21,14 @@ function isSentence(value: unknown): value is Sentence {
     && Array.isArray(item.grammar);
 }
 
-export function PhrasePracticeLoader({ list }: { list: PhrasePracticeList }) {
+export function PhrasePracticeLoader({ list, category }: { list: PhrasePracticeList; category: string }) {
   const [sentenceList, setSentenceList] = useState<Sentence[] | null>(null);
   const [error, setError] = useState('');
   const [retry, setRetry] = useState(0);
+  const categorySentences = useMemo(
+    () => sentenceList?.filter((sentence) => sentence.category === category) ?? [],
+    [sentenceList, category],
+  );
 
   useEffect(() => {
     const controller = new AbortController();
@@ -51,7 +55,16 @@ export function PhrasePracticeLoader({ list }: { list: PhrasePracticeList }) {
     return () => controller.abort();
   }, [list, retry]);
 
-  if (sentenceList) return <SentencePracticeApp key={list.id} sentenceList={sentenceList} title={list.label} isPhrasePractice />;
+  if (categorySentences.length > 0) return (
+    <SentencePracticeApp
+      key={`${list.id}:${category}`}
+      sentenceList={categorySentences}
+      title={`${list.label} · ${category}`}
+      listId={list.id}
+      isPhrasePractice
+      categoryName={category}
+    />
+  );
 
   return (
     <main className="app-background flex min-h-dvh items-center justify-center p-6">
@@ -62,7 +75,7 @@ export function PhrasePracticeLoader({ list }: { list: PhrasePracticeList }) {
           : <div role="status" className="mx-auto mt-5 h-8 w-8 animate-spin rounded-full border-[3px] border-[#dbeafe] border-t-[#3b82f6]" />}
         <div className="mt-6 flex justify-center gap-3">
           {error && <button type="button" onClick={() => setRetry((value) => value + 1)} className="rounded-xl bg-[#2563eb] px-4 py-2 text-sm font-bold text-white">重试</button>}
-          <Link href="/settings" className="rounded-xl border border-[#e2e8f0] px-4 py-2 text-sm font-bold text-[#475569]">返回词典</Link>
+          <Link href={`/settings?listId=${encodeURIComponent(list.id)}&category=${encodeURIComponent(category)}`} className="rounded-xl border border-[#e2e8f0] px-4 py-2 text-sm font-bold text-[#475569]">返回词典</Link>
         </div>
       </section>
     </main>
