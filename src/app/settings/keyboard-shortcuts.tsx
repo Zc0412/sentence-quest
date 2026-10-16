@@ -1,7 +1,6 @@
 'use client';
 
 import { useKeyboardPlatform } from '@/hooks/useKeyboardPlatform';
-import { ShortcutKeys } from '@/components/ShortcutKeys';
 
 const groups = [
   {
@@ -56,8 +55,11 @@ export default function KeyboardShortcuts() {
           <dl className="mt-3 divide-y divide-slate-100">
             {group.shortcuts.map((shortcut) => (
               <div key={shortcut.action} className="flex flex-col gap-2 py-3 sm:flex-row sm:items-start sm:gap-5">
-                <dt className="flex shrink-0 flex-wrap items-center gap-1.5 sm:w-56">
-                  <ShortcutKeys keys={shortcut.keys} />
+                <dt className="flex shrink-0 flex-wrap items-center gap-1.5 sm:w-56" aria-label={shortcut.keys.map(keyLabel).join(shortcut.keys[0] === 'Shift' || shortcut.keys[0] === 'Alt' ? ' + ' : ' / ')}>
+                  {shortcut.keys.map((key, index) => <span key={key} className="inline-flex items-center gap-1.5">
+                    {index > 0 && <span aria-hidden="true" className="text-xs text-slate-400">{isMac && (shortcut.keys[0] === 'Shift' || shortcut.keys[0] === 'Alt') ? '' : shortcut.keys[0] === 'Shift' || shortcut.keys[0] === 'Alt' ? '+' : '/'}</span>}
+                    <kbd className="whitespace-nowrap rounded-md border border-slate-200 bg-slate-50 px-2 py-1 font-mono text-xs font-semibold text-slate-700 shadow-sm">{keyLabel(key)}</kbd>
+                  </span>)}
                 </dt>
                 <dd className="min-w-0">
                   <p className="text-sm font-medium text-slate-800">{shortcut.action}</p>
