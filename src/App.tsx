@@ -124,6 +124,7 @@ export default function App({ listId }: Props) {
                 <VocabularyModule
                   key={listId}
                   words={words}
+                  listLabel={listLabel}
                   progress={listProgress}
                   pronunciationType={pronunciationType}
                   onSelectIndex={(index) => game.setVocabularyIndex(listId, index)}

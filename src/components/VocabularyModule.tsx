@@ -6,7 +6,7 @@ import { ShortcutHint } from './ShortcutHint';
 import { usePracticeSettings } from './PracticeSettingsProvider';
 
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { ChevronLeft, ChevronRight, Lightbulb, SkipForward, Sparkles, Volume2 } from 'lucide-react';
+import { Check, ChevronLeft, ChevronRight, Lightbulb, RotateCcw, SkipForward, Sparkles, Trophy, Volume2 } from 'lucide-react';
 import type { VocabularyProgress, VocabularyWord } from '../types/game';
 import { ExercisePrompt } from './ExercisePrompt';
 import { PracticeSpellingBoard } from './PracticeSpellingBoard';
@@ -18,6 +18,7 @@ import { usePracticeShortcuts } from '../hooks/usePracticeShortcuts';
 
 interface Props {
   words: VocabularyWord[];
+  listLabel: string;
   progress: VocabularyProgress;
   pronunciationType: '1' | '2';
   onSelectIndex: (index: number) => void;
@@ -25,7 +26,7 @@ interface Props {
   onSpeak: (word: string) => void;
 }
 
-export function VocabularyModule({ words, progress, pronunciationType, onSelectIndex, onCorrect, onSpeak }: Props) {
+export function VocabularyModule({ words, listLabel, progress, pronunciationType, onSelectIndex, onCorrect, onSpeak }: Props) {
   const { hintsEnabled, ready: settingsReady } = usePracticeSettings();
   const { keyLabel } = useKeyboardPlatform();
   const [typed, setTyped] = useState('');
@@ -35,6 +36,7 @@ export function VocabularyModule({ words, progress, pronunciationType, onSelectI
   const [error, setError] = useState('');
   const [revealedLetters, setRevealedLetters] = useState(0);
   const [typingStats, setTypingStats] = useState({ input: 0, correct: 0 });
+  const [summaryDismissed, setSummaryDismissed] = useState(false);
   const [wordOrder, setWordOrder] = useState<number[] | null>(null);
   const currentIndex = Math.min(Math.max(progress.index, 0), words.length - 1);
   const initialIndex = useRef(currentIndex);
@@ -51,6 +53,7 @@ export function VocabularyModule({ words, progress, pronunciationType, onSelectI
   const previousWord = previousIndex === undefined ? undefined : words[previousIndex];
   const nextWord = nextIndex === undefined ? undefined : words[nextIndex];
   const knownWords = useMemo(() => new Set(progress.knownWords), [progress.knownWords]);
+  const allKnown = words.length > 0 && words.every((word) => knownWords.has(word.name));
   const progressItems = useMemo(() => words.map((word) => ({ id: word.name, text: word.name, meaning: word.trans.join('；'), completed: knownWords.has(word.name) })), [words, knownWords]);
   useEffect(() => {
     const shuffled = words.map((_, index) => index);
@@ -113,6 +116,7 @@ export function VocabularyModule({ words, progress, pronunciationType, onSelectI
       setTyped(spellingWord);
       setError('');
       setRevealedLetters(0);
+      if (nextIndex === undefined) setSummaryDismissed(false);
       // Save immediately, but keep the completed word visible before advancing.
       onCorrect(currentWord.name, currentIndex);
       onSpeak(currentWord.name);
@@ -146,6 +150,21 @@ export function VocabularyModule({ words, progress, pronunciationType, onSelectI
   return (
     <div className="vocabulary-exercise h-full min-h-0 overflow-y-auto px-2 py-3 sm:px-8">
       <div className="flex min-h-full w-full flex-col">
+        {allKnown && !summaryDismissed ? (
+          <section className="end-state flex flex-col items-center justify-center text-center" role="status" aria-live="polite">
+            <div className="mb-6 flex h-[104px] w-[104px] items-center justify-center rounded-[30px] bg-[#dcfce7] text-[#16a34a]"><Trophy size={50} /></div>
+            <span className="section-overline text-[#16a34a]">ALL WORDS MASTERED</span>
+            <h2 className="mt-3 text-[32px] font-extrabold text-ink sm:text-[38px]">全部掌握！</h2>
+            <p className="mt-3 max-w-md leading-7 text-[#475569]">太棒了，{listLabel} 的 {words.length} 个单词都已掌握。</p>
+            <div className="mt-6 grid w-full max-w-md grid-cols-3 gap-3">
+              <div className="rounded-2xl bg-[#f8fafc] px-3 py-4"><div className="text-xl font-black tabular-nums text-[#16a34a]">{words.length}</div><div className="mt-1 text-xs text-[#64748b]">已掌握</div></div>
+              <div className="rounded-2xl bg-[#f8fafc] px-3 py-4"><div className="text-xl font-black tabular-nums text-ink">{typingStats.input}</div><div className="mt-1 text-xs text-[#64748b]">输入数</div></div>
+              <div className="rounded-2xl bg-[#f8fafc] px-3 py-4"><div className="text-xl font-black tabular-nums text-[#14b8a6]">{typingStats.input ? `${(typingStats.correct / typingStats.input * 100).toFixed(1)}%` : '—'}</div><div className="mt-1 text-xs text-[#64748b]">正确率</div></div>
+            </div>
+            <Button type="button" className="primary-button mt-7" onClick={() => { setSummaryDismissed(true); moveTo(order[0]); }}><RotateCcw size={18} />再练一遍</Button>
+            <p className="mt-4 flex items-center gap-1 text-xs font-semibold text-[#16a34a]"><Check size={14} />学习进度已保存</p>
+          </section>
+        ) : (
         <ExercisePrompt
           progressItems={progressItems}
           progress={knownWords.size}
@@ -223,9 +242,12 @@ export function VocabularyModule({ words, progress, pronunciationType, onSelectI
             <Button type="button" variant="ghost" aria-keyshortcuts="Alt+n" onClick={skipCurrent} disabled={!nextWord} className="text-action h-auto"><SkipForward size={17} /> 跳过当前词 <ShortcutHint letter="N" /></Button>
           </div>
         </ExercisePrompt>
-        <div className="shrink-0 pt-5 text-center text-[12px] font-medium text-[#64748b]">
-          直接敲键盘，拼对自动通过 · <kbd>{keyLabel('Backspace')}</kbd> 删除 · <kbd>{keyLabel('Esc')}</kbd> 清空
-        </div>
+        )}
+        {(!allKnown || summaryDismissed) && (
+          <div className="shrink-0 pt-5 text-center text-[12px] font-medium text-[#64748b]">
+            直接敲键盘，拼对自动通过 · <kbd>{keyLabel('Backspace')}</kbd> 删除 · <kbd>{keyLabel('Esc')}</kbd> 清空
+          </div>
+        )}
       </div>
     </div>
   );

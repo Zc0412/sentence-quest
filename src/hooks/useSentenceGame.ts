@@ -367,6 +367,7 @@ export function useSentenceGame(
     storageWarning,
     progress,
     mode,
+    isReplaying,
     phase,
     sentence,
     courseIndex,

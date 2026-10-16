@@ -68,6 +68,7 @@ export function SentencePracticeApp({
     enabled: isPlaying && !showInstructions && !showReset && !showActivity,
   });
   const isFinished = game.ready && game.phase === 'success';
+  const isFinalCompletion = isFinished && game.mode === 'challenge' && !game.isReplaying && game.completedCount === sentenceList.length;
   const settingsHref = `/settings?listId=${encodeURIComponent(listId)}${categoryName ? `&category=${encodeURIComponent(categoryName)}` : ''}`;
 
   return (
@@ -179,17 +180,17 @@ export function SentencePracticeApp({
                   </div>
                 </>
               )}
-              {isFinished && (
+              {isFinished && !isFinalCompletion && (
                 <div className="completion-container shrink-0">
                   <CompletionPanel sentence={game.sentence} earnedXp={game.earnedXp} mistakes={game.mistakesThisSentence} hints={game.hintsThisSentence} onNext={game.nextSentence} onReplay={game.restartSentence} shortcutsEnabled={!showInstructions && !showReset && !showActivity} />
                 </div>
               )}
-              {game.ready && game.phase === 'allDone' && (
+              {game.ready && (game.phase === 'allDone' || isFinalCompletion) && (
                 <div className="end-state flex flex-col items-center justify-center text-center">
                   <div className="mb-7 flex h-[104px] w-[104px] items-center justify-center rounded-[30px] bg-[#fef3c7] text-[#f59e0b]"><Trophy size={51} /></div>
-                  <span className="section-overline text-[#b45309]">ALL SENTENCES CLEARED</span>
-                  <h2 className="mt-3 text-[32px] font-extrabold text-ink sm:text-[38px]">句子全部通关！</h2>
-                  <p className="mt-4 max-w-md leading-7 text-[#475569]">你完成了全部 {sentenceList.length} 道题，可以重复练习巩固记忆，或复习曾经出错的题目。</p>
+                  <span className="section-overline text-[#b45309]">{isPhrasePractice ? 'ALL PHRASES MASTERED' : 'ALL SENTENCES CLEARED'}</span>
+                  <h2 className="mt-3 text-[32px] font-extrabold text-ink sm:text-[38px]">{isPhrasePractice ? '短语全部掌握！' : '句子全部掌握！'}</h2>
+                  <p className="mt-4 max-w-md leading-7 text-[#475569]">你完成了全部 {sentenceList.length} 道题，获得 {game.progress.xp} XP。可以重复练习巩固记忆，或复习曾经出错的题目。</p>
                   <div className="mt-8 flex flex-wrap justify-center gap-3">
                     <Button type="button" className="primary-button" onClick={game.replayCourse}><RotateCcw size={18} />重新练习</Button>
                     <Button type="button" variant="secondary" className="secondary-button" onClick={() => game.changeMode('review')}><BookOpen size={18} />复习错题</Button>

@@ -46,8 +46,7 @@ export default function KeyboardShortcuts() {
     <div className="space-y-5 pb-20">
       <header>
         <h1 className="text-2xl font-bold">快捷键</h1>
-        <p className="mt-2 text-sm leading-6 text-slate-500">当前显示 {isMac ? 'Mac' : 'Windows'} 快捷键。组合键需同时按下。{isMac && '按键符号与 Mac 键盘一致，旁边保留英文名称方便辨认。'}</p>
-        <p className="mt-1 text-xs leading-5 text-slate-500">按住 {keyLabel('Alt')}，再按 P 听单词、H 提示字母或 N 跳过。每次按下触发一次，长按不会连续执行；打开玩法说明、反馈等弹窗时暂停。</p>
+        <p className="mt-2 text-sm leading-6 text-slate-500">当前显示 {isMac ? 'Mac' : 'Windows'} 快捷键。</p>
       </header>
       {groups.map((group) => (
         <section key={group.title} className="rounded-2xl border border-slate-200 bg-white p-4 sm:p-5">
