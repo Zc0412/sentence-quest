@@ -1,10 +1,13 @@
 'use client';
 
+import { PracticeInstructions } from './components/PracticeInstructions';
+
+import { useLearningHistory } from './components/LearningHistoryProvider';
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { Logo } from './components/Logo';
 import {
-  ArrowRight, CalendarDays, Flame, Lightbulb, Settings,
+  CalendarDays, Flame, Lightbulb, Settings,
   RotateCcw, Zap,
 } from 'lucide-react';
 import type { VocabularyWord } from './types/game';
@@ -27,6 +30,7 @@ interface Props {
 
 export default function App({ listId }: Props) {
   const game = useSentenceGame();
+  const history = useLearningHistory();
   const [words, setWords] = useState<VocabularyWord[] | null>(null);
   const [loadError, setLoadError] = useState('');
   const [loadAttempt, setLoadAttempt] = useState(0);
@@ -123,7 +127,10 @@ export default function App({ listId }: Props) {
                   progress={listProgress}
                   pronunciationType={pronunciationType}
                   onSelectIndex={(index) => game.setVocabularyIndex(listId, index)}
-                  onCorrect={(word, nextIndex) => game.recordVocabularyCorrect(listId, word, nextIndex)}
+                  onCorrect={(word, nextIndex) => {
+                    game.recordVocabularyCorrect(listId, word, nextIndex);
+                    history.record('word', word, words.find((entry) => entry.name === word)?.trans.join('；') ?? '');
+                  }}
                   onSpeak={game.speakWord}
                 />
               ) : (
@@ -162,24 +169,14 @@ export default function App({ listId }: Props) {
       </Dialog>
 
       <Dialog open={showInstructions} onOpenChange={setShowInstructions}>
-        <DialogContent className="modal-content">
-          <div className="modal-icon"><Lightbulb size={24} /></div>
-          <DialogTitle id="instructions-title" className="mt-4 text-[23px] font-black text-ink">怎么玩？</DialogTitle>
-          <div className="mt-5 space-y-4 text-[14px] leading-7 text-[#334155]">
-            <p><strong>① 看中文释义：</strong>根据中文提示回忆英文单词。</p>
-            <p><strong>② 敲键盘拼写：</strong>逐字输入，字母即时反馈；拼写正确后自动进入下一词。</p>
-            <p><strong>③ 听单词发音：</strong>点击单词区域或「听当前单词」播放发音。</p>
-            <p><strong>④ 灵活练习：</strong>可以提示字母、跳过当前单词，或切换到前后单词。</p>
-          </div>
-          <Button type="button" className="primary-button mt-7 w-full" onClick={() => setShowInstructions(false)}>明白了，开始练习 <ArrowRight size={18} /></Button>
-        </DialogContent>
+        <PracticeInstructions mode="word" onStart={() => setShowInstructions(false)} />
       </Dialog>
 
       <Dialog open={showReset} onOpenChange={setShowReset}>
         <DialogContent className="modal-content">
           <div className="modal-icon !bg-orange-50 !text-orange-700"><RotateCcw size={23} /></div>
           <DialogTitle id="reset-title" className="mt-4 text-[23px] font-black text-ink">确定清空学习记录？</DialogTitle>
-          <DialogDescription className="mt-3 text-sm leading-7 text-[#64748b]">已完成的句子、单词拼写进度、每日学习统计、积分和错题记录都会被删除，且无法恢复。</DialogDescription>
+          <DialogDescription className="mt-3 text-sm leading-7 text-[#64748b]">已完成的句子、单词拼写进度、每日学习统计、积分和错题记录都会被删除，且无法恢复。学习轨迹会保留。</DialogDescription>
           <div className="mt-7 flex gap-3">
             <Button variant="secondary" className="secondary-button flex-1" onClick={() => setShowReset(false)}>取消</Button>
             <Button variant="destructive" className="primary-button flex-1 !bg-orange-500 hover:!bg-orange-600" onClick={() => { game.resetProgress(); setShowReset(false); }}>确认清空</Button>

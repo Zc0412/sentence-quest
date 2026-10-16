@@ -1,3 +1,4 @@
+import type { ProgressItem } from '@/utils/progress-ring';
 import type { ReactNode } from 'react';
 import { ProgressBar } from './ProgressBar';
 import { ProgressFrame } from './ProgressFrame';
@@ -11,6 +12,7 @@ interface Props {
   promptDetails?: ReactNode;
   description?: string;
   progressDetails?: ReactNode;
+  progressItems?: ProgressItem[];
   progressItemLabel?: string;
   children: ReactNode;
 }
@@ -24,6 +26,7 @@ export function ExercisePrompt({
   promptDetails,
   description,
   progressDetails,
+  progressItems,
   progressItemLabel,
   children,
 }: Props) {
@@ -40,8 +43,8 @@ export function ExercisePrompt({
       {promptDetails}
       {children}
       <div className="mx-auto mt-auto w-full max-w-3xl shrink-0 pt-4">
-        {progressDetails ? (
-          <ProgressFrame value={progress} total={total} itemLabel={progressItemLabel}>{progressDetails}</ProgressFrame>
+        {progressDetails && progressItems ? (
+          <ProgressFrame items={progressItems} itemLabel={progressItemLabel}>{progressDetails}</ProgressFrame>
         ) : (
           <ProgressBar value={progress} total={total} />
         )}

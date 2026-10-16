@@ -65,7 +65,7 @@ export default function KeyboardShortcuts() {
           </dl>
         </section>
       ))}
-      <p className="text-xs leading-6 text-slate-500">单词模式中，空格、数字及标点仅在目标词条包含对应字符时输入。“多给一个字母”和“跳过当前词”目前没有专用快捷键，可通过按钮操作。</p>
+      <p className="text-xs leading-6 text-slate-500">单词模式中，词组空格自动补齐，也可手动输入；数字及标点按目标词条输入。“多给一个字母”和“跳过当前词”目前没有专用快捷键，可通过按钮操作。</p>
     </div>
   );
 }

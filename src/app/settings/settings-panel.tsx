@@ -32,14 +32,14 @@ export default function SettingsPanel({ currentListId, currentCategory }: Props)
           <ArrowLeft size={20} /> 返回练习
         </Link>
         <p className="mb-2 hidden px-2 text-xs font-medium text-[#64748b] md:block">偏好设置</p>
-        <Tabs.List aria-label="设置导航" className="col-span-2 flex gap-2 md:flex-col">
-          <Tabs.Trigger value="dictionary" className="flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-medium hover:bg-blue-50 data-[state=active]:bg-blue-100 data-[state=active]:text-blue-600">
+        <Tabs.List aria-label="设置导航" className="col-span-2 flex gap-1 overflow-x-auto md:flex-col md:gap-2">
+          <Tabs.Trigger value="dictionary" className="flex shrink-0 items-center gap-2 whitespace-nowrap rounded-xl px-3 py-3 text-sm font-medium hover:bg-blue-50 data-[state=active]:bg-blue-100 data-[state=active]:text-blue-600">
             <BookOpenCheck size={20} /> 学习内容
           </Tabs.Trigger>
-          <Tabs.Trigger value="practice" className="flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-medium hover:bg-blue-50 data-[state=active]:bg-blue-100 data-[state=active]:text-blue-600">
+          <Tabs.Trigger value="practice" className="flex shrink-0 items-center gap-2 whitespace-nowrap rounded-xl px-3 py-3 text-sm font-medium hover:bg-blue-50 data-[state=active]:bg-blue-100 data-[state=active]:text-blue-600">
             <SlidersHorizontal size={20} /> 练习设置
           </Tabs.Trigger>
-          <Tabs.Trigger value="shortcuts" className="flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-medium hover:bg-blue-50 data-[state=active]:bg-blue-100 data-[state=active]:text-blue-600">
+          <Tabs.Trigger value="shortcuts" className="flex shrink-0 items-center gap-2 whitespace-nowrap rounded-xl px-3 py-3 text-sm font-medium hover:bg-blue-50 data-[state=active]:bg-blue-100 data-[state=active]:text-blue-600">
             <Keyboard size={20} /> 快捷键
           </Tabs.Trigger>
         </Tabs.List>

@@ -22,6 +22,7 @@ export function CompletionPanel({ sentence, earnedXp, mistakes, hints, onNext, o
   useEffect(() => {
     if (!shortcutsEnabled) return;
     function handleKeyDown(event: KeyboardEvent) {
+      if (document.querySelector('[aria-modal="true"], [data-learning-popover]')) return;
       if (event.defaultPrevented || event.repeat || event.isComposing || event.ctrlKey || event.metaKey || event.altKey || event.shiftKey) return;
       const target = event.target;
       if (target instanceof HTMLElement && (target.closest('input, textarea, select') || target.isContentEditable)) return;

@@ -1,5 +1,7 @@
 'use client';
 
+import { createId } from '@/utils/id';
+
 import { useRef, useState, type FormEvent } from 'react';
 import { CheckCircle2, Loader2, MessageSquarePlus } from 'lucide-react';
 import { Button } from './ui/button';
@@ -27,7 +29,7 @@ export function FeedbackButton() {
     try {
       const data = { type, content: content.trim(), contact: contact.trim(), page: window.location.pathname };
       const payload = JSON.stringify(data);
-      if (submission.current?.payload !== payload) submission.current = { payload, id: crypto.randomUUID() };
+      if (submission.current?.payload !== payload) submission.current = { payload, id: createId() };
       const response = await fetch('/api/feedback', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

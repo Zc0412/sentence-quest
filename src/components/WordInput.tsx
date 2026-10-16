@@ -43,7 +43,7 @@ export function WordInput({ value, onChange, wordNumber, focusSignal, error, sup
     function resumeTyping(event: globalThis.KeyboardEvent) {
       const input = inputRef.current;
       if (!input || document.activeElement === input || event.defaultPrevented
-        || event.ctrlKey || event.metaKey || event.altKey || document.querySelector('[aria-modal="true"]')) return;
+        || event.ctrlKey || event.metaKey || event.altKey || document.querySelector('[aria-modal="true"], [data-learning-popover]')) return;
       const target = event.target;
       if (target instanceof HTMLElement && target.closest('input, textarea, select, [contenteditable]:not([contenteditable="false"]), [role="textbox"]')) return;
       const key = getTypingKey(event, inputCharacters);
@@ -55,7 +55,7 @@ export function WordInput({ value, onChange, wordNumber, focusSignal, error, sup
     }
     function resumeFocus() {
       const active = document.activeElement;
-      if (document.querySelector('[aria-modal="true"]') || (active instanceof HTMLElement && active !== document.body && active !== inputRef.current)) return;
+      if (document.querySelector('[aria-modal="true"], [data-learning-popover]') || (active instanceof HTMLElement && active !== document.body && active !== inputRef.current)) return;
       inputRef.current?.focus({ preventScroll: true });
     }
     document.addEventListener('keydown', resumeTyping);

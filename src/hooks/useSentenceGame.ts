@@ -26,7 +26,7 @@ function localDateKey(date = new Date()): string {
 
 export function useSentenceGame(
   sentenceList: Sentence[] = sentences,
-  { readWholeOnCompletion = false }: { readWholeOnCompletion?: boolean } = {},
+  { readWholeOnCompletion = false, onLearning }: { readWholeOnCompletion?: boolean; onLearning?: (kind: 'word' | 'sentence', text: string, meaning: string) => void } = {},
 ) {
   // 服务端与客户端首屏渲染统一使用空进度，避免 hydration mismatch。
   // 浏览器存档只在 mount 后载入，载入完成前禁止将默认数据写回。
@@ -126,6 +126,8 @@ export function useSentenceGame(
     const completed = [...completedWordIndices, wordIndex];
     setCompletedWordIndices(completed);
     const sentenceFinished = completed.length === sentence.words.length;
+    onLearning?.('word', currentWord, sentence.annotations[wordIndex]?.meaning ?? '');
+    if (sentenceFinished) onLearning?.('sentence', sentence.english, sentence.zh);
     const today = localDateKey();
     setProgress((old) => {
       const todayActivity = old.activityByDate[today] ?? { words: 0, sentences: 0 };

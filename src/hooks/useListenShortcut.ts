@@ -6,7 +6,7 @@ export function useListenShortcut(word: string, onSpeak: (word: string) => void,
     function handleKeyDown(event: KeyboardEvent) {
       if (event.defaultPrevented || event.repeat || event.isComposing
         || !event.altKey || event.ctrlKey || event.metaKey || event.shiftKey
-        || event.code !== 'KeyP' || document.querySelector('[aria-modal="true"]')) return;
+        || event.code !== 'KeyP' || document.querySelector('[aria-modal="true"], [data-learning-popover]')) return;
       event.preventDefault();
       onSpeak(word);
     }

@@ -1,8 +1,11 @@
 'use client';
 
+import { PracticeInstructions } from './PracticeInstructions';
+
 import { usePracticeSettings } from './PracticeSettingsProvider';
 
-import { useState } from 'react';
+import { useLearningHistory } from './LearningHistoryProvider';
+import { useMemo, useState } from 'react';
 import { Logo } from './Logo';
 import Link from 'next/link';
 import {
@@ -14,6 +17,7 @@ import { useListenShortcut } from '@/hooks/useListenShortcut';
 import { sentences } from '@/data';
 import type { Sentence } from '@/types/game';
 import { ActivityHeatmap } from './ActivityHeatmap';
+import { ProgressFrame } from './ProgressFrame';
 import { CompletionPanel } from './CompletionPanel';
 import { PhrasePracticeModule } from './PhrasePracticeModule';
 import { ProgressBar } from './ProgressBar';
@@ -42,7 +46,12 @@ export function SentencePracticeApp({
   categoryName?: string;
 }) {
   const { hintsEnabled, ready: settingsReady } = usePracticeSettings();
-  const game = useSentenceGame(sentenceList, { readWholeOnCompletion: isPhrasePractice });
+  const history = useLearningHistory();
+  const game = useSentenceGame(sentenceList, { readWholeOnCompletion: isPhrasePractice, onLearning: history.record });
+  const progressItems = useMemo(() => {
+    const completed = new Set(game.progress.completedIds);
+    return sentenceList.map((sentence) => ({ id: sentence.id, text: sentence.english, meaning: sentence.zh, completed: completed.has(sentence.id) }));
+  }, [sentenceList, game.progress.completedIds]);
   const [pronunciationType, setSelectedPronunciationType] = useState<PronunciationType>('1');
   const [showInstructions, setShowInstructions] = useState(false);
   const [showReset, setShowReset] = useState(false);
@@ -115,7 +124,7 @@ export function SentencePracticeApp({
                 <Button type="button" variant="ghost" onClick={() => setShowInstructions(true)} className="flex h-auto items-center gap-1.5 rounded-full px-3 py-1.5 text-[13px] font-semibold text-[#2563eb] hover:bg-white/70"><Lightbulb size={16} />玩法说明</Button>
               </div>
             </div>
-            <Card className="game-card" aria-busy={!game.ready}>
+            <Card className={`game-card ${!isPlaying || !isPhrasePractice ? '!overflow-y-auto !justify-start' : ''}`} aria-busy={!game.ready}>
               {!game.ready && (
                 <div className="end-state flex flex-col items-center justify-center gap-3 text-center" role="status" aria-live="polite">
                   <div className="h-9 w-9 animate-spin rounded-full border-[3px] border-[#dbeafe] border-t-[#3b82f6]" />
@@ -162,7 +171,7 @@ export function SentencePracticeApp({
                 </>
               )}
               {isFinished && (
-                <div className="completion-container">
+                <div className="completion-container shrink-0">
                   <CompletionPanel sentence={game.sentence} earnedXp={game.earnedXp} mistakes={game.mistakesThisSentence} hints={game.hintsThisSentence} onNext={game.nextSentence} onReplay={game.restartSentence} shortcutsEnabled={!showInstructions && !showReset && !showActivity} />
                 </div>
               )}
@@ -199,6 +208,11 @@ export function SentencePracticeApp({
                   <Button type="button" className="primary-button mt-8" onClick={() => game.changeMode('challenge')}>继续句子闯关<ArrowRight size={18} /></Button>
                 </div>
               )}
+              {game.ready && (!isPhrasePractice || !isPlaying) && <div className="mx-auto mt-5 w-full max-w-3xl shrink-0 px-2 pb-4">
+                <ProgressFrame items={progressItems} itemLabel="条表达">
+                  <div className="py-4 text-center text-xs text-slate-500">每完成一条表达，点亮当前项目的进度</div>
+                </ProgressFrame>
+              </div>}
             </Card>
             <p className="storage-status text-center text-[12px] leading-5 text-[#64748b]">
               {game.storageStatus === 'memory'
@@ -219,24 +233,14 @@ export function SentencePracticeApp({
       </Dialog>
 
       <Dialog open={showInstructions} onOpenChange={setShowInstructions}>
-        <DialogContent className="modal-content">
-          <div className="modal-icon"><Lightbulb size={24} /></div>
-          <DialogTitle id="instructions-title" className="mt-4 text-[23px] font-black text-ink">{title}怎么玩？</DialogTitle>
-          <div className="mt-5 space-y-4 text-[14px] leading-7 text-[#334155]">
-            <p><strong>① 看中文：</strong>理解句意，回忆合适的英文表达。</p>
-            <p><strong>② 逐词输入：</strong>拼对当前单词后自动进入下一词。</p>
-            <p><strong>③ 使用提示：</strong>可以逐字显示提示，也可以跳过当前句子。</p>
-            <p><strong>④ 完成练习：</strong>答对单词会播放发音，完成句子可获得积分并查看语法说明。</p>
-          </div>
-          <Button type="button" className="primary-button mt-7 w-full" onClick={() => setShowInstructions(false)}>开始练习<ArrowRight size={18} /></Button>
-        </DialogContent>
+        <PracticeInstructions mode="sentence" onStart={() => setShowInstructions(false)} />
       </Dialog>
 
       {(allowReset || isPhrasePractice) && <Dialog open={showReset} onOpenChange={setShowReset}>
         <DialogContent className="modal-content">
           <div className="modal-icon !bg-orange-50 !text-orange-700"><RotateCcw size={23} /></div>
           <DialogTitle id="reset-title" className="mt-4 text-[23px] font-black text-ink">{isPhrasePractice ? `确定清空当前${categoryName ? '分类' : '题库'}的学习记录？` : '确定清空全部学习记录？'}</DialogTitle>
-          <DialogDescription className="mt-3 text-sm leading-7 text-[#64748b]">{isPhrasePractice ? `当前${categoryName ? '分类' : '短语题库'}的完成进度和错题记录将被清除，其他分类、题库和积分不受影响。` : '句子、单词进度、每日学习统计、积分和错题记录都会被删除，且无法恢复。'}</DialogDescription>
+          <DialogDescription className="mt-3 text-sm leading-7 text-[#64748b]">{isPhrasePractice ? `当前${categoryName ? '分类' : '短语题库'}的完成进度和错题记录将被清除，其他分类、题库和积分不受影响。` : '句子、单词进度、每日学习统计、积分和错题记录都会被删除，且无法恢复。学习轨迹会保留。'}</DialogDescription>
           <div className="mt-7 flex gap-3">
             <Button type="button" variant="secondary" className="secondary-button flex-1" onClick={() => setShowReset(false)}>取消</Button>
             <Button type="button" variant="destructive" className="primary-button flex-1 !bg-orange-500 hover:!bg-orange-600" onClick={() => { if (isPhrasePractice) game.resetSentenceListProgress(); else game.resetProgress(); setShowReset(false); }}>确认清空</Button>

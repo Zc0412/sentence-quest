@@ -2,7 +2,7 @@
 
 import { usePracticeSettings } from './PracticeSettingsProvider';
 
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { ChevronLeft, ChevronRight, Lightbulb, SkipForward, Sparkles, Volume2 } from 'lucide-react';
 import type { SentenceGame } from '@/hooks/useSentenceGame';
 import type { Sentence } from '@/types/game';
@@ -18,6 +18,10 @@ interface Props {
 
 export function PhrasePracticeModule({ game, sentenceList }: Props) {
   const { hintsEnabled, ready: settingsReady } = usePracticeSettings();
+  const progressItems = useMemo(() => {
+    const completed = new Set(game.progress.completedIds);
+    return sentenceList.map((sentence) => ({ id: sentence.id, text: sentence.english, meaning: sentence.zh, completed: completed.has(sentence.id) }));
+  }, [sentenceList, game.progress.completedIds]);
   const [typingStats, setTypingStats] = useState({ input: 0, correct: 0 });
   const sentence = game.sentence;
   const previousSentence = sentenceList[game.courseIndex - 1];
@@ -38,6 +42,7 @@ export function PhrasePracticeModule({ game, sentenceList }: Props) {
     <div className="vocabulary-exercise h-full min-h-0 overflow-y-auto px-2 py-3 sm:px-8">
       <div className="flex min-h-full w-full flex-col">
         <ExercisePrompt
+          progressItems={progressItems}
           progress={game.completedCount}
           total={sentenceList.length}
           progressItemLabel="个短语"

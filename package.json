@@ -12,13 +12,16 @@
     "start": "next start",
     "typecheck": "next typegen && tsc --noEmit",
     "check:data": "node scripts/check-data.mjs",
-    "check": "npm run check:data && npm run test:smoke && npm run test:storage && npm run test:feedback && npm run typecheck",
+    "check": "npm run check:data && npm run test:smoke && npm run test:storage && npm run test:feedback && npm run test:history && npm run test:id && npm run typecheck",
     "test:smoke": "node scripts/smoke-test.mjs",
     "test:storage": "node scripts/test-storage.mjs && node scripts/test-storage-recovery.mjs",
-    "test:feedback": "node scripts/test-feedback.mjs"
+    "test:feedback": "node scripts/test-feedback.mjs",
+    "test:id": "node scripts/test-id.mjs",
+    "test:history": "node scripts/test-history.mjs"
   },
   "dependencies": {
     "@radix-ui/react-dialog": "^1.3.1",
+    "@radix-ui/react-popover": "^1.3.1",
     "@radix-ui/react-progress": "^1.2.1",
     "@radix-ui/react-select": "^2.4.1",
     "@radix-ui/react-slot": "^1.5.0",
@@ -38,6 +41,7 @@
     "@types/react": "^19.2.0",
     "@types/react-dom": "^19.2.0",
     "autoprefixer": "^10.4.21",
+    "fake-indexeddb": "^6.2.5",
     "postcss": "^8.5.0",
     "tailwindcss": "^3.4.17",
     "tailwindcss-animate": "^1.0.7",

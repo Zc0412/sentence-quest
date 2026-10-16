@@ -7,7 +7,7 @@ import { ChevronLeft, ChevronRight, Lightbulb, SkipForward, Sparkles, Volume2 } 
 import type { VocabularyProgress, VocabularyWord } from '../types/game';
 import { ExercisePrompt } from './ExercisePrompt';
 import { PracticeSpellingBoard } from './PracticeSpellingBoard';
-import { isCorrectPrefix, isCorrectWord, nextHintLength } from '../utils/validator';
+import { isCorrectPrefix, isCorrectWord, nextHintLength, fillWordSpaces } from '../utils/validator';
 import { Button } from './ui/button';
 import { countTypingAttempt } from '../utils/typingStats';
 import { loadPronunciationAudio } from '../utils/speech';
@@ -48,6 +48,7 @@ export function VocabularyModule({ words, progress, pronunciationType, onSelectI
   const previousWord = previousIndex === undefined ? undefined : words[previousIndex];
   const nextWord = nextIndex === undefined ? undefined : words[nextIndex];
   const knownWords = useMemo(() => new Set(progress.knownWords), [progress.knownWords]);
+  const progressItems = useMemo(() => words.map((word) => ({ id: word.name, text: word.name, meaning: word.trans.join('；'), completed: knownWords.has(word.name) })), [words, knownWords]);
   useEffect(() => {
     const shuffled = words.map((_, index) => index);
     for (let index = shuffled.length - 1; index > 0; index -= 1) {
@@ -91,14 +92,18 @@ export function VocabularyModule({ words, progress, pronunciationType, onSelectI
   function changeTyped(value: string) {
     if (completedRef.current) return;
     const filtered = Array.from(value).filter((letter) => /^[a-zA-Z'’-]$/.test(letter) || spellingWord.includes(letter)).join('');
-    const attempt = countTypingAttempt(typed, filtered, spellingWord);
+    // Fill separators when the next letter arrives; deleting back across a separator
+    // must not immediately insert it again or trap the Backspace key.
+    const spaced = fillWordSpaces(filtered, spellingWord);
+    const next = filtered.length < typed.length ? spaced.trimEnd() : spaced;
+    const attempt = countTypingAttempt(typed.replace(/\s/g, ''), next.replace(/\s/g, ''), spellingWord.replace(/\s/g, ''));
     if (attempt.input > 0) {
       setTypingStats((previous) => ({
         input: previous.input + attempt.input,
         correct: previous.correct + attempt.correct,
       }));
     }
-    const clean = filtered.slice(0, spellingWord.length);
+    const clean = next.slice(0, spellingWord.length);
     if (clean && isCorrectWord(clean, spellingWord)) {
       completedRef.current = true;
       setCompleted(true);
@@ -132,6 +137,7 @@ export function VocabularyModule({ words, progress, pronunciationType, onSelectI
     <div className="vocabulary-exercise h-full min-h-0 overflow-y-auto px-2 py-3 sm:px-8">
       <div className="flex min-h-full w-full flex-col">
         <ExercisePrompt
+          progressItems={progressItems}
           progress={knownWords.size}
           total={words.length}
           progressDetails={

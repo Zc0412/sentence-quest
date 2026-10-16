@@ -37,7 +37,7 @@ async function loadTS(relativePath) {
   return import(`data:text/javascript;base64,${Buffer.from(result.outputText).toString('base64')}`);
 }
 
-const { isCorrectWord, isCorrectPrefix, normalizeWord } = await loadTS('src/utils/validator.ts');
+const { isCorrectWord, isCorrectPrefix, normalizeWord, fillWordSpaces, nextHintLength } = await loadTS('src/utils/validator.ts');
 assert.ok(isCorrectWord('COFFEE', 'coffee'));
 assert.ok(isCorrectWord("don't", 'don’t'));
 assert.ok(isCorrectPrefix('mor', 'morning'));
@@ -46,6 +46,18 @@ assert.equal(normalizeWord('Apple.'), 'apple');
 assert.ok(isCorrectWord('cafe', 'café'), '重音字母支持普通字母输入');
 assert.ok(isCorrectWord('office', 'oﬃce'), '兼容连字词条');
 assert.ok(isCorrectWord('in addition to', 'in addition to'));
+assert.equal(fillWordSpaces('pencilb', 'pencil box'), 'pencil b');
+assert.equal(fillWordSpaces('pencilbox', 'pencil box'), 'pencil box');
+assert.equal(fillWordSpaces('pencil box', 'pencil box'), 'pencil box');
+assert.equal(fillWordSpaces('pencil', 'pencil box'), 'pencil');
+assert.equal(fillWordSpaces('inadditionto', 'in addition to'), 'in addition to');
+assert.equal(fillWordSpaces('pencil ', 'pencil box').trimEnd(), 'pencil', 'backspace can cross automatically inserted spaces');
+assert.ok(!isCorrectPrefix(fillWordSpaces('pencilv', 'pencil box'), 'pencil box'), 'wrong letters are still errors');
+assert.ok(!isCorrectPrefix(fillWordSpaces('pen cil', 'pencil box'), 'pencil box'), 'spaces in incorrect positions remain errors');
+assert.equal(nextHintLength('pencil', 'pencil box', 0), 8, 'hint reveals the next letter, skipping the separator');
+assert.equal(fillWordSpaces('', 'pencil box'), '');
+assert.equal(fillWordSpaces('apple', 'apple'), 'apple');
+
 const { getTypingKey } = await loadTS('src/utils/typingKey.ts');
 const key = (code, keyValue = 'Process', shiftKey = false, characters = '') => getTypingKey({ code, key: keyValue, shiftKey }, characters);
 assert.equal(key('KeyA'), 'a', '中文输入法仍按实体键输入');

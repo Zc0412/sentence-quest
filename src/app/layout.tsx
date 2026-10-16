@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from 'next';
 import type { ReactNode } from 'react';
 import './globals.css';
 import { PracticeSettingsProvider } from '@/components/PracticeSettingsProvider';
+import { LearningHistoryProvider } from '@/components/LearningHistoryProvider';
 import { FeedbackButton } from '@/components/FeedbackButton';
 
 export const metadata: Metadata = {
@@ -22,7 +23,7 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: Readonly<{ children: ReactNode }>) {
   return (
     <html lang="zh-CN">
-      <body><PracticeSettingsProvider>{children}<FeedbackButton /></PracticeSettingsProvider></body>
+      <body><PracticeSettingsProvider><LearningHistoryProvider>{children}<FeedbackButton /></LearningHistoryProvider></PracticeSettingsProvider></body>
     </html>
   );
 }
