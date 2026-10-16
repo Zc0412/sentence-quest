@@ -148,6 +148,9 @@ kbd { display:inline-block; padding: 1px 6px; border: 1px solid #cbd5e1; border-
 .grammar-details>div { display:flex; align-items:baseline; gap:14px; }
 .grammar-detail-role { flex-shrink:0; min-width:42px; font-size:12px; font-weight:750; }
 .completion-panel { width:100%; }
+.phrase-completion-container { display:flex; flex:1; min-height:100%; }
+.phrase-completion-container .completion-panel { display:flex; flex:1; flex-direction:column; justify-content:center; }
+.phrase-completion-container .grammar-explanation { margin-top:12px; }
 .completion-heading { display:flex; align-items:center; justify-content:center; gap:10px; }
 .completion-heading h2 { font-weight:750; font-size:23px; color:#243044; }
 .completion-check { display:grid; place-items:center; width:32px; height:32px; border-radius:50%; background:#dcfce7; color:#16a34a; }

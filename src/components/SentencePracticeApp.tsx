@@ -181,7 +181,7 @@ export function SentencePracticeApp({
                 </>
               )}
               {isFinished && !isFinalCompletion && (
-                <div className="completion-container shrink-0">
+                <div className={`completion-container ${isPhrasePractice ? 'phrase-completion-container' : 'shrink-0'}`}>
                   <CompletionPanel sentence={game.sentence} earnedXp={game.earnedXp} mistakes={game.mistakesThisSentence} hints={game.hintsThisSentence} onNext={game.nextSentence} onReplay={game.restartSentence} shortcutsEnabled={!showInstructions && !showReset && !showActivity} />
                 </div>
               )}
@@ -218,7 +218,7 @@ export function SentencePracticeApp({
                   <Button type="button" className="primary-button mt-8" onClick={() => game.changeMode('challenge')}>继续句子闯关<ArrowRight size={18} /></Button>
                 </div>
               )}
-              {game.ready && (!isPhrasePractice || !isPlaying) && <div className="mx-auto mt-5 w-full max-w-3xl shrink-0 px-2 pb-4">
+              {game.ready && !isPhrasePractice && <div className="mx-auto mt-5 w-full max-w-3xl shrink-0 px-2 pb-4">
                 <ProgressFrame items={progressItems} itemLabel="条表达">
                   <div className="py-4 text-center text-xs text-slate-500">每完成一条表达，点亮当前项目的进度</div>
                 </ProgressFrame>
