@@ -61,7 +61,7 @@ export default function SettingsPanel({ currentListId, currentCategory }: Props)
             <div className="flex items-center justify-between gap-6 rounded-2xl border border-slate-200 bg-white p-5">
               <div>
                 <label htmlFor="letter-hints" className="cursor-pointer font-semibold">字母提示</label>
-                <p id="letter-hints-description" className="mt-2 text-sm leading-6 text-slate-500">启用后显示“多给一个字母”按钮。关闭后隐藏按钮，适用于单词、短语和句子练习。</p>
+                <p id="letter-hints-description" className="mt-2 text-sm leading-6 text-slate-500">启用后显示“多给一个字母”按钮并启用对应快捷键。关闭后隐藏按钮并禁用快捷键，适用于单词、短语和句子练习。</p>
               </div>
               <Switch.Root id="letter-hints" checked={hintsEnabled} onCheckedChange={setHintsEnabled} disabled={!ready} aria-describedby="letter-hints-description" className="inline-flex h-6 w-11 shrink-0 items-center rounded-full bg-slate-300 p-0.5 transition-colors data-[state=checked]:bg-blue-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 focus-visible:ring-offset-2 disabled:opacity-50">
                 <Switch.Thumb className="block h-5 w-5 rounded-full bg-white shadow transition-transform data-[state=checked]:translate-x-5" />

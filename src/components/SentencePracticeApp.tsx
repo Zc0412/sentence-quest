@@ -1,5 +1,8 @@
 'use client';
 
+import { useKeyboardPlatform } from '@/hooks/useKeyboardPlatform';
+import { ShortcutHint } from './ShortcutHint';
+
 import { PracticeInstructions } from './PracticeInstructions';
 
 import { usePracticeSettings } from './PracticeSettingsProvider';
@@ -13,7 +16,7 @@ import {
   Settings, SkipForward, Sparkles, Trophy, Volume2, Zap,
 } from 'lucide-react';
 import { useSentenceGame } from '@/hooks/useSentenceGame';
-import { useListenShortcut } from '@/hooks/useListenShortcut';
+import { usePracticeShortcuts } from '@/hooks/usePracticeShortcuts';
 import { sentences } from '@/data';
 import type { Sentence } from '@/types/game';
 import { ActivityHeatmap } from './ActivityHeatmap';
@@ -46,6 +49,7 @@ export function SentencePracticeApp({
   categoryName?: string;
 }) {
   const { hintsEnabled, ready: settingsReady } = usePracticeSettings();
+  const { keyLabel } = useKeyboardPlatform();
   const history = useLearningHistory();
   const game = useSentenceGame(sentenceList, { readWholeOnCompletion: isPhrasePractice, onLearning: history.record });
   const progressItems = useMemo(() => {
@@ -57,7 +61,12 @@ export function SentencePracticeApp({
   const [showReset, setShowReset] = useState(false);
   const [showActivity, setShowActivity] = useState(false);
   const isPlaying = game.ready && game.phase === 'playing';
-  useListenShortcut(game.currentWord, game.speakWord, isPlaying && !showInstructions && !showReset && !showActivity);
+  usePracticeShortcuts({
+    listen: () => game.speakWord(game.currentWord),
+    hint: settingsReady && hintsEnabled && game.revealedLetters < game.currentWord.length ? game.revealHint : undefined,
+    skip: game.skipSentence,
+    enabled: isPlaying && !showInstructions && !showReset && !showActivity,
+  });
   const isFinished = game.ready && game.phase === 'success';
   const settingsHref = `/settings?listId=${encodeURIComponent(listId)}${categoryName ? `&category=${encodeURIComponent(categoryName)}` : ''}`;
 
@@ -161,12 +170,12 @@ export function SentencePracticeApp({
                   />
                   <div className="word-counter text-center text-[12px] font-semibold text-[#64748b]">WORD {game.wordIndex + 1} OF {game.sentence.words.length}</div>
                   <div id="typing-feedback" role="status" aria-live="polite" className={`typing-feedback text-center text-[13px] font-medium ${game.error ? 'text-orange-700' : 'text-[#64748b]'}`}>
-                    {game.error || <><span className="sm:hidden">点击高亮单词输入，拼对自动进入下一词</span><span className="hidden sm:inline">直接敲键盘，拼对自动通过 · <kbd>Backspace</kbd> 删除 · <kbd>Esc</kbd> 清空</span></>}
+                    {game.error || <><span className="sm:hidden">点击高亮单词输入，拼对自动进入下一词</span><span className="hidden sm:inline">直接敲键盘，拼对自动通过 · <kbd>{keyLabel('Backspace')}</kbd> 删除 · <kbd>{keyLabel('Esc')}</kbd> 清空</span></>}
                   </div>
                   <div className="typing-actions flex flex-wrap items-center justify-center gap-2">
-                    <Button type="button" variant="ghost" onClick={() => game.speakWord(game.currentWord)} aria-keyshortcuts="Alt+p" className="text-action h-auto"><Volume2 size={17} />听当前单词</Button>
-                    {settingsReady && hintsEnabled && <Button type="button" variant="ghost" onClick={game.revealHint} disabled={game.revealedLetters >= game.currentWord.length} className="text-action h-auto"><Lightbulb size={17} />多给一个字母</Button>}
-                    <Button type="button" variant="ghost" onClick={game.skipSentence} className="text-action h-auto"><SkipForward size={17} />跳过这句</Button>
+                    <Button type="button" variant="ghost" onClick={() => game.speakWord(game.currentWord)} aria-keyshortcuts="Alt+p" className="text-action h-auto"><Volume2 size={17} />听当前单词 <ShortcutHint letter="P" /></Button>
+                    {settingsReady && hintsEnabled && <Button type="button" variant="ghost" aria-keyshortcuts="Alt+h" onClick={game.revealHint} disabled={game.revealedLetters >= game.currentWord.length} className="text-action h-auto"><Lightbulb size={17} />多给一个字母 <ShortcutHint letter="H" /></Button>}
+                    <Button type="button" variant="ghost" aria-keyshortcuts="Alt+n" onClick={game.skipSentence} className="text-action h-auto"><SkipForward size={17} />跳过这句 <ShortcutHint letter="N" /></Button>
                   </div>
                 </>
               )}

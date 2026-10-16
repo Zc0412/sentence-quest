@@ -1,5 +1,8 @@
 'use client';
 
+import { useKeyboardPlatform } from '@/hooks/useKeyboardPlatform';
+import { ShortcutHint } from './ShortcutHint';
+
 import { usePracticeSettings } from './PracticeSettingsProvider';
 
 import { useEffect, useMemo, useRef, useState } from 'react';
@@ -11,7 +14,7 @@ import { isCorrectPrefix, isCorrectWord, nextHintLength, fillWordSpaces } from '
 import { Button } from './ui/button';
 import { countTypingAttempt } from '../utils/typingStats';
 import { loadPronunciationAudio } from '../utils/speech';
-import { useListenShortcut } from '../hooks/useListenShortcut';
+import { usePracticeShortcuts } from '../hooks/usePracticeShortcuts';
 
 interface Props {
   words: VocabularyWord[];
@@ -24,6 +27,7 @@ interface Props {
 
 export function VocabularyModule({ words, progress, pronunciationType, onSelectIndex, onCorrect, onSpeak }: Props) {
   const { hintsEnabled, ready: settingsReady } = usePracticeSettings();
+  const { keyLabel } = useKeyboardPlatform();
   const [typed, setTyped] = useState('');
   const [completed, setCompleted] = useState(false);
   const completedRef = useRef(false);
@@ -37,7 +41,6 @@ export function VocabularyModule({ words, progress, pronunciationType, onSelectI
   const order = wordOrder ?? words.map((_, index) => index);
   const currentPosition = order.indexOf(currentIndex);
   const currentWord = words[currentIndex];
-  useListenShortcut(currentWord.name, onSpeak);
   const firstMeaning = currentWord.trans[0]?.trim() ?? '';
   const coreMeaning = firstMeaning.split(/[；;]/).slice(0, 2).join('；');
   const shortMeaning = coreMeaning.length > 48 ? `${coreMeaning.slice(0, 48)}…` : coreMeaning;
@@ -131,6 +134,13 @@ export function VocabularyModule({ words, progress, pronunciationType, onSelectI
     if (nextIndex !== undefined) moveTo(nextIndex);
   }
 
+  const revealHint = () => setRevealedLetters((count) => nextHintLength(typed, spellingWord, count));
+  usePracticeShortcuts({
+    listen: () => onSpeak(currentWord.name),
+    hint: settingsReady && hintsEnabled && !completed && revealedLetters < spellingWord.length ? revealHint : undefined,
+    skip: nextWord ? skipCurrent : undefined,
+  });
+
   const phonetic = pronunciationType === '1' ? currentWord.ukphone : currentWord.usphone;
 
   return (
@@ -208,13 +218,13 @@ export function VocabularyModule({ words, progress, pronunciationType, onSelectI
             {completed ? (nextWord ? '拼写正确！即将进入下一个单词…' : '拼写正确！已完成最后一个单词') : error ? '' : '根据中文释义拼写英文单词，拼对后稍作停留再进入下一词'}
           </div>
           <div className="typing-actions flex flex-wrap items-center justify-center gap-2">
-            <Button type="button" variant="ghost" onClick={() => onSpeak(currentWord.name)} aria-keyshortcuts="Alt+p" className="text-action h-auto"><Volume2 size={17} /> 听当前单词</Button>
-            {settingsReady && hintsEnabled && <Button type="button" variant="ghost" onClick={() => setRevealedLetters((count) => nextHintLength(typed, spellingWord, count))} disabled={completed || revealedLetters >= spellingWord.length} className="text-action h-auto"><Lightbulb size={17} /> 多给一个字母</Button>}
-            <Button type="button" variant="ghost" onClick={skipCurrent} disabled={!nextWord} className="text-action h-auto"><SkipForward size={17} /> 跳过当前词</Button>
+            <Button type="button" variant="ghost" onClick={() => onSpeak(currentWord.name)} aria-keyshortcuts="Alt+p" className="text-action h-auto"><Volume2 size={17} /> 听当前单词 <ShortcutHint letter="P" /></Button>
+            {settingsReady && hintsEnabled && <Button type="button" variant="ghost" aria-keyshortcuts="Alt+h" onClick={revealHint} disabled={completed || revealedLetters >= spellingWord.length} className="text-action h-auto"><Lightbulb size={17} /> 多给一个字母 <ShortcutHint letter="H" /></Button>}
+            <Button type="button" variant="ghost" aria-keyshortcuts="Alt+n" onClick={skipCurrent} disabled={!nextWord} className="text-action h-auto"><SkipForward size={17} /> 跳过当前词 <ShortcutHint letter="N" /></Button>
           </div>
         </ExercisePrompt>
         <div className="shrink-0 pt-5 text-center text-[12px] font-medium text-[#64748b]">
-          直接敲键盘，拼对自动通过 · <kbd>Backspace</kbd> 删除 · <kbd>Esc</kbd> 清空
+          直接敲键盘，拼对自动通过 · <kbd>{keyLabel('Backspace')}</kbd> 删除 · <kbd>{keyLabel('Esc')}</kbd> 清空
         </div>
       </div>
     </div>
