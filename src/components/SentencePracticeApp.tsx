@@ -1,5 +1,7 @@
 'use client';
 
+import { usePracticeSettings } from './PracticeSettingsProvider';
+
 import { useState } from 'react';
 import { Logo } from './Logo';
 import Link from 'next/link';
@@ -39,6 +41,7 @@ export function SentencePracticeApp({
   listId?: string;
   categoryName?: string;
 }) {
+  const { hintsEnabled, ready: settingsReady } = usePracticeSettings();
   const game = useSentenceGame(sentenceList, { readWholeOnCompletion: isPhrasePractice });
   const [pronunciationType, setSelectedPronunciationType] = useState<PronunciationType>('1');
   const [showInstructions, setShowInstructions] = useState(false);
@@ -140,7 +143,7 @@ export function SentencePracticeApp({
                   <WordSlots
                     sentence={game.sentence}
                     index={game.wordIndex}
-                    revealedLetters={game.revealedLetters}
+                    revealedLetters={hintsEnabled ? game.revealedLetters : 0}
                     typed={game.typed}
                     error={game.error}
                     focusSignal={game.focusSignal}
@@ -153,7 +156,7 @@ export function SentencePracticeApp({
                   </div>
                   <div className="typing-actions flex flex-wrap items-center justify-center gap-2">
                     <Button type="button" variant="ghost" onClick={() => game.speakWord(game.currentWord)} aria-keyshortcuts="Alt+p" className="text-action h-auto"><Volume2 size={17} />听当前单词</Button>
-                    <Button type="button" variant="ghost" onClick={game.revealHint} disabled={game.revealedLetters >= game.currentWord.length} className="text-action h-auto"><Lightbulb size={17} />多给一个字母</Button>
+                    {settingsReady && hintsEnabled && <Button type="button" variant="ghost" onClick={game.revealHint} disabled={game.revealedLetters >= game.currentWord.length} className="text-action h-auto"><Lightbulb size={17} />多给一个字母</Button>}
                     <Button type="button" variant="ghost" onClick={game.skipSentence} className="text-action h-auto"><SkipForward size={17} />跳过这句</Button>
                   </div>
                 </>

@@ -1,5 +1,7 @@
 'use client';
 
+import { usePracticeSettings } from './PracticeSettingsProvider';
+
 import { useState } from 'react';
 import { ChevronLeft, ChevronRight, Lightbulb, SkipForward, Sparkles, Volume2 } from 'lucide-react';
 import type { SentenceGame } from '@/hooks/useSentenceGame';
@@ -15,6 +17,7 @@ interface Props {
 }
 
 export function PhrasePracticeModule({ game, sentenceList }: Props) {
+  const { hintsEnabled, ready: settingsReady } = usePracticeSettings();
   const [typingStats, setTypingStats] = useState({ input: 0, correct: 0 });
   const sentence = game.sentence;
   const previousSentence = sentenceList[game.courseIndex - 1];
@@ -79,7 +82,7 @@ export function PhrasePracticeModule({ game, sentenceList }: Props) {
             drafts={game.wordDrafts}
             onSelectWord={game.selectWord}
             onMoveWord={game.moveWord}
-            revealedLetters={game.revealedLetters}
+            revealedLetters={hintsEnabled ? game.revealedLetters : 0}
             typed={game.typed}
             error={game.error}
             focusSignal={game.focusSignal}
@@ -92,7 +95,7 @@ export function PhrasePracticeModule({ game, sentenceList }: Props) {
           </div>
           <div className="typing-actions flex flex-wrap items-center justify-center gap-2">
             <Button type="button" variant="ghost" onClick={() => game.speakWord(game.currentWord)} aria-keyshortcuts="Alt+p" className="text-action h-auto"><Volume2 size={17} /> 听当前单词</Button>
-            <Button type="button" variant="ghost" onClick={game.revealHint} disabled={game.revealedLetters >= game.currentWord.length} className="text-action h-auto"><Lightbulb size={17} /> 多给一个字母</Button>
+            {settingsReady && hintsEnabled && <Button type="button" variant="ghost" onClick={game.revealHint} disabled={game.revealedLetters >= game.currentWord.length} className="text-action h-auto"><Lightbulb size={17} /> 多给一个字母</Button>}
             <Button type="button" variant="ghost" onClick={game.skipSentence} className="text-action h-auto"><SkipForward size={17} /> 跳过当前短语</Button>
           </div>
         </ExercisePrompt>

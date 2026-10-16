@@ -75,7 +75,7 @@ export function PhrasePracticeLoader({ list, category }: { list: PhrasePracticeL
           : <div role="status" className="mx-auto mt-5 h-8 w-8 animate-spin rounded-full border-[3px] border-[#dbeafe] border-t-[#3b82f6]" />}
         <div className="mt-6 flex justify-center gap-3">
           {error && <button type="button" onClick={() => setRetry((value) => value + 1)} className="rounded-xl bg-[#2563eb] px-4 py-2 text-sm font-bold text-white">重试</button>}
-          <Link href={`/settings?listId=${encodeURIComponent(list.id)}&category=${encodeURIComponent(category)}`} className="rounded-xl border border-[#e2e8f0] px-4 py-2 text-sm font-bold text-[#475569]">返回词典</Link>
+          <Link href={`/settings?listId=${encodeURIComponent(list.id)}&category=${encodeURIComponent(category)}`} className="rounded-xl border border-[#e2e8f0] px-4 py-2 text-sm font-bold text-[#475569]">返回学习内容</Link>
         </div>
       </section>
     </main>

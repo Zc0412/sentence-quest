@@ -13,6 +13,8 @@ ROOT = Path(__file__).resolve().parents[1]
 BASE = 'https://files.typewords.cc'
 OUT = ROOT / 'public/dictionaries/words'
 OUT.mkdir(parents=True, exist_ok=True)
+# Explicitly removed from the app; do not reimport during future syncs.
+EXCLUDED_FILES = {'CET-4-frequency.json'}
 
 def download(url):
     for attempt in range(3):
@@ -72,6 +74,7 @@ def import_dict(entry):
 if __name__ == '__main__':
     catalog = download(f'{BASE}/list/word.json')
     assert catalog and len({item['url'] for item in catalog}) == len(catalog), 'Invalid catalog'
+    catalog = [entry for entry in catalog if entry['url'] not in EXCLUDED_FILES]
     with concurrent.futures.ThreadPoolExecutor(max_workers=3) as pool:
         manifest = list(pool.map(import_dict, catalog))
     (ROOT / 'src/data/vocabulary-catalog.json').write_text(json.dumps(manifest, ensure_ascii=False, indent=2) + '\n')

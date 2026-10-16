@@ -51,8 +51,8 @@ export function FeedbackButton() {
   return (
     <Dialog open={open} onOpenChange={(next) => { if (pending) return; setOpen(next); if (next) { setSuccess(false); setError(''); } }}>
       <DialogTrigger asChild>
-        <Button type="button" variant="outline" aria-label="意见反馈" className="fixed right-4 z-40 h-11 rounded-full border-blue-100 bg-white px-4 text-blue-600 shadow-lg hover:bg-blue-50 sm:right-6" style={{ bottom: 'max(1rem, env(safe-area-inset-bottom))' }}>
-          <MessageSquarePlus size={18} /><span>反馈</span>
+        <Button type="button" variant="outline" aria-label="意见反馈" className="group fixed right-4 z-40 h-11 gap-0 rounded-full border-blue-100 bg-white px-[13px] text-blue-600 shadow-lg hover:bg-blue-50 sm:right-6" style={{ bottom: 'max(1rem, env(safe-area-inset-bottom))' }}>
+          <MessageSquarePlus size={18} className="shrink-0" /><span aria-hidden="true" className="max-w-0 overflow-hidden opacity-0 transition-all duration-200 group-hover:ml-2 group-hover:max-w-12 group-hover:opacity-100 group-focus-visible:ml-2 group-focus-visible:max-w-12 group-focus-visible:opacity-100 motion-reduce:transition-none">反馈</span>
         </Button>
       </DialogTrigger>
       <DialogContent className="max-h-[85dvh] w-[calc(100%-2rem)] overflow-y-auto rounded-2xl bg-white p-6">

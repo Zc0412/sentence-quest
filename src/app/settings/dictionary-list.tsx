@@ -2,16 +2,17 @@
 
 import Link from 'next/link';
 import { useMemo, useState } from 'react';
-import { ArrowUpRight, Check } from 'lucide-react';
+import { ArrowUpRight, Check, Search, X } from 'lucide-react';
 import { vocabularyLists } from '@/data/vocabulary';
 import { phrasePracticeLists } from '@/data/phrase-practice';
 import type { PhrasePracticeList } from '@/data/phrase-practice';
 import { Dialog, DialogContent, DialogDescription, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 const categories = ['全部', ...new Set([...vocabularyLists.map((list) => list.category), ...phrasePracticeLists.map((list) => list.category)])];
 
-export default function DictionaryList({ currentListId, currentCategory, query }: { currentListId: string; currentCategory?: string; query: string }) {
+export default function DictionaryList({ currentListId, currentCategory, query, onQueryChange }: { currentListId: string; currentCategory?: string; query: string; onQueryChange: (value: string) => void }) {
   const [category, setCategory] = useState('全部');
   const [tag, setTag] = useState('全部');
   const entries = useMemo(() => [
@@ -42,8 +43,15 @@ export default function DictionaryList({ currentListId, currentCategory, query }
         </div>
       )}
       <div className="surface-card shrink-0 p-3 md:p-5">
-        <div className="flex gap-1 overflow-x-auto pb-1 md:flex-wrap md:gap-2 md:overflow-visible md:pb-0" role="group" aria-label="词典分类">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-start">
+        <div className="flex min-w-0 flex-1 gap-1 overflow-x-auto pb-1 md:flex-wrap md:gap-2 md:overflow-visible md:pb-0" role="group" aria-label="内容分类">
           {categories.map((item) => <button key={item} type="button" aria-pressed={category === item} onClick={() => { setCategory(item); setTag('全部'); }} className={`shrink-0 whitespace-nowrap rounded-xl px-3 py-2 text-sm font-semibold transition-colors md:px-4 ${category === item ? 'bg-[#3b82f6] text-white' : 'text-[#2563eb] hover:bg-[#eff6ff]'}`}>{item}</button>)}
+        </div>
+        <div className="relative w-full shrink-0 sm:ml-auto sm:w-56 lg:w-64">
+          <Search size={17} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+          <Input type="search" value={query} onChange={(event) => onQueryChange(event.target.value)} placeholder="搜索词库、短语或句型" aria-label="搜索词库、短语或句型" className="h-10 rounded-full border-0 bg-slate-100 pl-10 pr-9 text-base shadow-none sm:text-sm [&::-webkit-search-cancel-button]:appearance-none" />
+          {query && <button type="button" onClick={() => onQueryChange('')} aria-label="清除搜索" className="absolute right-2 top-1/2 flex h-7 w-7 -translate-y-1/2 items-center justify-center rounded-full text-slate-500 hover:bg-blue-100"><X size={15} /></button>}
+        </div>
         </div>
         <div className="mt-2 flex items-center gap-2 border-t border-[#e2e8f0] pt-2 md:mt-4 md:gap-3 md:pt-4">
           <label htmlFor="dictionary-tag" className="shrink-0 text-xs text-[#64748b]">教材 / 系列</label>
@@ -68,7 +76,7 @@ export default function DictionaryList({ currentListId, currentCategory, query }
             <p className="mb-5 mt-2 line-clamp-2 text-sm leading-6 text-[#64748b]">{list.description}</p>
             <div className="mt-auto flex items-center justify-between border-t border-[#f1f5f9] pt-4"><span className="text-xs text-[#64748b]">{list.wordCount.toLocaleString()} 个词条</span><span className="flex items-center gap-1 text-xs font-bold text-[#2563eb]">开始练习 <ArrowUpRight size={15} /></span></div>
           </Link>)}
-          {lists.length === 0 && <p role="status" className="py-16 text-center text-sm text-[#64748b] sm:col-span-2 md:col-span-1 lg:col-span-2 xl:col-span-3">没有找到相关词典，请尝试其他关键词或分类。</p>}
+          {lists.length === 0 && <p role="status" className="py-16 text-center text-sm text-[#64748b] sm:col-span-2 md:col-span-1 lg:col-span-2 xl:col-span-3">没有找到相关学习内容，请尝试其他关键词或分类。</p>}
         </div>
       </div>
     </div>

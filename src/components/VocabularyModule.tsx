@@ -1,5 +1,7 @@
 'use client';
 
+import { usePracticeSettings } from './PracticeSettingsProvider';
+
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { ChevronLeft, ChevronRight, Lightbulb, SkipForward, Sparkles, Volume2 } from 'lucide-react';
 import type { VocabularyProgress, VocabularyWord } from '../types/game';
@@ -21,7 +23,11 @@ interface Props {
 }
 
 export function VocabularyModule({ words, progress, pronunciationType, onSelectIndex, onCorrect, onSpeak }: Props) {
+  const { hintsEnabled, ready: settingsReady } = usePracticeSettings();
   const [typed, setTyped] = useState('');
+  const [completed, setCompleted] = useState(false);
+  const completedRef = useRef(false);
+  const advanceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [error, setError] = useState('');
   const [revealedLetters, setRevealedLetters] = useState(0);
   const [typingStats, setTypingStats] = useState({ input: 0, correct: 0 });
@@ -58,13 +64,24 @@ export function VocabularyModule({ words, progress, pronunciationType, onSelectI
     void Promise.allSettled(wordsToPreload.map((word) => loadPronunciationAudio(word, pronunciationType)));
   }, [currentWord.name, nextWord?.name, pronunciationType, wordOrder]);
 
+  function cancelAdvance() {
+    if (advanceTimer.current !== null) clearTimeout(advanceTimer.current);
+    advanceTimer.current = null;
+  }
+
   useEffect(() => {
+    completedRef.current = false;
+    setCompleted(false);
     setTyped('');
     setError('');
     setRevealedLetters(0);
+    return cancelAdvance;
   }, [currentIndex]);
 
   function moveTo(index: number) {
+    cancelAdvance();
+    completedRef.current = false;
+    setCompleted(false);
     onSelectIndex(Math.min(Math.max(index, 0), words.length - 1));
     setTyped('');
     setError('');
@@ -72,6 +89,7 @@ export function VocabularyModule({ words, progress, pronunciationType, onSelectI
   }
 
   function changeTyped(value: string) {
+    if (completedRef.current) return;
     const filtered = Array.from(value).filter((letter) => /^[a-zA-Z'’-]$/.test(letter) || spellingWord.includes(letter)).join('');
     const attempt = countTypingAttempt(typed, filtered, spellingWord);
     if (attempt.input > 0) {
@@ -82,11 +100,20 @@ export function VocabularyModule({ words, progress, pronunciationType, onSelectI
     }
     const clean = filtered.slice(0, spellingWord.length);
     if (clean && isCorrectWord(clean, spellingWord)) {
-      setTyped('');
+      completedRef.current = true;
+      setCompleted(true);
+      setTyped(spellingWord);
       setError('');
       setRevealedLetters(0);
-      onCorrect(currentWord.name, nextIndex ?? currentIndex);
+      // Save immediately, but keep the completed word visible before advancing.
+      onCorrect(currentWord.name, currentIndex);
       onSpeak(currentWord.name);
+      if (nextIndex !== undefined) {
+        advanceTimer.current = setTimeout(() => {
+          advanceTimer.current = null;
+          moveTo(nextIndex);
+        }, 800);
+      }
       return;
     }
     setTyped(clean);
@@ -163,19 +190,20 @@ export function VocabularyModule({ words, progress, pronunciationType, onSelectI
             phonetics={[phonetic ? `/${phonetic}/` : '']}
             activeIndex={0}
             typed={typed}
-            revealedLetters={revealedLetters}
+            revealedLetters={hintsEnabled ? revealedLetters : 0}
+            completedIndices={completed ? [0] : []}
             error={error}
             focusSignal={currentIndex}
             label="根据中文释义拼写英文单词"
             onChange={changeTyped}
             onSpeakWord={onSpeak}
           />
-          <div id="typing-feedback" role="status" aria-live="polite" className={`typing-feedback text-center text-[13px] font-medium ${error ? 'text-orange-600' : 'text-[#64748b]'}`}>
-            {error ? '' : '根据中文释义拼写英文单词，拼对后自动进入下一词'}
+          <div id="typing-feedback" role="status" aria-live="polite" className={`typing-feedback text-center text-[13px] font-medium ${error ? 'text-orange-600' : completed ? 'text-emerald-600' : 'text-[#64748b]'}`}>
+            {completed ? (nextWord ? '拼写正确！即将进入下一个单词…' : '拼写正确！已完成最后一个单词') : error ? '' : '根据中文释义拼写英文单词，拼对后稍作停留再进入下一词'}
           </div>
           <div className="typing-actions flex flex-wrap items-center justify-center gap-2">
             <Button type="button" variant="ghost" onClick={() => onSpeak(currentWord.name)} aria-keyshortcuts="Alt+p" className="text-action h-auto"><Volume2 size={17} /> 听当前单词</Button>
-            <Button type="button" variant="ghost" onClick={() => setRevealedLetters((count) => nextHintLength(typed, spellingWord, count))} disabled={revealedLetters >= spellingWord.length} className="text-action h-auto"><Lightbulb size={17} /> 多给一个字母</Button>
+            {settingsReady && hintsEnabled && <Button type="button" variant="ghost" onClick={() => setRevealedLetters((count) => nextHintLength(typed, spellingWord, count))} disabled={completed || revealedLetters >= spellingWord.length} className="text-action h-auto"><Lightbulb size={17} /> 多给一个字母</Button>}
             <Button type="button" variant="ghost" onClick={skipCurrent} disabled={!nextWord} className="text-action h-auto"><SkipForward size={17} /> 跳过当前词</Button>
           </div>
         </ExercisePrompt>

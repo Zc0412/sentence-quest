@@ -15,21 +15,6 @@
     "sha256": "6dc78045551f90c687aa5918292d11649c846b436b6b93f47256747e25d35d2b"
   },
   {
-    "id": "CET-4-frequency",
-    "label": "CET-4（翻译带频率）",
-    "description": "大学英语四级词库（翻译带频率显示）",
-    "wordCount": 2607,
-    "category": "中国考试",
-    "tags": [
-      "大学英语"
-    ],
-    "sourceId": 252,
-    "sourceUrl": "https://files.typewords.cc/dicts/en/word/CET-4-frequency.json",
-    "sourceWordCount": 2607,
-    "skippedWords": [],
-    "sha256": "5cfc3e3545a37a65a848a14fc5191711db2bb8d1614c1a3f492d92b7b391e5af"
-  },
-  {
     "id": "CET6_T",
     "label": "CET-6",
     "description": "大学英语六级词库",

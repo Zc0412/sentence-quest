@@ -7,7 +7,7 @@
 - 数据地址：`https://files.typewords.cc/dicts/en/word/{url}`
 - 同步工具：`python3 scripts/sync-typewords.py`（Python 3，无额外依赖）
 
-`public/dictionaries/words/source.json` 保存获取时间和原始目录快照，
+`public/dictionaries/words/source.json` 保存获取时间和排除不使用词库后的来源目录快照，
 `src/data/vocabulary-catalog.json` 保存每本词典的来源、实际词数、跳过的无释义词条及 SHA-256。
 以实际页面使用的资源服务器目录为准；站点根目录 `/list/word.json` 是不同的旧目录。
 
