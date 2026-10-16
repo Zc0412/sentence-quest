@@ -1,8 +1,7 @@
 'use client';
 
-import { useKeyboardPlatform } from '@/hooks/useKeyboardPlatform';
+import { ShortcutKeys } from './ShortcutKeys';
 
 export function ShortcutHint({ letter }: { letter: 'P' | 'H' | 'N' }) {
-  const { keyLabel } = useKeyboardPlatform();
-  return <kbd className="ml-1 rounded border border-slate-200 px-1 py-0.5 font-sans text-[10px] font-normal opacity-60">{keyLabel('Alt')} + {letter}</kbd>;
+  return <span className="ml-1 opacity-70"><ShortcutKeys keys={['Alt', letter]} compact /></span>;
 }
