@@ -32,6 +32,7 @@ import {
 } from './ui/dialog';
 import { setPronunciationType } from '@/utils/speech';
 import type { PronunciationType } from '@/utils/speech';
+import { countTypingAttempt } from '@/utils/typingStats';
 
 export function SentencePracticeApp({
   sentenceList = sentences,
@@ -60,6 +61,22 @@ export function SentencePracticeApp({
   const [showInstructions, setShowInstructions] = useState(false);
   const [showReset, setShowReset] = useState(false);
   const [showActivity, setShowActivity] = useState(false);
+  const [typingStats, setTypingStats] = useState({ input: 0, correct: 0 });
+  function changePhraseTyped(value: string) {
+    if (game.phase !== 'playing' || !game.currentWord) return;
+    const attempt = countTypingAttempt(
+      game.typed.replace(/\s/g, ''),
+      value.replace(/\s/g, ''),
+      game.currentWord.replace(/\s/g, ''),
+    );
+    if (attempt.input > 0) {
+      setTypingStats((previous) => ({
+        input: previous.input + attempt.input,
+        correct: previous.correct + attempt.correct,
+      }));
+    }
+    game.changeTyped(value);
+  }
   const isPlaying = game.ready && game.phase === 'playing';
   usePracticeShortcuts({
     listen: () => game.speakWord(game.currentWord),
@@ -141,7 +158,7 @@ export function SentencePracticeApp({
                   <p className="text-sm font-semibold text-[#475569]">正在恢复学习进度…</p>
                 </div>
               )}
-              {isPlaying && isPhrasePractice && <PhrasePracticeModule game={game} sentenceList={sentenceList} />}
+              {isPlaying && isPhrasePractice && <PhrasePracticeModule game={game} sentenceList={sentenceList} typingStats={typingStats} onChangeTyped={changePhraseTyped} />}
               {isPlaying && !isPhrasePractice && (
                 <>
                   <div className="flex items-center justify-between gap-3">

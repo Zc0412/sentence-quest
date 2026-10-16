@@ -5,11 +5,10 @@ import { ShortcutHint } from './ShortcutHint';
 
 import { usePracticeSettings } from './PracticeSettingsProvider';
 
-import { useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import { ChevronLeft, ChevronRight, Lightbulb, SkipForward, Sparkles, Volume2 } from 'lucide-react';
 import type { SentenceGame } from '@/hooks/useSentenceGame';
 import type { Sentence } from '@/types/game';
-import { countTypingAttempt } from '@/utils/typingStats';
 import { ExercisePrompt } from './ExercisePrompt';
 import { PracticeSpellingBoard } from './PracticeSpellingBoard';
 import { Button } from './ui/button';
@@ -17,30 +16,20 @@ import { Button } from './ui/button';
 interface Props {
   game: SentenceGame;
   sentenceList: Sentence[];
+  typingStats: { input: number; correct: number };
+  onChangeTyped: (value: string) => void;
 }
 
-export function PhrasePracticeModule({ game, sentenceList }: Props) {
+export function PhrasePracticeModule({ game, sentenceList, typingStats, onChangeTyped }: Props) {
   const { hintsEnabled, ready: settingsReady } = usePracticeSettings();
   const { keyLabel } = useKeyboardPlatform();
   const progressItems = useMemo(() => {
     const completed = new Set(game.progress.completedIds);
     return sentenceList.map((sentence) => ({ id: sentence.id, text: sentence.english, meaning: sentence.zh, completed: completed.has(sentence.id) }));
   }, [sentenceList, game.progress.completedIds]);
-  const [typingStats, setTypingStats] = useState({ input: 0, correct: 0 });
   const sentence = game.sentence;
   const previousSentence = sentenceList[game.courseIndex - 1];
   const nextSentence = sentenceList[game.courseIndex + 1];
-
-  function changeTyped(value: string) {
-    const attempt = countTypingAttempt(game.typed, value, game.currentWord);
-    if (attempt.input > 0) {
-      setTypingStats((previous) => ({
-        input: previous.input + attempt.input,
-        correct: previous.correct + attempt.correct,
-      }));
-    }
-    game.changeTyped(value);
-  }
 
   return (
     <div className="vocabulary-exercise h-full min-h-0 overflow-y-auto px-2 py-3 sm:px-8">
@@ -95,7 +84,7 @@ export function PhrasePracticeModule({ game, sentenceList }: Props) {
             typed={game.typed}
             error={game.error}
             focusSignal={game.focusSignal}
-            onChange={changeTyped}
+            onChange={onChangeTyped}
             onSpeakWord={game.speakWord}
             label="根据中文释义拼写英文短语"
           />
