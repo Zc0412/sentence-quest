@@ -1,0 +1,35 @@
+[
+  {
+    "id": "dev-001",
+    "unit": 1,
+    "category": "功能测试",
+    "zh": "早上好",
+    "english": "Good morning",
+    "words": ["Good", "morning"],
+    "note": "Good morning 是早晨见面时常用的问候语。",
+    "annotations": [
+      { "phonetic": "/ɡʊd/", "meaning": "好的", "pos": "形容词", "color": "#22c55e" },
+      { "phonetic": "/ˈmɔːnɪŋ/", "meaning": "早晨", "pos": "名词", "color": "#3b82f6" }
+    ],
+    "grammar": [
+      { "role": "问候语", "start": 0, "end": 2, "color": "#2563eb", "explanation": "Good morning 用于早晨向他人问好。" }
+    ]
+  },
+  {
+    "id": "dev-002",
+    "unit": 1,
+    "category": "功能测试",
+    "zh": "谢谢你",
+    "english": "Thank you",
+    "words": ["Thank", "you"],
+    "note": "Thank you 用于表达感谢。完成本题后，点击继续按钮可测试全部完成页面。",
+    "annotations": [
+      { "phonetic": "/θæŋk/", "meaning": "感谢", "pos": "动词", "color": "#22c55e" },
+      { "phonetic": "/juː/", "meaning": "你", "pos": "代词", "color": "#fa454b" }
+    ],
+    "grammar": [
+      { "role": "谓语", "start": 0, "end": 1, "color": "#be123c", "explanation": "Thank 表示感谢，口语中常省略主语 I。" },
+      { "role": "宾语", "start": 1, "end": 2, "color": "#2563eb", "explanation": "you 表示感谢的对象。" }
+    ]
+  }
+]

@@ -33,11 +33,19 @@ export function normalizeProgress(value: unknown): Progress {
     ? Object.fromEntries(Object.entries(data.vocabularyProgress).filter(
         ([id, entry]) => typeof id === 'string' && entry !== null && typeof entry === 'object' && !Array.isArray(entry),
       ).map(([id, entry]) => {
-        const stored = entry as { knownWords?: unknown; index?: unknown };
+        const stored = entry as { knownWords?: unknown; index?: unknown; mistakeWords?: unknown; groupIndices?: unknown };
         const words = Array.isArray(stored.knownWords)
           ? [...new Set(stored.knownWords.filter((word): word is string => typeof word === 'string' && Boolean(word.trim())))]
           : [];
-        return [id, { knownWords: words, index: nonNegative(stored.index) }];
+        const mistakeWords = Array.isArray(stored.mistakeWords)
+          ? [...new Set(stored.mistakeWords.filter((word): word is string => typeof word === 'string' && Boolean(word.trim())))]
+          : undefined;
+        const groupIndices = stored.groupIndices && typeof stored.groupIndices === 'object' && !Array.isArray(stored.groupIndices)
+          ? Object.fromEntries(Object.entries(stored.groupIndices).filter(([group, index]) =>
+            /^[1-9]\d*$/.test(group) && typeof index === 'number' && Number.isFinite(index) && index >= 0,
+          ).map(([group, index]) => [group, nonNegative(index)]))
+          : undefined;
+        return [id, { knownWords: words, index: nonNegative(stored.index), ...(mistakeWords ? { mistakeWords } : {}), ...(groupIndices ? { groupIndices } : {}) }];
       }))
     : {};
   if (!vocabularyProgress.CET4_T && (knownVocabulary.length > 0 || nonNegative(data.vocabularyIndex) > 0)) {

@@ -6,6 +6,8 @@ import { EMPTY_PROGRESS, fallbackProgress, loadProgress, saveProgress } from '..
 import type { LoadedProgress } from '../utils/storage';
 import { isCorrectWord, isCorrectPrefix, nextHintLength } from '../utils/validator';
 import { speakWord, stopSpeech } from '../utils/speech';
+import { withVocabularyIndex } from '../utils/vocabulary-groups';
+import { practiceXp } from '../utils/practice-xp';
 
 function nextUnfinished(completedIds: string[], sentenceList: Sentence[]): Sentence | undefined {
   return sentenceList.find((item) => !completedIds.includes(item.id));
@@ -26,7 +28,12 @@ function localDateKey(date = new Date()): string {
 
 export function useSentenceGame(
   sentenceList: Sentence[] = sentences,
-  { readWholeOnCompletion = false, onLearning }: { readWholeOnCompletion?: boolean; onLearning?: (kind: 'word' | 'sentence', text: string, meaning: string) => void } = {},
+  { readWholeOnCompletion = false, onLearning, onMistake, onReviewComplete }: {
+    readWholeOnCompletion?: boolean;
+    onLearning?: (kind: 'word' | 'sentence', text: string, meaning: string) => void;
+    onMistake?: (sentence: Sentence) => void;
+    onReviewComplete?: (sentence: Sentence, perfect: boolean) => void;
+  } = {},
 ) {
   // 服务端与客户端首屏渲染统一使用空进度，避免 hydration mismatch。
   // 浏览器存档只在 mount 后载入，载入完成前禁止将默认数据写回。
@@ -44,7 +51,6 @@ export function useSentenceGame(
   const [mistakesThisSentence, setMistakesThisSentence] = useState(0);
   const [hintsThisSentence, setHintsThisSentence] = useState(0);
   const [extraRevealed, setExtraRevealed] = useState(0);
-  const [streak, setStreak] = useState(0);
   const [earnedXp, setEarnedXp] = useState(0);
   const [reviewedIds, setReviewedIds] = useState<string[]>([]);
   const [focusSignal, setFocusSignal] = useState(0);
@@ -146,7 +152,6 @@ export function useSentenceGame(
     setTyped('');
     setError('');
     setExtraRevealed(0);
-    setStreak((value) => value + 1);
     speakWord(sentenceFinished && readWholeOnCompletion ? sentence.english : currentWord);
 
     if (!sentenceFinished) {
@@ -159,7 +164,8 @@ export function useSentenceGame(
     // 重刷已完成的句子可以练习，但不重复刷 XP。
     const isFirstPass = mode === 'challenge' && !isReplaying && !progress.completedIds.includes(sentence.id);
     const isPerfect = mistakesThisSentence === 0 && hintsThisSentence === 0;
-    const reward = isFirstPass ? 10 + (isPerfect ? 5 : 0) : 0;
+    if (mode === 'review') onReviewComplete?.(sentence, isPerfect);
+    const reward = practiceXp(isFirstPass, isPerfect);
     setEarnedXp(reward);
     setWordIndex(sentence.words.length);
     setPhase('success');
@@ -206,8 +212,8 @@ export function useSentenceGame(
 
     const validPrefix = !clean || isCorrectPrefix(clean, currentWord);
     if (!validPrefix && !error) {
+      if (mistakesThisSentence === 0) onMistake?.(sentence);
       setMistakesThisSentence((count) => count + 1);
-      setStreak(0);
       setProgress((old) => ({
         ...old,
         mistakes: {
@@ -268,7 +274,6 @@ export function useSentenceGame(
     if (!sentenceList.some((item) => item.id === id)) return;
     setIsReplaying(false);
     setMode('challenge');
-    setStreak(0);
     startSentence(id);
   }
 
@@ -276,7 +281,6 @@ export function useSentenceGame(
     if (!hydrated) return;
     setIsReplaying(false);
     setMode(nextMode);
-    setStreak(0);
     if (nextMode === 'review') {
       setReviewedIds([]);
       if (reviewIds.length > 0) startSentence(reviewIds[0]);
@@ -291,7 +295,6 @@ export function useSentenceGame(
   function replayCourse() {
     setIsReplaying(true);
     setMode('challenge');
-    setStreak(0);
     setReviewedIds([]);
     startSentence(sentenceList[0].id);
   }
@@ -301,7 +304,6 @@ export function useSentenceGame(
     setIsReplaying(false);
     setProgress({ ...EMPTY_PROGRESS, completedIds: [], mistakes: {} });
     setMode('challenge');
-    setStreak(0);
     setReviewedIds([]);
     startSentence(sentenceList[0].id);
   }
@@ -316,46 +318,59 @@ export function useSentenceGame(
     }));
     setIsReplaying(false);
     setMode('challenge');
-    setStreak(0);
     setReviewedIds([]);
     startSentence(sentenceList[0].id);
   }
 
-  function setVocabularyIndex(listId: VocabularyListId, index: number) {
+  function setVocabularyIndex(listId: VocabularyListId, index: number, group?: number) {
     if (!Number.isInteger(index) || index < 0) return;
     setProgress((old) => ({
       ...old,
       vocabularyIndex: listId === 'CET4_T' ? index : old.vocabularyIndex,
       vocabularyProgress: {
         ...old.vocabularyProgress,
-        [listId]: {
-          ...(old.vocabularyProgress[listId] ?? { knownWords: [], index: 0 }),
-          index,
-        },
+        [listId]: withVocabularyIndex(old.vocabularyProgress[listId] ?? { knownWords: [], index: 0 }, index, group),
       },
     }));
   }
 
-  function recordVocabularyCorrect(listId: VocabularyListId, word: string, nextIndex: number) {
+  function recordVocabularyCorrect(listId: VocabularyListId, word: string, nextIndex: number, group?: number, { perfect = false, review = false }: { perfect?: boolean; review?: boolean } = {}) {
     const today = localDateKey();
     setProgress((old) => {
       const todayActivity = old.activityByDate[today] ?? { words: 0, sentences: 0 };
       const bankProgress = old.vocabularyProgress[listId] ?? { knownWords: [], index: 0 };
       const knownWords = new Set(bankProgress.knownWords);
       const allKnownWords = new Set(old.knownVocabulary);
-      knownWords.add(word);
-      allKnownWords.add(word);
+      const reward = practiceXp(!review && !knownWords.has(word), perfect);
+      if (!review) {
+        knownWords.add(word);
+        allKnownWords.add(word);
+      }
       return {
         ...old,
+        xp: old.xp + reward,
         knownVocabulary: [...allKnownWords],
         vocabularyIndex: listId === 'CET4_T' ? nextIndex : old.vocabularyIndex,
         vocabularyProgress: {
           ...old.vocabularyProgress,
-          [listId]: { knownWords: [...knownWords], index: nextIndex },
+          [listId]: withVocabularyIndex({ ...bankProgress, knownWords: [...knownWords] }, nextIndex, group),
         },
         activityByDate: {
           ...old.activityByDate,
           [today]: { ...todayActivity, words: todayActivity.words + 1 },
+        },
+      };
+    });
+  }
+
+  function recordVocabularyMistake(listId: VocabularyListId, word: string) {
+    setProgress((old) => {
+      const bank = old.vocabularyProgress[listId] ?? { knownWords: [], index: 0 };
+      return {
+        ...old,
+        vocabularyProgress: {
+          ...old.vocabularyProgress,
+          [listId]: { ...bank, mistakeWords: [...new Set([...(bank.mistakeWords ?? []), word])] },
         },
       };
     });
@@ -382,7 +397,6 @@ export function useSentenceGame(
     revealedLetters,
     typed,
     error,
-    streak,
     mistakesThisSentence,
     hintsThisSentence,
     earnedXp,
@@ -400,6 +414,7 @@ export function useSentenceGame(
     resetSentenceListProgress,
     setVocabularyIndex,
     recordVocabularyCorrect,
+    recordVocabularyMistake,
   };
 }
 

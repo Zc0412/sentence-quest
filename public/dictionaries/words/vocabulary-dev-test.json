@@ -1,0 +1,20 @@
+[
+  {
+    "name": "cat",
+    "trans": ["n. 猫"],
+    "usphone": "kæt",
+    "ukphone": "kæt"
+  },
+  {
+    "name": "dog",
+    "trans": ["n. 狗"],
+    "usphone": "dɔːɡ",
+    "ukphone": "dɒɡ"
+  },
+  {
+    "name": "sun",
+    "trans": ["n. 太阳"],
+    "usphone": "sʌn",
+    "ukphone": "sʌn"
+  }
+]

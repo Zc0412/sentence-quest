@@ -6,7 +6,9 @@ import { ShortcutHint } from './ShortcutHint';
 import { usePracticeSettings } from './PracticeSettingsProvider';
 
 import { useMemo } from 'react';
-import { ChevronLeft, ChevronRight, Lightbulb, SkipForward, Sparkles, Volume2 } from 'lucide-react';
+import { Lightbulb, SkipForward, Volume2 } from 'lucide-react';
+import { PracticeNavigation } from './PracticeNavigation';
+import { TypingStatistics } from './TypingStatistics';
 import type { SentenceGame } from '@/hooks/useSentenceGame';
 import type { Sentence } from '@/types/game';
 import { ExercisePrompt } from './ExercisePrompt';
@@ -39,37 +41,11 @@ export function PhrasePracticeModule({ game, sentenceList, typingStats, onChange
           progress={game.completedCount}
           total={sentenceList.length}
           progressItemLabel="个短语"
-          progressDetails={
-            <dl className="grid grid-cols-3 gap-2 px-4 py-5 text-center" aria-label="本次练习字母输入统计">
-              <div>
-                <dt className="text-[12px] font-medium text-[#64748b]">输入数</dt>
-                <dd className="mt-1 text-xl font-bold tabular-nums text-ink">{typingStats.input}</dd>
-              </div>
-              <div>
-                <dt className="text-[12px] font-medium text-[#64748b]">正确数</dt>
-                <dd className="mt-1 text-xl font-bold tabular-nums text-[#22c55e]">{typingStats.correct}</dd>
-              </div>
-              <div>
-                <dt className="text-[12px] font-medium text-[#64748b]">正确率</dt>
-                <dd className="mt-1 text-xl font-bold tabular-nums text-[#14b8a6]">{typingStats.input ? `${(typingStats.correct / typingStats.input * 100).toFixed(1)}%` : '—'}</dd>
-              </div>
-            </dl>
-          }
+          progressDetails={<TypingStatistics {...typingStats} />}
           navigation={
-            <div className="-mx-2 mt-3 grid grid-cols-[minmax(0,1fr)_minmax(0,2fr)_minmax(0,1fr)] items-start gap-2 sm:-mx-8 sm:gap-4">
-              <Button type="button" variant="ghost" onClick={() => previousSentence && game.selectSentence(previousSentence.id)} disabled={!previousSentence} className="text-action h-auto min-w-0 w-fit max-w-full justify-self-start justify-start px-0 sm:max-w-48 sm:px-2">
-                <ChevronLeft size={17} className="shrink-0" /> <span className="truncate">{previousSentence ? `上一个：${previousSentence.zh}` : '已经是第一个'}</span>
-              </Button>
-              <div className="min-w-0 text-center">
-                <div className="mb-2 flex items-center justify-center gap-2 text-[12px] font-bold uppercase tracking-[0.16em] text-[#64748b]">
-                  <Sparkles size={15} className="text-[#fbbf24]" /> TYPE THIS PHRASE
-                </div>
-                <h1 className="break-words text-base font-bold leading-relaxed text-ink sm:text-2xl">{sentence.zh}</h1>
-              </div>
-              <Button type="button" variant="ghost" onClick={() => nextSentence && game.selectSentence(nextSentence.id)} disabled={!nextSentence} className="text-action h-auto min-w-0 w-fit max-w-full justify-self-end justify-end px-0 sm:max-w-48 sm:px-2">
-                <span className="truncate">{nextSentence ? `下一个：${nextSentence.zh}` : '已经是最后一个'}</span> <ChevronRight size={17} className="shrink-0" />
-              </Button>
-            </div>
+            <PracticeNavigation kind="phrase" meaning={sentence.zh}
+              previous={previousSentence ? { label: previousSentence.zh, onSelect: () => game.selectSentence(previousSentence.id) } : undefined}
+              next={nextSentence ? { label: nextSentence.zh, onSelect: () => game.selectSentence(nextSentence.id) } : undefined} />
           }
         >
           <PracticeSpellingBoard

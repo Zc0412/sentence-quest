@@ -127,6 +127,18 @@ try {
     CET4_T: { knownWords: ['cancel'], index: 5 },
     CET6_T: { knownWords: ['cancel'], index: 0 },
   });
+  assert.deepEqual(normalizeProgress({
+    vocabularyProgress: {
+      test: { knownWords: ['cat'], index: 1, mistakeWords: ['cat', 'cat', '', null, 42, 'dog'] },
+    },
+  }).vocabularyProgress.test, {
+    knownWords: ['cat'], index: 1, mistakeWords: ['cat', 'dog'],
+  }, '错词记录应去重并过滤无效数据');
+  assert.deepEqual(normalizeProgress({
+    vocabularyProgress: {
+      test: { knownWords: [], index: 0, groupIndices: { 1: 12.9, 2: 75, 0: 3, bad: 1, 3: -1, 4: 'bad' } },
+    },
+  }).vocabularyProgress.test.groupIndices, { 1: 12, 2: 75 }, '分组位置应过滤无效数据');
   local.set(legacyKey, JSON.stringify({ completedIds: ['daily-001'], xp: 27, mistakes: { 'daily-002': 2 }, totalCorrectWords: 3, perfectSentences: 1 }));
   let result = await loadProgress();
   assert.equal(result.migrated, true);
@@ -156,7 +168,10 @@ try {
   assert.equal(renamedDatabase.records.get('guest').revision, 6, '迁移应保留旧记录版本');
   assert.equal(renamedDatabase.legacyRecords.get('guest').progress.xp, 83, '迁移后旧数据库应继续保留原记录');
 
-  const snapshot = { ...result.progress, xp: 60, completedIds: ['daily-001', 'daily-002'] };
+  const snapshot = {
+    ...result.progress, xp: 60, completedIds: ['daily-001', 'daily-002'],
+    vocabularyProgress: { test: { knownWords: ['cat'], index: 1, mistakeWords: ['cat', 'dog'], groupIndices: { 1: 1, 2: 75 } } },
+  };
   await Promise.all([
     renamedStorage.saveProgress({ ...snapshot, xp: 40 }),
     renamedStorage.saveProgress({ ...snapshot, xp: 50 }),
@@ -164,6 +179,8 @@ try {
   ]);
   result = await renamedStorage.loadProgress();
   assert.equal(result.progress.xp, 60, '连续写入后应保留最后一次修改');
+  assert.deepEqual(result.progress.vocabularyProgress.test.mistakeWords, ['cat', 'dog'], '错词记录应在重新加载存档后保留');
+  assert.deepEqual(result.progress.vocabularyProgress.test.groupIndices, { 1: 1, 2: 75 }, '各组位置应在重新加载存档后保留');
   const saved = renamedDatabase.records.get('guest');
   assert.ok(saved.revision >= 4);
   assert.equal(saved.schemaVersion, 1);

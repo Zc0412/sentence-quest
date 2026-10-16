@@ -3,10 +3,11 @@ import App from '@/App';
 import { vocabularyLists } from '@/data/vocabulary';
 import { phrasePracticeLists } from '@/data/phrase-practice';
 import { PhrasePracticeLoader } from '@/components/PhrasePracticeLoader';
+import { vocabularyGroups } from '@/utils/vocabulary-groups';
 
 interface PageProps {
   params: Promise<{ listId: string }>;
-  searchParams: Promise<{ category?: string }>;
+  searchParams: Promise<{ category?: string; group?: string }>;
 }
 
 export default async function PracticePage({ params, searchParams }: PageProps) {
@@ -22,5 +23,9 @@ export default async function PracticePage({ params, searchParams }: PageProps) 
   const list = vocabularyLists.find((item) => item.id === listId);
   if (!list) notFound();
 
-  return <App listId={list.id} />;
+  const { group } = await searchParams;
+  // Existing bookmarks continue with the first group.
+  if (group === undefined) redirect(`/practice/${encodeURIComponent(list.id)}?group=1`);
+  if (!/^[1-9]\d*$/.test(group) || !vocabularyGroups(list.wordCount).some((item) => item.id === Number(group))) notFound();
+  return <App key={`${list.id}:${group}`} listId={list.id} group={Number(group)} />;
 }

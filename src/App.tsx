@@ -3,12 +3,12 @@
 import { PracticeInstructions } from './components/PracticeInstructions';
 
 import { useLearningHistory } from './components/LearningHistoryProvider';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import { VOCABULARY_GROUP_SIZE, vocabularyGroupProgress } from './utils/vocabulary-groups';
 import Link from 'next/link';
-import { Logo } from './components/Logo';
 import {
-  CalendarDays, Flame, Lightbulb, Settings,
-  RotateCcw, Zap,
+  CalendarDays, Lightbulb,
+  RotateCcw,
 } from 'lucide-react';
 import type { VocabularyWord } from './types/game';
 import { vocabularyLists, loadVocabularyWords } from './data/vocabulary';
@@ -16,6 +16,9 @@ import type { VocabularyListId } from './data/vocabulary';
 import { useSentenceGame } from './hooks/useSentenceGame';
 import { ActivityHeatmap } from './components/ActivityHeatmap';
 import { VocabularyModule } from './components/VocabularyModule';
+import { PracticeHeader } from './components/PracticeHeader';
+import { useMistakeNotebook } from './components/MistakeNotebookProvider';
+import { mistakeId, wordMistake } from './utils/mistake-notebook';
 import { setPronunciationType } from './utils/speech';
 import type { PronunciationType } from './utils/speech';
 import { Button } from './components/ui/button';
@@ -26,11 +29,13 @@ import {
 
 interface Props {
   listId: VocabularyListId;
+  group: number;
 }
 
-export default function App({ listId }: Props) {
+export default function App({ listId, group }: Props) {
   const game = useSentenceGame();
   const history = useLearningHistory();
+  const notebook = useMistakeNotebook();
   const [words, setWords] = useState<VocabularyWord[] | null>(null);
   const [loadError, setLoadError] = useState('');
   const [loadAttempt, setLoadAttempt] = useState(0);
@@ -39,8 +44,11 @@ export default function App({ listId }: Props) {
   const [showReset, setShowReset] = useState(false);
   const [showActivity, setShowActivity] = useState(false);
   const vocabularyList = vocabularyLists.find((list) => list.id === listId);
-  const listLabel = vocabularyList?.label ?? listId;
-  const listProgress = game.progress.vocabularyProgress[listId] ?? { knownWords: [], index: 0 };
+  const listLabel = `${vocabularyList?.label ?? listId} · 第 ${group} 组`;
+  const groupStart = (group - 1) * VOCABULARY_GROUP_SIZE;
+  const groupWords = useMemo(() => words?.slice(groupStart, groupStart + VOCABULARY_GROUP_SIZE) ?? null, [words, groupStart]);
+  const listProgress = vocabularyGroupProgress(groupWords ?? [], game.progress.vocabularyProgress[listId] ?? { knownWords: [], index: 0 }, group);
+  const settingsHref = `/settings?listId=${encodeURIComponent(listId)}&group=${group}`;
 
   useEffect(() => {
     let cancelled = false;
@@ -65,45 +73,8 @@ export default function App({ listId }: Props) {
       <div className="pointer-events-none absolute -left-32 top-16 h-[470px] w-[470px] rounded-full bg-[#dbeafe] opacity-55 blur-[110px]" />
       <div className="pointer-events-none absolute -right-32 top-[400px] h-[530px] w-[530px] rounded-full bg-[#ccfbf1] opacity-70 blur-[120px]" />
       <div className="app-shell" inert={showInstructions || showReset || showActivity}>
-        <header className="app-header flex items-center justify-between gap-3">
-          <div className="flex min-w-0 items-center gap-3">
-            <Logo />
-          </div>
-          <div className="flex shrink-0 items-center gap-2">
-            <Button asChild type="button" variant="outline" size="icon" className="h-10 w-10 rounded-2xl border-[#e2e8f0] bg-white text-[#475569] shadow-sm hover:bg-[#eff6ff]" aria-label="打开设置">
-              <Link href={`/settings?listId=${listId}`}><Settings size={18} /></Link>
-            </Button>
-            <Button type="button" variant="outline" onClick={() => setShowActivity(true)} className="flex h-auto items-center gap-1.5 rounded-2xl border-[#e2e8f0] bg-white px-2.5 py-2.5 text-[12px] font-bold text-[#475569] shadow-sm hover:bg-[#eff6ff] sm:px-3" aria-label="查看学习热力图">
-              <CalendarDays size={17} /><span className="hidden sm:inline">学习统计</span>
-            </Button>
-            <div role="group" aria-label="发音口音" className="flex items-center rounded-2xl border border-[#e2e8f0] bg-white p-1 shadow-sm">
-              {([
-                ['1', '英音'],
-                ['2', '美音'],
-              ] as const).map(([type, label]) => (
-                <Button
-                  key={type}
-                  type="button"
-                  variant="ghost"
-                  aria-pressed={pronunciationType === type}
-                  onClick={() => {
-                    setSelectedPronunciationType(type);
-                    setPronunciationType(type);
-                  }}
-                  className={`h-auto rounded-xl px-2 py-2 text-[12px] font-bold ${pronunciationType === type ? 'bg-[#dbeafe] text-[#2563eb]' : 'text-[#64748b] hover:text-[#0f172a]'}`}
-                >
-                  {label}
-                </Button>
-              ))}
-            </div>
-            <div className="hidden items-center gap-2 rounded-2xl border border-[#e2e8f0] bg-white/85 px-3 py-2.5 text-sm font-semibold text-[#475569] shadow-sm sm:flex">
-              <Flame size={17} className="text-[#fbbf24]" /> 连对 <span className="text-ink">{game.streak}</span> 词
-            </div>
-            <div className="flex items-center gap-1.5 rounded-2xl border border-[#e2e8f0] bg-white px-3 py-2.5 text-sm font-black text-ink shadow-sm">
-              <Zap size={17} className="fill-[#fbbf24] text-[#f59e0b]" /> {game.progress.xp} <span className="font-medium text-[#94a3b8]">XP</span>
-            </div>
-          </div>
-        </header>
+        <PracticeHeader settingsHref={settingsHref} xp={game.progress.xp} pronunciationType={pronunciationType}
+          onShowActivity={() => setShowActivity(true)} onPronunciationChange={(type) => { setSelectedPronunciationType(type); setPronunciationType(type); }} />
 
         <main className="app-main app-main-practice">
           <section className="exercise-section">
@@ -111,7 +82,7 @@ export default function App({ listId }: Props) {
               <div className="flex min-w-0 items-center gap-2 text-[13px] font-medium text-[#64748b]">
                 <span className="shrink-0">单词练习</span>
                 <span aria-hidden="true">/</span>
-                <Link href={`/settings?listId=${encodeURIComponent(listId)}`} className="truncate font-bold text-[#0f172a] hover:text-[#2563eb]" title="切换词库">{listLabel}</Link>
+                <Link href={settingsHref} className="truncate font-bold text-[#0f172a] hover:text-[#2563eb]" title="切换词库或分组">{listLabel}</Link>
               </div>
               <div className="flex shrink-0 items-center gap-1">
                 <Button type="button" variant="ghost" onClick={() => setShowReset(true)} disabled={!game.ready} className="reset-action" aria-label="清空全部学习记录"><RotateCcw size={15} /></Button>
@@ -120,16 +91,27 @@ export default function App({ listId }: Props) {
             </div>
 
             <Card className="game-card" aria-busy={!ready}>
-              {ready && words ? (
+              {ready && groupWords ? (
                 <VocabularyModule
-                  key={listId}
-                  words={words}
+                  key={`${listId}:${group}`}
+                  words={groupWords}
                   listLabel={listLabel}
                   progress={listProgress}
                   pronunciationType={pronunciationType}
-                  onSelectIndex={(index) => game.setVocabularyIndex(listId, index)}
-                  onCorrect={(word, nextIndex) => {
-                    game.recordVocabularyCorrect(listId, word, nextIndex);
+                  onSelectIndex={(index) => game.setVocabularyIndex(listId, groupStart + index, group)}
+                  onMistake={(word) => {
+                    game.recordVocabularyMistake(listId, word);
+                    const entry = words?.find((item) => item.name === word);
+                    if (entry) notebook.record(wordMistake(listId, vocabularyList?.label ?? listId, entry, group));
+                  }}
+                  onCorrect={(word, nextIndex, result) => {
+                    game.recordVocabularyCorrect(listId, word, groupStart + nextIndex, group, result);
+                    if (result.review) {
+                      const entry = groupWords.find((item) => item.name === word)!;
+                      const snapshot = wordMistake(listId, vocabularyList?.label ?? listId, entry, group);
+                      void notebook.importLegacy([snapshot]);
+                      notebook.review(mistakeId(snapshot), result.perfect);
+                    }
                     history.record('word', word, words.find((entry) => entry.name === word)?.trans.join('；') ?? '');
                   }}
                   onSpeak={game.speakWord}
@@ -180,7 +162,7 @@ export default function App({ listId }: Props) {
           <DialogDescription className="mt-3 text-sm leading-7 text-[#64748b]">已完成的句子、单词拼写进度、每日学习统计、积分和错题记录都会被删除，且无法恢复。学习轨迹会保留。</DialogDescription>
           <div className="mt-7 flex gap-3">
             <Button variant="secondary" className="secondary-button flex-1" onClick={() => setShowReset(false)}>取消</Button>
-            <Button variant="destructive" className="primary-button flex-1 !bg-orange-500 hover:!bg-orange-600" onClick={() => { game.resetProgress(); setShowReset(false); }}>确认清空</Button>
+            <Button variant="destructive" className="primary-button flex-1 !bg-orange-500 hover:!bg-orange-600" onClick={() => { game.resetProgress(); notebook.clear(); setShowReset(false); }}>确认清空</Button>
           </div>
         </DialogContent>
       </Dialog>

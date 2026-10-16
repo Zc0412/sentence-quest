@@ -9,11 +9,10 @@ import { usePracticeSettings } from './PracticeSettingsProvider';
 
 import { useLearningHistory } from './LearningHistoryProvider';
 import { useMemo, useState } from 'react';
-import { Logo } from './Logo';
 import Link from 'next/link';
 import {
-  ArrowRight, BookOpen, BookOpenText, CalendarDays, Flame, Lightbulb, RotateCcw,
-  Settings, SkipForward, Sparkles, Trophy, Volume2, Zap,
+  ArrowRight, BookOpen, BookOpenText, CalendarDays, Lightbulb, RotateCcw,
+  SkipForward, Sparkles, Trophy, Volume2,
 } from 'lucide-react';
 import { useSentenceGame } from '@/hooks/useSentenceGame';
 import { usePracticeShortcuts } from '@/hooks/usePracticeShortcuts';
@@ -22,6 +21,10 @@ import type { Sentence } from '@/types/game';
 import { ActivityHeatmap } from './ActivityHeatmap';
 import { ProgressFrame } from './ProgressFrame';
 import { CompletionPanel } from './CompletionPanel';
+import { MasteryPanel } from './MasteryPanel';
+import { PracticeHeader } from './PracticeHeader';
+import { useMistakeNotebook } from './MistakeNotebookProvider';
+import { mistakeId, phraseMistake } from '@/utils/mistake-notebook';
 import { PhrasePracticeModule } from './PhrasePracticeModule';
 import { ProgressBar } from './ProgressBar';
 import { WordSlots } from './WordSlots';
@@ -52,7 +55,17 @@ export function SentencePracticeApp({
   const { hintsEnabled, ready: settingsReady } = usePracticeSettings();
   const { keyLabel } = useKeyboardPlatform();
   const history = useLearningHistory();
-  const game = useSentenceGame(sentenceList, { readWholeOnCompletion: isPhrasePractice, onLearning: history.record });
+  const notebook = useMistakeNotebook();
+  const sourceLabel = categoryName ? title.replace(` · ${categoryName}`, '') : title;
+  const game = useSentenceGame(sentenceList, {
+    readWholeOnCompletion: isPhrasePractice, onLearning: history.record,
+    onMistake: (sentence) => notebook.record(phraseMistake(listId, sourceLabel, sentence)),
+    onReviewComplete: (sentence, perfect) => {
+      const snapshot = phraseMistake(listId, sourceLabel, sentence);
+      void notebook.importLegacy([snapshot]);
+      notebook.review(mistakeId(snapshot), perfect);
+    },
+  });
   const progressItems = useMemo(() => {
     const completed = new Set(game.progress.completedIds);
     return sentenceList.map((sentence) => ({ id: sentence.id, text: sentence.english, meaning: sentence.zh, completed: completed.has(sentence.id) }));
@@ -85,7 +98,7 @@ export function SentencePracticeApp({
     enabled: isPlaying && !showInstructions && !showReset && !showActivity,
   });
   const isFinished = game.ready && game.phase === 'success';
-  const isFinalCompletion = isFinished && game.mode === 'challenge' && !game.isReplaying && game.completedCount === sentenceList.length;
+  const isFinalCompletion = !isPhrasePractice && isFinished && game.mode === 'challenge' && !game.isReplaying && game.completedCount === sentenceList.length;
   const settingsHref = `/settings?listId=${encodeURIComponent(listId)}${categoryName ? `&category=${encodeURIComponent(categoryName)}` : ''}`;
 
   return (
@@ -93,48 +106,11 @@ export function SentencePracticeApp({
       <div className="pointer-events-none absolute -left-32 top-16 h-[470px] w-[470px] rounded-full bg-[#dbeafe] opacity-55 blur-[110px]" />
       <div className="pointer-events-none absolute -right-32 top-[400px] h-[530px] w-[530px] rounded-full bg-[#ccfbf1] opacity-70 blur-[120px]" />
       <div className="app-shell" inert={showInstructions || showReset || showActivity}>
-        <header className="app-header flex items-center justify-between gap-3">
-          <div className="flex min-w-0 items-center gap-3">
-            <Logo />
-          </div>
-          <div className="flex shrink-0 items-center gap-2">
-            {!isPhrasePractice && <Button asChild type="button" variant="outline" size="icon" className="h-10 w-10 rounded-2xl border-[#e2e8f0] bg-white text-[#475569] shadow-sm hover:bg-[#eff6ff]" aria-label="单词练习">
+        <PracticeHeader settingsHref={settingsHref} xp={game.progress.xp} pronunciationType={pronunciationType}
+          onShowActivity={() => setShowActivity(true)} onPronunciationChange={(type) => { setSelectedPronunciationType(type); setPronunciationType(type); }}
+          extraAction={!isPhrasePractice && <Button asChild type="button" variant="outline" size="icon" className="h-10 w-10 rounded-2xl border-[#e2e8f0] bg-white text-[#475569] shadow-sm hover:bg-[#eff6ff]" aria-label="单词练习">
               <Link href="/practice/CET4_T"><BookOpenText size={18} /></Link>
-            </Button>}
-            <Button asChild type="button" variant="outline" size="icon" className="h-10 w-10 rounded-2xl border-[#e2e8f0] bg-white text-[#475569] shadow-sm hover:bg-[#eff6ff]" aria-label="打开设置">
-              <Link href={settingsHref}><Settings size={18} /></Link>
-            </Button>
-            <Button type="button" variant="outline" onClick={() => setShowActivity(true)} className="flex h-auto items-center gap-1.5 rounded-2xl border-[#e2e8f0] bg-white px-2.5 py-2.5 text-[12px] font-bold text-[#475569] shadow-sm hover:bg-[#eff6ff] sm:px-3" aria-label="查看学习热力图">
-              <CalendarDays size={17} /><span className="hidden sm:inline">学习统计</span>
-            </Button>
-            <div role="group" aria-label="发音口音" className="flex items-center rounded-2xl border border-[#e2e8f0] bg-white p-1 shadow-sm">
-              {([
-                ['1', '英音'],
-                ['2', '美音'],
-              ] as const).map(([type, label]) => (
-                <Button
-                  key={type}
-                  type="button"
-                  variant="ghost"
-                  aria-pressed={pronunciationType === type}
-                  onClick={() => {
-                    setSelectedPronunciationType(type);
-                    setPronunciationType(type);
-                  }}
-                  className={`h-auto rounded-xl px-2 py-2 text-[12px] font-bold ${pronunciationType === type ? 'bg-[#dbeafe] text-[#2563eb]' : 'text-[#64748b] hover:text-[#0f172a]'}`}
-                >
-                  {label}
-                </Button>
-              ))}
-            </div>
-            <div className="hidden items-center gap-2 rounded-2xl border border-[#e2e8f0] bg-white/85 px-3 py-2.5 text-sm font-semibold text-[#475569] shadow-sm sm:flex">
-              <Flame size={17} className="text-[#fbbf24]" /> 连对 <span className="text-ink">{game.streak}</span> 词
-            </div>
-            <div className="flex items-center gap-1.5 rounded-2xl border border-[#e2e8f0] bg-white px-3 py-2.5 text-sm font-black text-ink shadow-sm">
-              <Zap size={17} className="fill-[#fbbf24] text-[#f59e0b]" /> {game.progress.xp} <span className="font-medium text-[#94a3b8]">XP</span>
-            </div>
-          </div>
-        </header>
+            </Button>} />
 
         <main className="app-main app-main-practice">
           <section className="exercise-section">
@@ -202,7 +178,14 @@ export function SentencePracticeApp({
                   <CompletionPanel sentence={game.sentence} earnedXp={game.earnedXp} mistakes={game.mistakesThisSentence} hints={game.hintsThisSentence} onNext={game.nextSentence} onReplay={game.restartSentence} shortcutsEnabled={!showInstructions && !showReset && !showActivity} />
                 </div>
               )}
-              {game.ready && (game.phase === 'allDone' || isFinalCompletion) && (
+              {game.ready && game.phase === 'allDone' && isPhrasePractice && (
+                <div className="vocabulary-exercise h-full min-h-0 overflow-y-auto px-2 py-3 sm:px-8">
+                  <div className="flex min-h-full w-full flex-col">
+                    <MasteryPanel kind="phrase" listLabel={title} total={sentenceList.length} typingStats={typingStats} onReplay={game.replayCourse} onReview={() => game.changeMode('review')} saved={game.storageStatus === 'indexeddb'} />
+                  </div>
+                </div>
+              )}
+              {game.ready && !isPhrasePractice && (game.phase === 'allDone' || isFinalCompletion) && (
                 <div className="end-state flex flex-col items-center justify-center text-center">
                   <div className="mb-7 flex h-[104px] w-[104px] items-center justify-center rounded-[30px] bg-[#fef3c7] text-[#f59e0b]"><Trophy size={51} /></div>
                   <span className="section-overline text-[#b45309]">{isPhrasePractice ? 'ALL PHRASES MASTERED' : 'ALL SENTENCES CLEARED'}</span>
@@ -270,7 +253,11 @@ export function SentencePracticeApp({
           <DialogDescription className="mt-3 text-sm leading-7 text-[#64748b]">{isPhrasePractice ? `当前${categoryName ? '分类' : '短语题库'}的完成进度和错题记录将被清除，其他分类、题库和积分不受影响。` : '句子、单词进度、每日学习统计、积分和错题记录都会被删除，且无法恢复。学习轨迹会保留。'}</DialogDescription>
           <div className="mt-7 flex gap-3">
             <Button type="button" variant="secondary" className="secondary-button flex-1" onClick={() => setShowReset(false)}>取消</Button>
-            <Button type="button" variant="destructive" className="primary-button flex-1 !bg-orange-500 hover:!bg-orange-600" onClick={() => { if (isPhrasePractice) game.resetSentenceListProgress(); else game.resetProgress(); setShowReset(false); }}>确认清空</Button>
+            <Button type="button" variant="destructive" className="primary-button flex-1 !bg-orange-500 hover:!bg-orange-600" onClick={() => {
+              if (isPhrasePractice) { game.resetSentenceListProgress(); notebook.clear(listId, sentenceList.map((sentence) => sentence.id)); }
+              else { game.resetProgress(); notebook.clear(); }
+              setShowReset(false);
+            }}>确认清空</Button>
           </div>
         </DialogContent>
       </Dialog>}

@@ -40,6 +40,8 @@ export interface VocabularyWord {
 export interface VocabularyProgress {
   knownWords: string[];
   index: number;
+  mistakeWords?: string[];
+  groupIndices?: Record<string, number>;
 }
 
 export type GameMode = 'challenge' | 'review';

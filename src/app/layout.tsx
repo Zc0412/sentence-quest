@@ -4,6 +4,7 @@ import './globals.css';
 import { PracticeSettingsProvider } from '@/components/PracticeSettingsProvider';
 import { LearningHistoryProvider } from '@/components/LearningHistoryProvider';
 import { FeedbackButton } from '@/components/FeedbackButton';
+import { MistakeNotebookProvider } from '@/components/MistakeNotebookProvider';
 
 export const metadata: Metadata = {
   title: 'SentLeap | 一词一跃，玩会英语',
@@ -23,7 +24,7 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: Readonly<{ children: ReactNode }>) {
   return (
     <html lang="zh-CN">
-      <body><PracticeSettingsProvider><LearningHistoryProvider>{children}<FeedbackButton /></LearningHistoryProvider></PracticeSettingsProvider></body>
+      <body><PracticeSettingsProvider><LearningHistoryProvider><MistakeNotebookProvider>{children}<FeedbackButton /></MistakeNotebookProvider></LearningHistoryProvider></PracticeSettingsProvider></body>
     </html>
   );
 }

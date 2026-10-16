@@ -6,7 +6,10 @@ import { ShortcutHint } from './ShortcutHint';
 import { usePracticeSettings } from './PracticeSettingsProvider';
 
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Check, ChevronLeft, ChevronRight, Lightbulb, RotateCcw, SkipForward, Sparkles, Trophy, Volume2 } from 'lucide-react';
+import { ChevronRight, Lightbulb, SkipForward, Volume2 } from 'lucide-react';
+import { PracticeNavigation } from './PracticeNavigation';
+import { TypingStatistics } from './TypingStatistics';
+import { MasteryPanel } from './MasteryPanel';
 import type { VocabularyProgress, VocabularyWord } from '../types/game';
 import { ExercisePrompt } from './ExercisePrompt';
 import { PracticeSpellingBoard } from './PracticeSpellingBoard';
@@ -22,25 +25,31 @@ interface Props {
   progress: VocabularyProgress;
   pronunciationType: '1' | '2';
   onSelectIndex: (index: number) => void;
-  onCorrect: (word: string, nextIndex: number) => void;
+  onCorrect: (word: string, nextIndex: number, result: { perfect: boolean; review: boolean }) => void;
+  onMistake: (word: string) => void;
   onSpeak: (word: string) => void;
 }
 
-export function VocabularyModule({ words, listLabel, progress, pronunciationType, onSelectIndex, onCorrect, onSpeak }: Props) {
+export function VocabularyModule({ words, listLabel, progress, pronunciationType, onSelectIndex, onCorrect, onMistake, onSpeak }: Props) {
   const { hintsEnabled, ready: settingsReady } = usePracticeSettings();
   const { keyLabel } = useKeyboardPlatform();
   const [typed, setTyped] = useState('');
   const [completed, setCompleted] = useState(false);
   const completedRef = useRef(false);
+  const attempts = useRef<Record<number, { mistake?: boolean; hint?: boolean }>>({});
   const advanceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [error, setError] = useState('');
   const [revealedLetters, setRevealedLetters] = useState(0);
   const [typingStats, setTypingStats] = useState({ input: 0, correct: 0 });
   const [summaryDismissed, setSummaryDismissed] = useState(false);
   const [wordOrder, setWordOrder] = useState<number[] | null>(null);
+  const [reviewOrder, setReviewOrder] = useState<number[] | null>(null);
+  const [reviewedIndices, setReviewedIndices] = useState<number[]>([]);
   const currentIndex = Math.min(Math.max(progress.index, 0), words.length - 1);
   const initialIndex = useRef(currentIndex);
-  const order = wordOrder ?? words.map((_, index) => index);
+  const practiceOrder = wordOrder ?? words.map((_, index) => index);
+  const order = reviewOrder ?? practiceOrder;
+  const reviewFinished = reviewOrder !== null && reviewOrder.every((index) => reviewedIndices.includes(index));
   const currentPosition = order.indexOf(currentIndex);
   const currentWord = words[currentIndex];
   const firstMeaning = currentWord.trans[0]?.trim() ?? '';
@@ -54,6 +63,7 @@ export function VocabularyModule({ words, listLabel, progress, pronunciationType
   const nextWord = nextIndex === undefined ? undefined : words[nextIndex];
   const knownWords = useMemo(() => new Set(progress.knownWords), [progress.knownWords]);
   const allKnown = words.length > 0 && words.every((word) => knownWords.has(word.name));
+  const showMastery = reviewOrder === null && allKnown && !summaryDismissed;
   const progressItems = useMemo(() => words.map((word) => ({ id: word.name, text: word.name, meaning: word.trans.join('；'), completed: knownWords.has(word.name) })), [words, knownWords]);
   useEffect(() => {
     const shuffled = words.map((_, index) => index);
@@ -93,10 +103,11 @@ export function VocabularyModule({ words, listLabel, progress, pronunciationType
     setTyped('');
     setError('');
     setRevealedLetters(0);
+    attempts.current[index] = {};
   }
 
   function changeTyped(value: string) {
-    if (completedRef.current) return;
+    if (completedRef.current || showMastery || reviewFinished) return;
     const filtered = Array.from(value).filter((letter) => /^[a-zA-Z'’-]$/.test(letter) || spellingWord.includes(letter)).join('');
     // Fill separators when the next letter arrives; deleting back across a separator
     // must not immediately insert it again or trap the Backspace key.
@@ -116,17 +127,25 @@ export function VocabularyModule({ words, listLabel, progress, pronunciationType
       setTyped(spellingWord);
       setError('');
       setRevealedLetters(0);
-      if (nextIndex === undefined) setSummaryDismissed(false);
+      const remainingReviews = reviewOrder?.filter((index) => index !== currentIndex && !reviewedIndices.includes(index));
+      if (reviewOrder !== null) setReviewedIndices((indices) => indices.includes(currentIndex) ? indices : [...indices, currentIndex]);
+      if (reviewOrder === null && nextIndex === undefined) setSummaryDismissed(false);
       // Save immediately, but keep the completed word visible before advancing.
-      onCorrect(currentWord.name, currentIndex);
+      const attempt = attempts.current[currentIndex];
+      onCorrect(currentWord.name, currentIndex, { perfect: !attempt?.mistake && !attempt?.hint, review: reviewOrder !== null });
       onSpeak(currentWord.name);
-      if (nextIndex !== undefined) {
+      const advanceIndex = remainingReviews ? remainingReviews[0] : nextIndex;
+      if (advanceIndex !== undefined) {
         advanceTimer.current = setTimeout(() => {
           advanceTimer.current = null;
-          moveTo(nextIndex);
+          moveTo(advanceIndex);
         }, 800);
       }
       return;
+    }
+    if (clean && !isCorrectPrefix(clean, spellingWord) && !error) {
+      if (!attempts.current[currentIndex]?.mistake) onMistake(currentWord.name);
+      attempts.current[currentIndex] = { ...attempts.current[currentIndex], mistake: true };
     }
     setTyped(clean);
     setError(clean && !isCorrectPrefix(clean, spellingWord)
@@ -135,14 +154,41 @@ export function VocabularyModule({ words, listLabel, progress, pronunciationType
   }
 
   function skipCurrent() {
-    if (nextIndex !== undefined) moveTo(nextIndex);
+    const target = reviewOrder?.find((index) => index !== currentIndex && !reviewedIndices.includes(index)) ?? nextIndex;
+    if (target !== undefined) moveTo(target);
   }
 
-  const revealHint = () => setRevealedLetters((count) => nextHintLength(typed, spellingWord, count));
+  function startPractice() {
+    setReviewOrder(null);
+    setReviewedIndices([]);
+    setSummaryDismissed(true);
+    moveTo(practiceOrder[0]);
+  }
+
+  function startReview() {
+    const mistakes = new Set(progress.mistakeWords ?? []);
+    const indices = practiceOrder.filter((index) => mistakes.has(words[index].name));
+    cancelAdvance();
+    setReviewOrder(indices);
+    setReviewedIndices([]);
+    setSummaryDismissed(true);
+    if (indices.length > 0) moveTo(indices[0]);
+  }
+
+  const canSkip = reviewOrder !== null
+    ? reviewOrder.some((index) => index !== currentIndex && !reviewedIndices.includes(index))
+    : nextIndex !== undefined;
+
+  function revealHint() {
+    if (completedRef.current || revealedLetters >= spellingWord.length) return;
+    attempts.current[currentIndex] = { ...attempts.current[currentIndex], hint: true };
+    setRevealedLetters((count) => nextHintLength(typed, spellingWord, count));
+  }
   usePracticeShortcuts({
     listen: () => onSpeak(currentWord.name),
     hint: settingsReady && hintsEnabled && !completed && revealedLetters < spellingWord.length ? revealHint : undefined,
-    skip: nextWord ? skipCurrent : undefined,
+    skip: canSkip ? skipCurrent : undefined,
+    enabled: !showMastery && !reviewFinished,
   });
 
   const phonetic = pronunciationType === '1' ? currentWord.ukphone : currentWord.usphone;
@@ -150,51 +196,27 @@ export function VocabularyModule({ words, listLabel, progress, pronunciationType
   return (
     <div className="vocabulary-exercise h-full min-h-0 overflow-y-auto px-2 py-3 sm:px-8">
       <div className="flex min-h-full w-full flex-col">
-        {allKnown && !summaryDismissed ? (
-          <section className="end-state flex flex-col items-center justify-center text-center" role="status" aria-live="polite">
-            <div className="mb-6 flex h-[104px] w-[104px] items-center justify-center rounded-[30px] bg-[#dcfce7] text-[#16a34a]"><Trophy size={50} /></div>
-            <span className="section-overline text-[#16a34a]">ALL WORDS MASTERED</span>
-            <h2 className="mt-3 text-[32px] font-extrabold text-ink sm:text-[38px]">全部掌握！</h2>
-            <p className="mt-3 max-w-md leading-7 text-[#475569]">太棒了，{listLabel} 的 {words.length} 个单词都已掌握。</p>
-            <div className="mt-6 grid w-full max-w-md grid-cols-3 gap-3">
-              <div className="rounded-2xl bg-[#f8fafc] px-3 py-4"><div className="text-xl font-black tabular-nums text-[#16a34a]">{words.length}</div><div className="mt-1 text-xs text-[#64748b]">已掌握</div></div>
-              <div className="rounded-2xl bg-[#f8fafc] px-3 py-4"><div className="text-xl font-black tabular-nums text-ink">{typingStats.input}</div><div className="mt-1 text-xs text-[#64748b]">输入数</div></div>
-              <div className="rounded-2xl bg-[#f8fafc] px-3 py-4"><div className="text-xl font-black tabular-nums text-[#14b8a6]">{typingStats.input ? `${(typingStats.correct / typingStats.input * 100).toFixed(1)}%` : '—'}</div><div className="mt-1 text-xs text-[#64748b]">正确率</div></div>
+        {reviewFinished ? (
+          <section className="end-state my-auto flex !h-auto shrink-0 flex-col items-center justify-center text-center" role="status" aria-live="polite">
+            <h2 className="text-[32px] font-extrabold text-ink">{reviewOrder.length ? '错题复习完成！' : '暂时没有错题'}</h2>
+            <p className="mt-4 text-[#475569]">{reviewOrder.length ? `已复习本轮 ${reviewOrder.length} 个错词。` : '拼写出错的单词会自动记录在当前题库，方便下次复习。'}</p>
+            <div className="mt-7 flex flex-wrap justify-center gap-3">
+              {reviewOrder.length > 0 && <Button type="button" className="primary-button" onClick={startReview}>再复习一轮</Button>}
+              <Button type="button" variant="secondary" className="secondary-button" onClick={startPractice}>返回单词练习</Button>
             </div>
-            <Button type="button" className="primary-button mt-7" onClick={() => { setSummaryDismissed(true); moveTo(order[0]); }}><RotateCcw size={18} />再练一遍</Button>
-            <p className="mt-4 flex items-center gap-1 text-xs font-semibold text-[#16a34a]"><Check size={14} />学习进度已保存</p>
           </section>
+        ) : showMastery ? (
+          <MasteryPanel kind="word" listLabel={listLabel} total={words.length} typingStats={typingStats} onReplay={startPractice} onReview={startReview} />
         ) : (
         <ExercisePrompt
-          progressItems={progressItems}
-          progress={knownWords.size}
-          total={words.length}
-          progressDetails={
-            <dl className="grid grid-cols-3 gap-2 px-4 py-5 text-center" aria-label="本次练习字母输入统计">
-              <div>
-                <dt className="text-[12px] font-medium text-[#64748b]">输入数</dt>
-                <dd className="mt-1 text-xl font-bold tabular-nums text-ink">{typingStats.input}</dd>
-              </div>
-              <div>
-                <dt className="text-[12px] font-medium text-[#64748b]">正确数</dt>
-                <dd className="mt-1 text-xl font-bold tabular-nums text-[#22c55e]">{typingStats.correct}</dd>
-              </div>
-              <div>
-                <dt className="text-[12px] font-medium text-[#64748b]">正确率</dt>
-                <dd className="mt-1 text-xl font-bold tabular-nums text-[#14b8a6]">{typingStats.input ? `${(typingStats.correct / typingStats.input * 100).toFixed(1)}%` : '—'}</dd>
-              </div>
-            </dl>
-          }
+          progressItems={reviewOrder === null ? progressItems : reviewOrder.map((index) => ({ ...progressItems[index], completed: reviewedIndices.includes(index) }))}
+          progress={reviewOrder === null ? knownWords.size : reviewedIndices.length}
+          total={order.length}
+          progressDetails={<TypingStatistics {...typingStats} />}
           navigation={
-            <div className="-mx-2 mt-3 grid grid-cols-[minmax(0,1fr)_minmax(0,2fr)_minmax(0,1fr)] items-start gap-2 sm:-mx-8 sm:gap-4">
-              <Button type="button" variant="ghost" onClick={() => previousIndex !== undefined && moveTo(previousIndex)} disabled={!previousWord} className="text-action h-auto min-w-0 w-fit max-w-full justify-self-start justify-start px-0 sm:max-w-48 sm:px-2">
-                <ChevronLeft size={17} className="shrink-0" /> <span className="truncate">{previousWord ? `上一个：${previousWord.name}` : '已经是第一个'}</span>
-              </Button>
-              <div className="min-w-0 text-center">
-                <div className="mb-2 flex items-center justify-center gap-2 text-[12px] font-bold uppercase tracking-[0.16em] text-[#64748b]">
-                  <Sparkles size={15} className="text-[#fbbf24]" /> TYPE THIS WORD
-                </div>
-                <h1 className="break-words text-base font-bold leading-relaxed text-ink sm:text-2xl">{shortMeaning}</h1>
+            <PracticeNavigation kind="word" meaning={shortMeaning} review={reviewOrder !== null}
+              previous={previousWord ? { label: previousWord.name, onSelect: () => moveTo(previousIndex!) } : undefined}
+              next={nextWord ? { label: nextWord.name, onSelect: () => moveTo(nextIndex!) } : undefined}>
                 {hasMoreMeanings && (
                 <details key={currentIndex} className="group mx-auto mb-2 w-full max-w-2xl shrink-0">
                   <summary className="mx-auto w-fit cursor-pointer list-none rounded-lg px-3 py-1.5 text-[12px] font-medium text-[#2563eb] hover:bg-[#eff6ff] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#93c5fd] [&::-webkit-details-marker]:hidden">
@@ -212,11 +234,7 @@ export function VocabularyModule({ words, listLabel, progress, pronunciationType
                   </ul>
                 </details>
               )}
-              </div>
-              <Button type="button" variant="ghost" onClick={() => nextIndex !== undefined && moveTo(nextIndex)} disabled={!nextWord} className="text-action h-auto min-w-0 w-fit max-w-full justify-self-end justify-end px-0 sm:max-w-48 sm:px-2">
-                <span className="truncate">{nextWord ? `下一个：${nextWord.name}` : '已经是最后一个'}</span> <ChevronRight size={17} className="shrink-0" />
-              </Button>
-            </div>
+            </PracticeNavigation>
           }
 
         >
@@ -239,11 +257,12 @@ export function VocabularyModule({ words, listLabel, progress, pronunciationType
           <div className="typing-actions flex flex-wrap items-center justify-center gap-2">
             <Button type="button" variant="ghost" onClick={() => onSpeak(currentWord.name)} aria-keyshortcuts="Alt+p" className="text-action h-auto"><Volume2 size={17} /> 听当前单词 <ShortcutHint letter="P" /></Button>
             {settingsReady && hintsEnabled && <Button type="button" variant="ghost" aria-keyshortcuts="Alt+h" onClick={revealHint} disabled={completed || revealedLetters >= spellingWord.length} className="text-action h-auto"><Lightbulb size={17} /> 多给一个字母 <ShortcutHint letter="H" /></Button>}
-            <Button type="button" variant="ghost" aria-keyshortcuts="Alt+n" onClick={skipCurrent} disabled={!nextWord} className="text-action h-auto"><SkipForward size={17} /> 跳过当前词 <ShortcutHint letter="N" /></Button>
+            <Button type="button" variant="ghost" aria-keyshortcuts="Alt+n" onClick={skipCurrent} disabled={!canSkip} className="text-action h-auto"><SkipForward size={17} /> 跳过当前词 <ShortcutHint letter="N" /></Button>
+            <Button type="button" variant="ghost" onClick={reviewOrder === null ? startReview : startPractice} className="text-action h-auto">{reviewOrder === null ? '复习错题' : '返回单词练习'}</Button>
           </div>
         </ExercisePrompt>
         )}
-        {(!allKnown || summaryDismissed) && (
+        {!showMastery && !reviewFinished && (
           <div className="shrink-0 pt-5 text-center text-[12px] font-medium text-[#64748b]">
             直接敲键盘，拼对自动通过 · <kbd>{keyLabel('Backspace')}</kbd> 删除 · <kbd>{keyLabel('Esc')}</kbd> 清空
           </div>

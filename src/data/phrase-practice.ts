@@ -40,3 +40,16 @@ export const phrasePracticeLists: PhrasePracticeList[] = [
     ],
   },
 ];
+
+if (process.env.NODE_ENV === 'development') {
+  phrasePracticeLists.push({
+    id: 'phrase-dev-test',
+    label: '开发测试 · 两条短语',
+    description: '仅开发环境显示，用两条短语快速测试答题、完成页和全部完成流程。',
+    file: '/dictionaries/words/phrase-dev-test.json',
+    category: '短语练习',
+    tags: ['开发测试'],
+    wordCount: 2,
+    categories: [{ name: '功能测试', count: 2 }],
+  });
+}

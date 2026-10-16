@@ -5,21 +5,7 @@ import { useEffect, useMemo, useState } from 'react';
 import type { PhrasePracticeList } from '@/data/phrase-practice';
 import { SentencePracticeApp } from '@/components/SentencePracticeApp';
 import type { Sentence } from '@/types/game';
-
-function isSentence(value: unknown): value is Sentence {
-  if (typeof value !== 'object' || value === null) return false;
-  const item = value as Record<string, unknown>;
-  return typeof item.id === 'string'
-    && typeof item.unit === 'number'
-    && typeof item.category === 'string'
-    && typeof item.zh === 'string'
-    && typeof item.english === 'string'
-    && Array.isArray(item.words)
-    && item.words.every((word) => typeof word === 'string')
-    && typeof item.note === 'string'
-    && Array.isArray(item.annotations)
-    && Array.isArray(item.grammar);
-}
+import { loadPhraseSentences } from '@/data/phrase-sentences';
 
 export function PhrasePracticeLoader({ list, category }: { list: PhrasePracticeList; category: string }) {
   const [sentenceList, setSentenceList] = useState<Sentence[] | null>(null);
@@ -35,18 +21,8 @@ export function PhrasePracticeLoader({ list, category }: { list: PhrasePracticeL
     setSentenceList(null);
     setError('');
 
-    void fetch(list.file, { signal: controller.signal })
-      .then(async (response) => {
-        if (!response.ok) throw new Error(`题库加载失败（HTTP ${response.status}）`);
-        const data: unknown = await response.json();
-        if (!Array.isArray(data) || data.length === 0 || !data.every(isSentence)) {
-          throw new Error('题库数据格式不正确或内容为空');
-        }
-        setSentenceList(data.map((sentence) => ({
-          ...sentence,
-          id: `${list.id}:${sentence.id}`,
-        })));
-      })
+    void loadPhraseSentences(list, controller.signal)
+      .then(setSentenceList)
       .catch((cause: unknown) => {
         if (controller.signal.aborted) return;
         setError(cause instanceof Error ? cause.message : '题库加载失败');
