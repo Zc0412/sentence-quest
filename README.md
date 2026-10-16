@@ -1,123 +1,67 @@
-# SentLeap v2.2 — Next.js + IndexedDB（初始化超时修复）
+# SentLeap · 一词一跃，玩会英语
 
-参考 Earthworm 输入手感、从零开发的英语逐词输入小游戏。
+SentLeap 是一个以主动回忆和逐词拼写为核心的英语学习应用，将中文提示、即时输入反馈、英美发音与学习记录结合起来，覆盖单词记忆、常用表达和句型练习。无需注册即可开始，学习进度自动保存在当前浏览器。
 
-- **Next.js App Router + React + TypeScript + Tailwind CSS**
-- **shadcn/ui** integrated: Buttons, inputs, selectors, dialogs, cards, badges, progress indicators, and the vocabulary command menu use reusable components in `src/components/ui`
-- 首页提供独立词库选择；选择 CET-4 T 或 CET-6 T 后进入对应练习路由，词库按需加载
-- 无可见的传统输入框；在单词位置直接输入、逐字反馈、拼对自动切换下一词
-- 支持英美音发音、释义回忆、逐字提示、顺序切换和各词库独立的学习进度
-- 浏览器 **IndexedDB** 离线持久化，首次自动迁移旧版 localStorage 数据
-- **v2.2 修复加载卡死**：数据库打开和读取/写入事务有 4 秒超时，初始化另有 9 秒最终保护；失败后退出加载页进入内存模式，显示保存风险，绝不自动清空原 IndexedDB
-- 保留 Next.js `/api/pronunciation`，通过有道音频地址或你的独立签名服务发音
-- **不需要数据库服务器**；为了未来接 PostgreSQL/Supabase，使用可替换仓储接口
+基于 **Next.js 16 + React 19 + TypeScript 5 + Tailwind CSS 3** 构建，采用本地优先的数据架构，以原生 IndexedDB 保存学习进度，通过 Next.js Route Handler 提供发音代理。
 
-## 运行
+## 项目亮点
 
-Node.js 20.9+（建议 Node 22 LTS）。安装依赖并启动：
+- **完整的练习闭环**：看中文回忆英文，逐字输入并即时反馈，拼对后自动推进；支持字母提示、跳过、前后切换和发音播放。
+- **丰富的学习内容**：当前仓库收录 194 本词典、272,281 个可练习词条（不同词典之间可能重复），另提供 900 条场景表达和 1,000 条基础句型，首页可直接体验 20 条精选短语。
+- **持续学习反馈**：各词库独立记录已掌握单词与练习位置，结合 XP、连对计数和每日学习热力图展示学习积累。
+- **面向实际故障的存储设计**：异步恢复、串行写入、旧存档迁移、操作超时和内存降级共同保护学习流程；加载失败时展示明确提示，不自动清空已有存档。
+- **按需加载与资源复用**：进入练习后再加载对应词库；发音请求支持并发去重与有容量上限的缓存，减少重复请求。
+- **可验证的工程实现**：提供题库校验、冒烟测试、存储回归测试与 TypeScript 类型检查；界面、学习逻辑、数据校验和持久化职责分离。
 
-```bash
-npm install
-npm run dev
-```
+## 功能与页面
 
-打开 `http://localhost:3000`。
+| 入口 | 功能 |
+| --- | --- |
+| `/` | 20 条精选短语，按中文提示逐词拼写 |
+| `/settings` | 搜索词典与练习，按类别、教材系列筛选，选择表达分类 |
+| `/practice/[listId]` | 加载指定词库，提供独立进度、词条搜索、拼写与发音 |
+| `/practice/[listId]?category=…` | 进入场景表达或基础句型的指定分类 |
+| `/api/pronunciation` | 服务端获取并代理单词或整句音频 |
 
-## shadcn/ui 组件
+句子练习组件支持音标、词性、中文释义和句子成分分组展示；通过语法卡片解释句子结构。拼写校验兼容大小写、常见标点、短语空格及重音字母的普通字母输入。
 
-项目已配置 shadcn/ui（New York 风格、Lucide 图标、CSS 变量主题）和 `@/` 路径别名。共享的类名合并工具位于 `src/lib/utils.ts`，新增 UI 组件放在 `src/components/ui`：
+## 技术栈
 
-```bash
-pnpm dlx shadcn@latest add button
-```
+以下版本对应 `package.json` 中声明的主要版本。
 
-新增组件使用 `cn()` 合并 Tailwind 类名；主题 token 定义在 `src/app/globals.css`，Tailwind token 映射位于 `tailwind.config.ts`。深色 token 已预留为 `.dark` 主题，目前不会改变应用现有外观。
+| 技术 | 项目中的用途 |
+| --- | --- |
+| Next.js 16 / App Router | 页面路由、动态练习入口、服务端参数校验与发音 Route Handler |
+| React 19 | 交互界面、组件复用与 Hooks 驱动的学习状态管理 |
+| TypeScript 5.9 | 题库、学习进度、组件参数与仓储接口的类型约束 |
+| Tailwind CSS 3.4 / PostCSS | 响应式布局、样式工具类与主题变量 |
+| shadcn/ui / Radix UI | 按钮、输入、选择器、弹窗、卡片与进度条等基础组件 |
+| cmdk / Lucide React | 词汇搜索命令菜单与界面图标 |
+| 原生 IndexedDB | 浏览器本地学习进度持久化，无需额外数据库服务器 |
+| HTMLAudioElement / Web Speech API | 音频播放与浏览器语音合成回退 |
+| Node.js / Python 3 | 数据校验、回归测试与词典同步脚本 |
 
-## 部署到 Vercel
+共享 UI 组件位于 `src/components/ui`，采用 New York 风格和 CSS 变量主题；`src/lib/utils.ts` 中的 `cn()` 负责合并类名。主题变量定义在 `src/app/globals.css`，映射位于 `tailwind.config.ts`，路径别名为 `@/`。
 
-项目使用 Next.js App Router 和 Node.js Route Handler，可直接部署到 Vercel，无需静态导出或额外数据库。
+## 核心架构
 
-1. 将项目推送到 GitHub、GitLab 或 Bitbucket。
-2. 在 Vercel 选择 **Add New → Project** 并导入该仓库。
-3. Framework Preset 选择 **Next.js**，Root Directory 使用项目根目录。
-4. 使用默认构建设置，或确认 Install Command 为 `pnpm install --frozen-lockfile`、Build Command 为 `pnpm run build`。Output Directory 保持 Next.js 默认值，不要启用静态导出。
-5. 点击 **Deploy**。项目已声明 pnpm 9.15.9 与 Node.js 20.9+；无需配置环境变量即可使用有道发音接口。
-
-部署后，学习记录保存在访问者当前浏览器的 IndexedDB 中，不会自动同步到其他设备或域名。`/api/pronunciation` 使用 Vercel Node.js Function 请求有道并代理音频，因此不要将应用配置为纯静态站点。只有接入自有发音上游时，才需要在 Vercel Project Settings → Environment Variables 设置 `PRONUNCIATION_UPSTREAM_URL`；普通使用请留空。
-
-正式构建和检查：
-
-```bash
-npm run check:data
-npm run test:smoke
-npm run test:storage
-npm run typecheck
-npm run build
-npm run start
-```
-
-> `npm run test:storage` 通过模拟 IndexedDB 验证旧版迁移、异步写入顺序、不可用降级及 **open 卡住 / 事务卡住 / 多标签页阻塞**；正式构建与浏览器实际测试仍需要安装 npm 依赖，在真实浏览器验证离线持久化。项目**没有**增加 Dexie 等 IndexedDB 第三方依赖。
-
-## IndexedDB 数据结构
-
-数据库名：`sentleap`，初始版本 `1`。
-
-| Object Store | 主键 | 保存内容 |
-| --- | --- | --- |
-| `progress` | `profileId` | `progress`、`schemaVersion`、`revision`、`updatedAt` |
-
-当前匿名玩家使用 `profileId = 'guest'`。进度快照字段：
-
-```ts
-interface Progress {
-  completedIds: string[]; // 已完成的稳定句子 ID
-  xp: number;
-  mistakes: Record<string, number>; // 句子 ID -> 错误次数
-  totalCorrectWords: number;
-  perfectSentences: number;
-}
-```
-
-**保存流程**：React 状态 → `src/utils/storage.ts`（规范化、迁移、串行队列）→ `ProgressRepository` 接口 → `IndexedDbProgressRepository` → IndexedDB。页面挂载后异步加载进度；加载完成前不允许执行游戏操作，也不会将初始空进度覆盖原存档。连续更新按提交顺序入库。
-
-**旧版 v2.0 存档自动迁移**：
-
-1. 从旧 IndexedDB 数据库 `sentence-quest` 导入 `guest` 等进度记录到 `sentleap`；目标库已有同一档案时不会覆盖。
-2. 若新库没有进度，再尝试读取当前站点同源的 `localStorage['sentence-quest-progress-v1']`。
-3. 先把 localStorage 旧记录写入新 IndexedDB 并等待事务完成，成功后才删除 localStorage 旧记录。
-4. 旧 IndexedDB 数据库保留不删除；数据库被禁用或迁移失败时也不会删除旧副本。游戏会显示无法持久保存的警告。
-
-**注意同源限制**：IndexedDB 和 localStorage 均按 origin 隔离。原项目若在 `localhost:5173`，新项目在 `localhost:3000`，即使都是 localhost，也**不会自动访问到旧站点的浏览器记录**。部署到不同域名也是一样。跨源迁移以后可以另做导出 / 导入数据功能。
-
-## 核心目录
+### 学习状态与持久化
 
 ```text
-src/
-├── app/
-│   ├── page.tsx                      # App Router 首页
-│   ├── layout.tsx                    # 页面元信息
-│   ├── globals.css
-│   └── api/pronunciation/route.ts    # 发音 API 路由
-├── App.tsx                           # 游戏主界面（client）
-├── components/                      # 句子闯关、词汇卡片、输入与进度组件
-├── hooks/useSentenceGame.ts         # 游戏逻辑 / IndexedDB 异步初始化
-├── data/sentences.json              # 句子题库
-├── data/vocabulary-catalog.json     # 词典索引（词库文件位于 public/dictionaries/words）
-├── types/game.ts                    # Progress 等类型
-├── repositories/
-│   ├── progress.ts                   # 可替换的持久化接口
-│   └── indexeddb-progress.ts         # 原生 IndexedDB 仓储实现
-└── utils/
-    ├── storage.ts                   # 迁移 / 校验 / 保存队列
-    ├── speech.ts                    # 发音处理
-    └── validator.ts                 # 单词校验
+练习界面（单词 / 短语 / 句子）
+  → useSentenceGame（学习状态、积分、统计与进度恢复）
+  → storage.ts（数据规范化、旧存档迁移、串行保存队列）
+  → ProgressRepository（统一读写契约）
+  → IndexedDbProgressRepository（浏览器持久化）
 ```
 
-单词模块使用 `public/dictionaries/words/*.json`，包含单词、中文释义和英美音标。学习者根据中文释义逐字输入英文单词，拼对后自动进入下一个词；也可以搜索定位、播放发音或跳过。答对的单词和词表位置会保存，每次拼对都会计入每日学习热力图。词库由 `npm run check:data` 检查单词唯一性、释义及音标字段。
+数据库名为 `sentleap`，版本为 `1`，通过 `progress` Object Store 保存进度，主键为 `profileId`。当前匿名档案使用 `guest`；记录包含 `schemaVersion`、`revision` 和 `updatedAt`，进度内容包括已完成句子、错误次数、积分、每日活动及各词库学习位置。
 
-## 为后续云数据库做了什么？
+页面挂载后异步恢复存档，恢复完成前禁止练习操作，避免初始空状态覆盖旧记录。连续更新通过保存队列按提交顺序写入。数据库打开与读写事务设置 **4 秒超时**，学习状态初始化另有 **9 秒兜底**；失败后进入内存模式，迟到的读取不会覆盖已经开始的练习。
 
-`ProgressRepository` 定义了存储契约：
+旧数据迁移支持 `sentence-quest` IndexedDB 和 `localStorage['sentence-quest-progress-v1']`：目标库已有档案时不覆盖；localStorage 记录仅在写入成功后移除，旧 IndexedDB 保留。
+
+持久化接口定义在 `src/repositories/progress.ts`：
 
 ```ts
 interface ProgressRepository {
@@ -126,84 +70,137 @@ interface ProgressRepository {
 }
 ```
 
-目前使用 `IndexedDbProgressRepository`，**未来可以实现远端同步服务，而无需改打字组件和闯关逻辑**。仓储记录包含稳定的 `profileId`、`schemaVersion`、`revision` 和 `updatedAt`，用于为迁移、用户身份和同步版本提供基本信息。这**不代表已经实现云端同步或冲突合并**。
+后续可通过新增仓储实现接入远端存储。账号体系、云端同步与冲突合并尚未实现，演进设计见 [数据库演进规划](docs/database-roadmap.md)。
 
-推荐逐步演进：
+### 词库加载
 
-1. **现在**：JSON 题库 + IndexedDB，匿名用户离线学习。
-2. **增加账号后**：Next.js API + PostgreSQL / Supabase，服务端存正式用户进度。不要在客户端暴露数据库密钥。
-3. **离线同步时**：为每次完成句子、答错和复习新增带唯一事件 ID 的 `learning_events` 表及本地待同步队列，登录后用幂等 API 上传。服务器确认后才清除队列。
-4. **多设备同步**：已完成句子的集合可按 ID 合并；XP、错误次数、完美通关等应从去重事件计算，**不要直接相加两个设备的进度快照**，否则重复同步会导致统计错误。
-5. **登录迁移**：匿名 `guest` 进度需要用户明确选择合并到账号，避免覆盖同一账号已有的云端进度。
+词典目录由 `src/data/vocabulary-catalog.json` 提供，词库 JSON 存放在 `public/dictionaries/words/`。进入指定词库后按需请求对应文件，并校验词条数量；加载失败可在页面重试。练习时读取本站静态资源，无需实时访问词典来源站点。
 
-更多细节参阅 [数据库演进规划](docs/database-roadmap.md)。
+场景表达与基础句型的分类配置位于 `src/data/phrase-practice.ts`，首页精选内容位于 `src/data/home-phrases.json`。
 
-## 发音 API
+### 发音链路
 
-客户端请求 `/api/pronunciation?word=coffee&type=2`。服务端会按当前单词和口音动态生成签名，请求有道 `/pronounce/base` 并代理返回音频；同一页面内已经获取的单词或句子音频会按文本和口音缓存，重复播放不再请求接口，浏览器也会缓存音频两小时。若获取失败则回退浏览器 TTS。`type=1` 为英音，`type=2` 为美音。
+```text
+客户端请求 → /api/pronunciation → 音频上游 → 代理返回音频
+     ↓ 获取或播放失败
+浏览器 Web Speech API
+```
 
-如果你有可以按词动态生成签名的服务，可设置 `.env.local`：
+- 支持英音（`type=1`）和美音（`type=2`），例如 `/api/pronunciation?word=coffee&type=2`。
+- 默认在服务端生成签名并请求有道音频；客户端不负责生成签名。
+- 页面内按文本和口音缓存音频，采用 LRU 淘汰策略，上限为 **64 条 / 16 MiB**；相同的进行中请求共用 Promise。
+- 音频响应设置 **2 小时浏览器缓存**，服务端请求上游设置 **8 秒超时**。
+- 切换播放时释放旧音频资源，并防止过期请求打断当前播放。
+
+## 本地运行
+
+环境要求：**Node.js 20.9+**，项目声明包管理器为 **pnpm 9.15.9**。
+
+```bash
+pnpm install --frozen-lockfile
+pnpm dev
+```
+
+访问 `http://localhost:3000`。默认发音配置无需环境变量。
+
+如需接入自有发音服务，在 `.env.local` 中配置：
 
 ```bash
 PRONUNCIATION_UPSTREAM_URL=https://your-audio-provider.example.com/pronounce
 ```
 
-Next.js 会向该上游附加 `word` 和 `type`，期待返回音频。生产使用第三方音频须确认相应许可、调用频率和可用性。此功能需要支持 Route Handlers 的部署方式，不能使用纯静态导出。
+服务端会向该地址附加 `word` 和 `type` 参数，期望上游返回音频内容。
 
-## 句法卡片与语法说明
+## 校验与构建
 
-输入和完成界面共用句法卡片：顶部是句子成分标签，每词显示音标、英文、词性颜色、中文释义与词性。输入时隐藏未完成的英文，拼对自动进入下一词；完成后展示完整句子。首页固定为一屏，语法说明通过“整句／主语／谓语”等按钮切换；窄屏下分组会换行并紧凑显示。输入区不显示光标，桌面端在空白处或普通按钮失焦后直接敲字即可继续输入，弹窗和其他文本输入区域不会被抢占。
-
-题库新增图片示例 `daily-011` 并放在第一题，原有题目的 ID 和内容保持不变。
-
-每道题需提供 `annotations`（与 `words` 一一对应，包含 `phonetic`、`meaning`、`pos`、`color`）以及 `grammar`（包含 `role`、`start`、`end`、`color`、`explanation`）。分组使用从 0 开始、左闭右开的词索引，必须连续覆盖整句。`note` 是整句语法概要。运行 `npm run check:data` 验证数据完整性。
-
-## 修改题库
-
-编辑 `src/data/sentences.json`，以下是基础字段示例（还需按上一节补充 `annotations` 和 `grammar`）：
-
-```json
-{
-  "id": "daily-012",
-  "unit": 1,
-  "category": "日常生活",
-  "zh": "我正在学英语。",
-  "english": "I am learning English.",
-  "words": ["I", "am", "learning", "English"],
-  "note": "be + 动词 -ing 用于现在进行时。"
-}
+```bash
+pnpm check
+pnpm build
+pnpm start
 ```
 
-务必保留题目的稳定 `id`（例如 `daily-001`），不要随意复用已有 ID：学习记录与错题本依赖它。
+`pnpm check` 依次运行以下检查，也可以单独执行：
 
-## 当前约束
+| 命令 | 检查内容 |
+| --- | --- |
+| `pnpm check:data` | 句子标注、语法分组、词库数量、词条唯一性及释义与音标字段 |
+| `pnpm test:smoke` | TypeScript 转译、拼写校验、键盘输入等核心逻辑回归 |
+| `pnpm test:storage` | 旧存档迁移、写入顺序、故障降级、打开或事务挂起、多标签页阻塞 |
+| `pnpm test:feedback` | 反馈接口校验、来源限制、请求大小、存储响应与限流失败处理（模拟上游） |
+| `pnpm typecheck` | Next.js 类型生成及 TypeScript 静态类型检查 |
 
-- 当前是本地离线优先 MVP，没有用户登录、云数据库或自动多设备同步。
-- 如果清除网站数据、使用无痕模式或更换浏览器，本地存档可能丢失。
-- 浏览器存储配额与隐私设置由浏览器决定；出现 IndexedDB 保存失败时 UI 会明确提示。
-- 本项目玩法独立实现，没有复制 Earthworm 源码。
+存储测试使用模拟 IndexedDB；实际浏览器的权限、配额与持久化行为仍需在目标环境验证。
 
-## v2.2 修复说明：一直卡在“正在从 IndexedDB 恢复学习进度”
+## 部署
 
-旧版 `openGameDatabase()` 及读取事务没有截止时间。如果浏览器存储层无法触发完成或失败事件，React 的 `hydrated` 将永远是 `false`。
+项目可部署到 Vercel 或支持 Next.js Node.js 运行时的平台。发音接口依赖 Route Handler，部署时使用完整 Next.js 服务。
 
-此版本修复：
+在 Vercel 导入仓库后，选择 **Next.js** 框架和项目根目录，安装命令使用 `pnpm install --frozen-lockfile`，构建命令使用 `pnpm build`，输出目录保留默认值。仅接入自有发音服务时需要配置 `PRONUNCIATION_UPSTREAM_URL`。
 
-- `src/repositories/indexeddb-progress.ts`：数据库打开和读写事务均设置 4 秒看门狗；被阻塞立即退出；失败后清理缓存以便下次重试。
-- `src/hooks/useSentenceGame.ts`：9 秒兜底，确保无论存储 API 发生什么异常都能进入游戏；迟到的读取不会覆盖用户在内存里练过的题。
-- 加载失败时优先读取旧 localStorage，**不删除现有 IndexedDB 记录或旧存档**，提示“本次进度无法持久化”。
-- `npm run test:storage`：新增三种挂起/阻塞场景的模拟测试。
+自托管时执行 `pnpm build`，再以 `pnpm start` 启动生产服务。
 
-如果页面进入了“内存模式”并出现红色提示，说明浏览器本次无法可靠读写 IndexedDB。**先不要点击清空学习记录，也不要急着清站点数据。** 请在浏览器开发者工具 Console 检查错误，确认浏览器允许站点存储，关闭同域的其他旧标签页，然后重新加载。内存模式练习的新增进度刷新后可能丢失。
+## 项目结构
 
+```text
+src/
+├── app/
+│   ├── page.tsx                       # 首页精选短语
+│   ├── practice/[listId]/page.tsx      # 单词与分类表达练习路由
+│   ├── settings/                      # 词典搜索、筛选与选择
+│   └── api/pronunciation/route.ts      # 发音代理
+├── App.tsx                            # 单词练习主界面
+├── components/
+│   ├── SentencePracticeApp.tsx        # 句子 / 短语练习界面
+│   ├── VocabularyModule.tsx           # 单词拼写交互
+│   ├── ActivityHeatmap.tsx            # 每日学习统计
+│   └── ui/                            # 共享 UI 组件
+├── hooks/useSentenceGame.ts           # 学习状态与进度恢复
+├── data/                              # 题库、词典索引与表达分类
+├── repositories/                      # 存储接口与 IndexedDB 实现
+├── types/game.ts                      # 学习数据类型
+└── utils/                             # 存储、发音、输入校验与统计
+public/dictionaries/words/             # 按需加载的词库与表达数据
+scripts/                              # 数据检查、测试与同步脚本
+docs/                                 # 数据来源与数据库演进说明
+```
 
-## TypeWords 词典集成
+## 内容维护
 
-- `/settings` 的“词典”页面：浏览、搜索及按类别 / 教材系列筛选全部 194 本词典。
-- 练习页点击词库名称或设置按钮，即可进入词典列表。
-- `/practice/[listId]`：按需加载本地词库，每本词库独立保存进度。
-- 数据文件：`public/dictionaries/words/*.json`；目录：`src/data/vocabulary-catalog.json`。
-- 当前快照共 272,281 个可练习词条（不同词典之间可能重复），缺少释义的源词条已记录在目录的 `skippedWords`。
-- `python3 scripts/sync-typewords.py` 可重新同步公开目录，需要网络；同步后运行 `npm run check`。
-- 保留原有四级、六级的 ID、词条顺序和学习记录。支持短语空格、数字、标点及重音字母的普通字母输入。
-- 来源与许可说明见 [TypeWords 数据说明](docs/third-party/TypeWords.md)。上游项目代码许可不等同于各词典内容的独立授权。
+句子题库 `src/data/sentences.json` 中，每道题包含稳定的 `id`、中文提示、英文原句和 `words`，以及以下教学字段：
+
+- `annotations`：与 `words` 一一对应，包含音标、释义、词性和颜色。
+- `grammar`：包含成分角色、起止词索引、颜色和解释；索引从 0 开始，左闭右开，分组需连续覆盖整句。
+- `note`：整句语法概要。
+
+学习记录与错题依赖题目 ID，更新内容时应保留已有 ID，避免将旧 ID 用于不同题目。修改后运行 `pnpm check:data`。
+
+词典同步使用 `python3 scripts/sync-typewords.py`（需要网络），同步后运行 `pnpm check`。数据来源与许可说明见 [词典数据说明](docs/third-party/TypeWords.md)。
+
+## 存储与使用说明
+
+- 学习记录保存在当前浏览器，暂不支持账号登录或自动跨设备同步。
+- IndexedDB 与 localStorage 按站点来源隔离；不同域名、协议或端口之间不会自动共享存档。
+- 本地保存进度不等于完整离线应用：首次访问、未加载词库及在线发音需要网络；浏览器语音回退取决于设备支持。
+- 清除站点数据、更换浏览器或使用无痕模式可能导致存档丢失。
+- 若出现内存模式提示，可检查浏览器存储权限、关闭同站点旧标签页后重试；本次新增进度刷新后可能丢失，请勿为排障直接清空存档。
+
+## 用户反馈（Upstash Redis）
+
+所有页面右下角提供反馈入口，支持问题反馈、功能建议和其他反馈，联系方式选填。通过服务端 `/api/feedback` 写入 Upstash，浏览器不接触数据库凭据；无需注册登录。
+
+### 连接配置
+
+1. 在 [Upstash 控制台](https://console.upstash.com/) 创建 Redis 数据库。
+2. 在数据库的 REST API 区域复制 `UPSTASH_REDIS_REST_URL` 和 `UPSTASH_REDIS_REST_TOKEN`，Token 使用可读写的标准 Token，不能用 Read Only Token。
+3. 将 `.env.example` 复制为 `.env.local`，填入这两个值；已有 `.env.local` 时只追加配置，不要覆盖。该文件已被 Git 忽略，不要提交或公开 Token。
+4. 重启开发服务。部署到 Vercel 时，在项目环境变量中设置相同的两个变量，然后重新部署。不要使用 `NEXT_PUBLIC_` 前缀。
+
+连接采用 [Upstash REST API](https://upstash.com/docs/redis/features/restapi)，不需要提供 Redis TCP 地址、端口或单独的账户密码。未配置时仍可打开反馈表单，提交会提示服务暂未配置，不会显示虚假的成功状态。
+
+### 查看与保存规则
+
+在 Upstash 控制台的数据浏览器中查看 Hash 键 `sentleap:feedback`：每个字段为反馈 UUID，值为 JSON，包含类型、内容、联系方式、页面路径、提交时间及初始状态 `new`。反馈不设置过期时间；当前没有公开查询接口或管理页面。
+
+内容最多 2,000 字，联系方式最多 200 字。服务端限制请求体大小、校验来源，并通过 Redis 原子脚本去重和限流；同一内容的失败重试复用提交 ID。页面地址仅记录路径，不保存查询参数。Vercel 部署按平台提供的 IP 做哈希限流，每 10 分钟最多 5 条；其他部署默认共享该限额，如需按 IP 区分，应先配置可信反向代理。全站另设每 24 小时最多 100 条的保护上限（从首次成功提交起计时），限流键到期自动删除。
+
+配置完成后可提交一条测试反馈，并在控制台核对对应记录。接口超时或存储失败会保留表单内容，供用户重试。

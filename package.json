@@ -12,9 +12,10 @@
     "start": "next start",
     "typecheck": "next typegen && tsc --noEmit",
     "check:data": "node scripts/check-data.mjs",
-    "check": "npm run check:data && npm run test:smoke && npm run test:storage && npm run typecheck",
+    "check": "npm run check:data && npm run test:smoke && npm run test:storage && npm run test:feedback && npm run typecheck",
     "test:smoke": "node scripts/smoke-test.mjs",
-    "test:storage": "node scripts/test-storage.mjs && node scripts/test-storage-recovery.mjs"
+    "test:storage": "node scripts/test-storage.mjs && node scripts/test-storage-recovery.mjs",
+    "test:feedback": "node scripts/test-feedback.mjs"
   },
   "dependencies": {
     "@radix-ui/react-dialog": "^1.3.1",

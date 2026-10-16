@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from 'next';
 import type { ReactNode } from 'react';
 import './globals.css';
+import { FeedbackButton } from '@/components/FeedbackButton';
 
 export const metadata: Metadata = {
   title: 'SentLeap | 一词一跃，玩会英语',
@@ -20,7 +21,7 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: Readonly<{ children: ReactNode }>) {
   return (
     <html lang="zh-CN">
-      <body>{children}</body>
+      <body>{children}<FeedbackButton /></body>
     </html>
   );
 }
