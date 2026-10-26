@@ -258,7 +258,7 @@ export function VocabularyModule({ words, listLabel, progress, pronunciationType
             <Button type="button" variant="ghost" onClick={() => onSpeak(currentWord.name)} aria-keyshortcuts="Alt+p" className="text-action h-auto"><Volume2 size={17} /> 听当前单词 <ShortcutHint letter="P" /></Button>
             {settingsReady && hintsEnabled && <Button type="button" variant="ghost" aria-keyshortcuts="Alt+h" onClick={revealHint} disabled={completed || revealedLetters >= spellingWord.length} className="text-action h-auto"><Lightbulb size={17} /> 多给一个字母 <ShortcutHint letter="H" /></Button>}
             <Button type="button" variant="ghost" aria-keyshortcuts="Alt+n" onClick={skipCurrent} disabled={!canSkip} className="text-action h-auto"><SkipForward size={17} /> 跳过当前词 <ShortcutHint letter="N" /></Button>
-            <Button type="button" variant="ghost" onClick={reviewOrder === null ? startReview : startPractice} className="text-action h-auto">{reviewOrder === null ? '复习错题' : '返回单词练习'}</Button>
+            {reviewOrder !== null && <Button type="button" variant="ghost" onClick={startPractice} className="text-action h-auto">返回单词练习</Button>}
           </div>
         </ExercisePrompt>
         )}
