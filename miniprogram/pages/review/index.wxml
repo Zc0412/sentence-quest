@@ -1,0 +1,9 @@
+<view class="page">
+  <view class="eyebrow">REVIEW · 温故知新</view><view class="title">再练一次，就更熟了</view>
+  <view class="muted">拼错、使用提示或跳过的题目会收录在这里。复习时独立答对，即可移出错题本。</view>
+  <block wx:if="{{items.length}}">
+    <button class="primary gap" bindtap="start">开始复习 · {{items.length}} 题</button>
+    <view class="card" wx:for="{{items}}" wx:key="key"><view class="muted">{{item.label}}</view><view class="section-title">{{item.english}}</view><view>{{item.zh}}</view></view>
+  </block>
+  <view wx:else class="card empty"><view class="section-title">暂时没有错题</view><view class="muted">去学习页开启一次新练习吧。</view></view>
+</view>

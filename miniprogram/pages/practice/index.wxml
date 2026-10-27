@@ -1,0 +1,33 @@
+<view class="practice" style="bottom: {{keyboardHeight}}px;">
+  <view wx:if="{{loading}}" class="empty muted">正在准备练习…</view>
+  <view wx:elif="{{loadError}}" class="page"><view class="card empty"><view class="error">{{loadError}}</view><button class="primary gap" bindtap="load">重新加载</button><button class="secondary gap" bindtap="home">返回学习</button></view></view>
+  <view wx:elif="{{finished}}" class="page"><view class="card empty"><view class="eyebrow">WELL DONE</view><view class="title">本轮练习结束</view><view class="muted">每一次练习，都在为下次进步铺路。</view><button class="primary gap" bindtap="home">返回学习</button><button wx:if="{{total}}" class="secondary gap" bindtap="replay">再练一轮</button></view></view>
+  <block wx:else>
+    <view class="progress-head"><view class="row"><text>第 {{number}} / {{total}} 题</text><text>{{done ? '完成了！' : '慢慢来，你可以的'}}</text></view><view class="track"><view class="fill" style="width:{{progress}}%;"></view></view></view>
+    <scroll-view scroll-y class="exercise-scroll">
+      <view class="exercise">
+        <view class="eyebrow">{{done ? '练习完成' : '看中文，拼英文'}}</view>
+        <view class="prompt">{{item.zh}}</view>
+        <block wx:if="{{done}}">
+          <view class="answer">{{item.english}}</view><view class="reward">{{earned ? '+' + earned + ' XP' : '又巩固了一次记忆'}}</view>
+          <view wx:if="{{item.note}}" class="explanation">{{item.note}}</view>
+          <view wx:for="{{item.grammar}}" wx:key="start" class="grammar"><text style="color:{{item.color}};">{{item.role}}</text><view class="muted">{{item.explanation}}</view></view>
+          <button class="secondary gap" bindtap="speak">听完整发音</button>
+        </block>
+        <block wx:else>
+          <view class="slots"><text wx:for="{{slots}}" wx:key="index" class="slot {{item.active ? 'active' : ''}} {{item.passed ? 'passed' : ''}}">{{item.text}}</text></view>
+          <view class="muted">正在拼写第 {{wordNumber}} / {{wordTotal}} 个词</view>
+        </block>
+      </view>
+    </scroll-view>
+    <view class="input-dock {{keyboardHeight ? 'keyboard-open' : ''}}">
+      <block wx:if="{{!done}}">
+        <view class="phonetic">{{phonetic}}</view>
+        <input class="word-input {{error ? 'invalid' : ''}}" value="{{typed}}" type="text" maxlength="-1" placeholder="点击输入英文" focus="{{focus}}" adjust-position="{{false}}" hold-keyboard="{{true}}" confirm-hold="{{true}}" confirm-type="next" bindinput="input" bindfocus="focus" bindblur="blur" bindkeyboardheightchange="keyboard" />
+        <view class="feedback {{error ? 'error' : ''}}">{{error || hintText || '拼对自动进入下一词'}}</view>
+        <view class="actions"><button bindtap="speak">发音</button><button wx:if="{{hints}}" bindtap="hint">提示</button><button bindtap="skip">跳过</button></view>
+      </block>
+      <button wx:else class="primary" bindtap="next">{{number === total ? '查看完成结果' : '下一题 →'}}</button>
+    </view>
+  </block>
+</view>

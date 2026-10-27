@@ -1,0 +1,18 @@
+page { background:#f6f8fc; color:#17243b; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; font-size:28rpx; }
+view, input, button { box-sizing:border-box; }
+button { margin:0; font-size:28rpx; border-radius:24rpx; background:#edf3ff; color:#2563eb; }
+button::after { border:0; }
+button[disabled] { opacity:.45; }
+.page { padding:32rpx; padding-bottom:calc(40rpx + env(safe-area-inset-bottom)); }
+.eyebrow { color:#2563eb; font-size:23rpx; font-weight:700; letter-spacing:3rpx; }
+.title { font-size:46rpx; font-weight:800; margin:12rpx 0; }
+.muted { color:#718096; font-size:25rpx; line-height:1.7; }
+.card { background:#fff; padding:30rpx; border:1rpx solid #e9eef7; border-radius:30rpx; margin-top:24rpx; }
+.row { display:flex; align-items:center; justify-content:space-between; gap:20rpx; }
+.primary { background:#2563eb; color:#fff; font-weight:700; min-height:88rpx; line-height:88rpx; }
+.secondary { min-height:88rpx; line-height:88rpx; }
+.section-title { font-size:32rpx; font-weight:700; margin:32rpx 0 16rpx; }
+.empty { text-align:center; padding:64rpx 24rpx; }
+.pill { background:#edf3ff; color:#2563eb; padding:8rpx 16rpx; font-size:22rpx; border-radius:30rpx; flex-shrink:0; }
+.error { color:#c2410c; }
+.gap { margin-top:24rpx; }

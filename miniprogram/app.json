@@ -1,0 +1,14 @@
+{
+  "pages": ["pages/learn/index", "pages/review/index", "pages/profile/index", "pages/practice/index"],
+  "window": { "navigationBarTitleText": "SentLeap", "navigationBarBackgroundColor": "#f6f8fc", "navigationBarTextStyle": "black", "backgroundColor": "#f6f8fc" },
+  "tabBar": {
+    "color": "#64748b", "selectedColor": "#2563eb", "backgroundColor": "#ffffff", "borderStyle": "white",
+    "list": [
+      { "pagePath": "pages/learn/index", "text": "学习" },
+      { "pagePath": "pages/review/index", "text": "错题" },
+      { "pagePath": "pages/profile/index", "text": "我的" }
+    ]
+  },
+  "style": "v2",
+  "sitemapLocation": "sitemap.json"
+}

@@ -1,0 +1,7 @@
+<view class="page">
+  <view class="eyebrow">MY LEARNING</view><view class="title">每一步，都算数</view>
+  <view class="card row stats"><view><text>{{xp}}</text><view class="muted">累计 XP</view></view><view><text>{{completed}}</text><view class="muted">已掌握</view></view><view><text>{{days}}</text><view class="muted">学习天数</view></view></view>
+  <view class="card"><view class="section-title">最近 28 天</view><view class="calendar"><view wx:for="{{activity}}" wx:key="key" class="day {{item.count ? 'active' : ''}}">{{item.day}}</view></view><view class="muted gap">蓝色代表当天完成过练习</view></view>
+  <view class="card"><view class="row"><text>发音口音</text><view class="row"><button size="mini" class="{{accent === '1' ? 'chosen' : ''}}" data-value="1" bindtap="accent">英音</button><button size="mini" class="{{accent === '2' ? 'chosen' : ''}}" data-value="2" bindtap="accent">美音</button></view></view><view class="row gap"><text>允许字母提示</text><switch checked="{{hints}}" color="#2563eb" bindchange="hints" /></view></view>
+  <view class="muted gap">进度保存在当前微信设备中，暂不与网页版或其他设备同步。清理小程序数据会丢失本机记录。</view>
+</view>
