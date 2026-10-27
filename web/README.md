@@ -29,6 +29,20 @@ SentLeap 是一个以主动回忆和逐词拼写为核心的英语学习应用�
 
 字母提示默认启用，可在「设置 → 练习设置」关闭。此偏好保存在当前浏览器的 localStorage 中，对单词、短语和句子练习统一生效；关闭后隐藏“多给一个字母”按钮。
 
+## 安装到桌面 / 主屏幕（PWA）
+
+部署到 HTTPS 后，打开 **设置 → 安装应用**（`/settings?tab=install`）。支持 `beforeinstallprompt` 的浏览器会提供「安装 SentLeap」按钮；其他环境会展示浏览器菜单操作说明。iPhone / iPad 使用分享菜单中的「添加到主屏幕」，支持的 macOS Safari 使用「添加到程序坞」。浏览器是否出现安装入口取决于系统版本、浏览器策略和已有安装状态。
+
+安装后以独立窗口启动，仍使用同一个 Web 服务，不需要应用商店发布。不同浏览器 / 系统的安装应用可能有独立存储，现阶段不保证浏览器与安装应用之间迁移进度，也不提供跨设备同步。
+
+`src/app/manifest.ts` 提供应用清单，`public/icons/` 的图标由现有 `sentleap-app-icon.png` 缩放生成。`PwaProvider` 在生产环境注册 `public/sw.js`；开发环境不注册，避免干扰热更新。Service Worker 仅缓存自包含离线提示页，不缓存 Next.js 页面、RSC、API、词库或音频。打开应用 / 加载新题库 / 在线发音仍需要网络，当前不是完整离线练习版。
+
+更新离线页时同时修改 `public/sw.js` 中的缓存版本。新 Worker 在旧窗口关闭后激活，不强制刷新正在练习的页面；仅清理自己的旧缓存，不碰 IndexedDB 和 localStorage。
+
+验证：运行 `pnpm test:pwa`；生产构建后 `pnpm start`，通过 `http://localhost:3000`（浏览器认可的本机安全上下文）或 HTTPS 验证 manifest、安装入口、Service Worker 和断网后重新加载。普通局域网 HTTP 地址不满足安装条件。实际安装与 iOS 主屏幕体验需要在对应浏览器 / 真机验收。
+
+参考：[Next.js PWA 指南](https://nextjs.org/docs/app/guides/progressive-web-apps)、[MDN 安装支持](https://developer.mozilla.org/en-US/docs/Web/Progressive_web_apps/Guides/Making_PWAs_installable)。
+
 ## 技术栈
 
 以下版本对应 `package.json` 中声明的主要版本。

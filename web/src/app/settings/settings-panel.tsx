@@ -2,11 +2,12 @@
 
 import Link from 'next/link';
 import { Logo } from '@/components/Logo';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import * as Tabs from '@radix-ui/react-tabs';
 import * as Switch from '@radix-ui/react-switch';
 import { usePracticeSettings } from '@/components/PracticeSettingsProvider';
-import { ArrowLeft, BookOpen, BookOpenCheck, SlidersHorizontal, Keyboard } from 'lucide-react';
+import { ArrowLeft, BookOpen, BookOpenCheck, SlidersHorizontal, Keyboard, Download } from 'lucide-react';
+import { InstallAppPanel } from '@/components/InstallAppPanel';
 import { useRouter } from 'next/navigation';
 import type { VocabularyListId } from '@/data/vocabulary';
 import DictionaryList from './dictionary-list';
@@ -24,7 +25,11 @@ export default function SettingsPanel({ currentListId, currentCategory, currentG
   const [search, setSearch] = useState('');
   const router = useRouter();
   const [tab, setTab] = useState(initialTab);
+  const tabList = useRef<HTMLDivElement>(null);
   useEffect(() => { setTab(initialTab); }, [initialTab]);
+  useEffect(() => {
+    tabList.current?.querySelector<HTMLElement>('[data-state="active"]')?.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+  }, [tab]);
   function changeTab(value: string) {
     setTab(value);
     const params = new URLSearchParams(window.location.search);
@@ -43,7 +48,7 @@ export default function SettingsPanel({ currentListId, currentCategory, currentG
         <Link href={currentListId === 'home-phrases' ? '/' : `/practice/${encodeURIComponent(currentListId)}${currentCategory ? `?category=${encodeURIComponent(currentCategory)}` : currentGroup ? `?group=${currentGroup}` : ''}`} className="flex items-center gap-2 rounded-xl px-2 py-2.5 text-sm font-medium transition-colors hover:bg-[#eff6ff] hover:text-[#2563eb] md:mb-6 md:gap-3">
           <ArrowLeft size={20} /> 返回练习
         </Link>
-        <Tabs.List aria-label="设置导航" className="col-span-2 flex gap-1 overflow-x-auto md:flex-col md:gap-2">
+        <Tabs.List ref={tabList} aria-label="设置导航" className="col-span-2 flex gap-1 overflow-x-auto md:flex-col md:gap-2">
           <div className="flex shrink-0 gap-1 md:flex-col md:gap-2">
             <p className="hidden px-2 text-xs font-medium text-[#64748b] md:block">学习</p>
             <Tabs.Trigger value="dictionary" className="flex shrink-0 items-center gap-2 whitespace-nowrap rounded-xl px-3 py-3 text-sm font-medium hover:bg-blue-50 data-[state=active]:bg-blue-100 data-[state=active]:text-blue-600">
@@ -61,6 +66,9 @@ export default function SettingsPanel({ currentListId, currentCategory, currentG
             <Tabs.Trigger value="shortcuts" className="flex shrink-0 items-center gap-2 whitespace-nowrap rounded-xl px-3 py-3 text-sm font-medium hover:bg-blue-50 data-[state=active]:bg-blue-100 data-[state=active]:text-blue-600">
               <Keyboard size={20} /> 快捷键
             </Tabs.Trigger>
+            <Tabs.Trigger value="install" className="flex shrink-0 items-center gap-2 whitespace-nowrap rounded-xl px-3 py-3 text-sm font-medium hover:bg-blue-50 data-[state=active]:bg-blue-100 data-[state=active]:text-blue-600">
+              <Download size={20} /> 安装应用
+            </Tabs.Trigger>
           </div>
         </Tabs.List>
       </aside>
@@ -72,6 +80,9 @@ export default function SettingsPanel({ currentListId, currentCategory, currentG
           </Tabs.Content>
           <Tabs.Content value="shortcuts" className="min-h-0 md:flex-1 md:overflow-y-auto md:overscroll-contain">
             <KeyboardShortcuts />
+          </Tabs.Content>
+          <Tabs.Content value="install" className="min-h-0 md:flex-1 md:overflow-y-auto md:overscroll-contain">
+            <InstallAppPanel />
           </Tabs.Content>
           <Tabs.Content value="mistakes" className="min-h-0 flex-1 data-[state=active]:flex data-[state=active]:flex-col">
             <MistakeNotebookPanel />

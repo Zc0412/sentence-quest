@@ -18,6 +18,6 @@ export default async function SettingsPage({ searchParams }: PageProps) {
     ?? phraseList?.categories[0]?.name;
   const vocabularyList = vocabularyLists.find((list) => list.id === currentList);
   const currentGroup = vocabularyList ? vocabularyGroups(vocabularyList.wordCount).find((item) => String(item.id) === group)?.id ?? 1 : undefined;
-  const initialTab = tab && ['dictionary', 'mistakes', 'practice', 'shortcuts'].includes(tab) ? tab : 'dictionary';
+  const initialTab = tab && ['dictionary', 'mistakes', 'practice', 'shortcuts', 'install'].includes(tab) ? tab : 'dictionary';
   return <SettingsPanel currentListId={currentList} currentCategory={currentCategory} currentGroup={currentGroup} initialTab={initialTab} />;
 }

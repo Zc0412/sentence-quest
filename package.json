@@ -22,6 +22,7 @@
     "test:id": "npm --prefix web run test:id",
     "test:history": "npm --prefix web run test:history",
     "sync:miniprogram": "node scripts/sync-miniprogram.mjs",
-    "test:miniprogram": "node scripts/test-miniprogram.cjs"
+    "test:miniprogram": "node scripts/test-miniprogram.cjs",
+    "test:pwa": "npm --prefix web run test:pwa"
   }
 }
