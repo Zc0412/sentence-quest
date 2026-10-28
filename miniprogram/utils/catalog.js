@@ -1,4 +1,5 @@
 const lists = require('../data/catalog');
+const bundled = { 'home-phrases': require('../data/home-phrases'), sentences: require('../data/sentences'), 'vocabulary-dev-test': require('../data/vocabulary-dev-test') };
 function normalize(list, rows) {
   if (!Array.isArray(rows) || !rows.length || rows.length !== list.wordCount) throw new Error('题库数据不完整');
   return rows.map((item, index) => {
@@ -9,7 +10,7 @@ function normalize(list, rows) {
 function load(listId) {
   const list = lists.find((item) => item.id === listId);
   if (!list) return Promise.reject(new Error('题库不存在'));
-  const source = listId === 'home-phrases' ? require('../data/home-phrases') : require('../data/sentences');
+  const source = bundled[listId];
   return Promise.resolve().then(() => normalize(list, source));
 }
-module.exports = { lists, load, normalize };
+module.exports = { lists, bundled, load, normalize };

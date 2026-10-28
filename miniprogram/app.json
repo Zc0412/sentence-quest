@@ -10,25 +10,26 @@
     "navigationBarTitleText": "SentLeap",
     "navigationBarBackgroundColor": "#f8fafc",
     "navigationBarTextStyle": "black",
-    "backgroundColor": "#f8fafc"
+    "backgroundColor": "#e4edff",
+    "backgroundColorTop": "#e4edff",
+    "backgroundColorBottom": "#eaf8f6"
   },
+  "style": "v2",
+  "sitemapLocation": "sitemap.json",
   "tabBar": {
-    "color": "#64748b",
-    "selectedColor": "#2563eb",
-    "backgroundColor": "#ffffff",
+    "custom": true,
+    "color": "#475569",
+    "selectedColor": "#2f6fed",
+    "backgroundColor": "#eaf8f6",
     "borderStyle": "white",
     "list": [
       {
         "pagePath": "pages/learn/index",
-        "text": "学习"
+        "text": "题库"
       },
       {
         "pagePath": "pages/stats/index",
         "text": "统计"
-      },
-      {
-        "pagePath": "pages/review/index",
-        "text": "错题"
       },
       {
         "pagePath": "pages/profile/index",
@@ -36,6 +37,5 @@
       }
     ]
   },
-  "style": "v2",
-  "sitemapLocation": "sitemap.json"
+  "usingComponents": {}
 }

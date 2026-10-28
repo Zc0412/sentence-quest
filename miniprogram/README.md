@@ -16,7 +16,7 @@
 
 1. 微信开发者工具 → 导入项目 → 选择 `miniprogram/`。
 2. 本地体验可使用默认测试配置；真机预览 / 上传请在 `project.config.json` 使用你自己的小程序 AppID。
-3. 仅保留两个离线测试词库：精选短语（20 题）和句子闯关（11 题）。所有题目随包提供，不请求在线题库。`npm run sync:miniprogram` 也仅同步这两个词库。
+3. 内置三个离线测试词库：精选短语（20 题）、句子闯关（11 题）和单词测试（cat、dog、sun）。所有题目随包提供，不请求在线题库。`npm run sync:miniprogram` 同步这三个词库，单词测试复用 Web 的 `public/dictionaries/words/vocabulary-dev-test.json`，支持单词练习、英美音、错题复习与进度统计。
 4. 如需在线发音，部署 `../web`，在 `config.js` 填写 `apiBaseUrl: 'https://你的域名'`，不要填 API 路径，不要填写密钥。
 5. 微信公众平台服务器域名中配置该域名的 **request** 和 **downloadFile** 合法域名（用于在线发音能力）。保持开发工具 `urlCheck` 开启；不需要配置 web-view 业务域名。
 6. 服务需要提供 `/api/pronunciation?word=...&type=1`，均复用现有 Web 实现。口音 `1` 为英音，`2` 为美音。无服务域名时会明确提示，内置练习不受影响。

@@ -25,5 +25,4 @@
       <view class="profile-note">今日已完成 {{goalProgress}} / {{dailyGoal}} 句{{goalProgress >= dailyGoal ? ' · 目标已达成' : ''}}<view>学习进度自动保存在当前设备</view></view>
     </view>
   </view>
-  <template is="tabs" data="{{activeTab: 'profile'}}" />
 </view>

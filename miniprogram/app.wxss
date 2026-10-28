@@ -1,4 +1,4 @@
-page { background:#f8fafc; color:#0f172a; font-family:Inter,'PingFang SC','Microsoft YaHei',system-ui,sans-serif; font-size:14px; }
+page { background:#e4edff; color:#0f172a; font-family:Inter,'PingFang SC','Microsoft YaHei',system-ui,sans-serif; font-size:14px; }
 view, input, button, scroll-view { box-sizing:border-box; }
 button { margin:0; padding:0 14px; font-size:12px; font-weight:700; border-radius:14px; background:#eff6ff; color:#2563eb; line-height:40px; }
 button::after { border:0; }

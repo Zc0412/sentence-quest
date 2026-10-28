@@ -1,6 +1,5 @@
-const { lists } = require('../../utils/catalog');
+const { lists, bundled } = require('../../utils/catalog');
 const storage = require('../../utils/storage');
-const bundled = { 'home-phrases': require('../../data/home-phrases'), sentences: require('../../data/sentences') };
 Page({
   data: { lists: [], lastLabel: '', lastSentence: '', lastCompleted: 0, lastTotal: 0, accent: '1', statusBarHeight: 24, navigationHeight: 44 },
   onLoad() {
@@ -10,10 +9,10 @@ Page({
     this.setData({ statusBarHeight, navigationHeight: capsule.height && capsule.top >= statusBarHeight ? (capsule.top - statusBarHeight) * 2 + capsule.height : 44 });
   },
   onShow() {
-    wx.hideTabBar({ animation: false });
+    const tabBar = this.getTabBar && this.getTabBar();
+    if (tabBar) tabBar.syncSelected('learn');
     this.refresh();
   },
-  onHide() { wx.showTabBar({ animation: false }); },
   refresh() {
     const state = storage.read();
     const current = lists.find((list) => list.id === state.lastList) || lists[0];
@@ -34,8 +33,4 @@ Page({
   accent(event) { const accent = event.currentTarget.dataset.value; storage.settings({ accent }); this.setData({ accent }); },
   open(event) { wx.navigateTo({ url: `/pages/practice/index?list=${encodeURIComponent(event.currentTarget.dataset.id)}` }); },
   resume() { wx.navigateTo({ url: `/pages/practice/index?list=${encodeURIComponent((lists.find((list) => list.id === storage.read().lastList) || lists[0]).id)}` }); },
-  tab(event) {
-    const page = event.currentTarget.dataset.page;
-    if (['stats', 'review', 'profile'].includes(page)) wx.switchTab({ url: `/pages/${page}/index` });
-  },
 });

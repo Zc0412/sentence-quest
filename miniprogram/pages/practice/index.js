@@ -6,7 +6,7 @@ const { inputDelta, accuracy } = require('../../utils/typing-stats');
 const { preferences } = require('../../utils/preferences');
 const { apiBaseUrl } = require('../../config');
 Page({
-  data: { loading: true, loadError: '', done: false, finished: false, typed: '', slots: [], hints: true, earned: 0, xp: 0, grammarIndex: 0, statusBarHeight: 24, navigationHeight: 44, accent: '1', shift: false, keyRows: ['qwertyuiop'.split(''), 'asdfghjkl'.split(''), 'zxcvbnm'.split('')], inputCount: 0, correctCount: 0, accuracy: '—' },
+  data: { loading: true, loadError: '', done: false, finished: false, typed: '', slots: [], hints: true, earned: 0, xp: 0, grammarIndex: 0, statusBarHeight: 24, navigationHeight: 44, accent: '1', shift: false, pressedKey: '', keyRows: ['qwertyuiop'.split(''), 'asdfghjkl'.split(''), 'zxcvbnm'.split('')], inputCount: 0, correctCount: 0, accuracy: '—' },
   onLoad(options) { this.setData(navigationMetrics()); this.options = options; this.review = options.review === '1'; this.load(); },
   async load() {
     this.typing = this.typing || { input: 0, correct: 0 };
@@ -32,16 +32,28 @@ Page({
     }
     this.entry = this.entries[this.index]; this.state = session.start(this.entry.item);
     if (!this.review) storage.cursor(this.entry.listId, this.index);
-    this.setData({ isPhrase: this.entry.listId === 'home-phrases', grammarIndex: 0, grammarExplanation: (this.entry.item.grammar || [])[0]?.explanation || '', item: this.entry.item, number: this.index + 1, total: this.entries.length, progress: Math.round(this.index / this.entries.length * 100), earned: 0, finished: false });
+    this.setData({ isPhrase: this.entry.listId === 'home-phrases', isWord: catalog.lists.find((list) => list.id === this.entry.listId)?.kind === 'word', grammarIndex: 0, grammarExplanation: (this.entry.item.grammar || [])[0]?.explanation || '', item: this.entry.item, number: this.index + 1, total: this.entries.length, progress: Math.round(this.index / this.entries.length * 100), earned: 0, finished: false });
     this.render();
   },
   render() {
-    const state = this.state; const word = state.item.words[state.wordIndex] || '';
+    const state = this.state;
+    const characterCount = state.item.words.join('').length;
+    const completionSize = state.item.words.length > 7 || characterCount > 40 ? 'dense' : state.item.words.length > 4 || characterCount > 22 ? 'compact' : 'regular';
+    const cardSize = completionSize === 'dense' ? { min:48, max:120, letter:14, padding:16 } : completionSize === 'compact' ? { min:52, max:144, letter:17, padding:18 } : { min:64, max:180, letter:23, padding:24 };
     const annotation = (state.item.annotations || [])[state.wordIndex] || {};
     const mastered = this.entries.filter((entry) => storage.read().completed[storage.key(entry.listId, entry.item)]).length;
     const phonetic = storage.read().settings.accent === '2' ? annotation.usphone || annotation.phonetic : annotation.phonetic;
     this.setData({ mastered, masteryPercent: Math.round(mastered / this.entries.length * 100), previousLabel: this.index > 0 ? this.entries[this.index - 1].item.zh : '', inputCount: this.typing.input, correctCount: this.typing.correct, accuracy: accuracy(this.typing), progress: Math.round((this.index + (state.done ? 1 : 0)) / this.entries.length * 100), xp: storage.read().xp, done: state.done, typed: state.typed, error: state.error, wordNumber: state.wordIndex + 1, wordTotal: state.item.words.length, phonetic: phonetic || '',
-      hintText: state.revealed ? word.slice(0, state.revealed) + '＿'.repeat(Math.max(0, word.length - state.revealed)) : '',
+      completionClean: !state.dirty,
+      completionSize,
+      completedWords: state.done ? state.item.words.map((text, index) => {
+        const details = (state.item.annotations || [])[index] || {};
+        const group = (state.item.grammar || []).find((part) => index >= part.start && index < part.end);
+        return { index, text, width: Math.max(cardSize.min, Math.min(cardSize.max, text.length * cardSize.letter + cardSize.padding)),
+          phonetic: storage.read().settings.accent === '2' ? details.usphone || details.phonetic || '' : details.phonetic || '',
+          meaning: details.meaning || '', pos: details.pos || '', color: details.color || '#3b82f6',
+          role: group?.role || '', roleColor: group?.color || '#2f6fed' };
+      }) : [],
       slots: state.item.words.map((text, index) => {
         const details = (state.item.annotations || [])[index] || {};
         const active = !state.done && index === state.wordIndex;
@@ -66,7 +78,7 @@ Page({
     if (this.state.done) {
       const earned = storage.complete(this.entry.listId, this.entry.item, !this.state.dirty, this.review);
       if (!this.review) storage.cursor(this.entry.listId, Math.min(this.index + 1, this.entries.length - 1));
-      this.setData({ earned }); wx.hideKeyboard();
+      this.setData({ earned, pressedKey: '', grammarIndex: -1, grammarExplanation: this.entry.item.note || (this.entry.item.grammar || []).map((group) => group.explanation).filter(Boolean).join(' ') }); wx.hideKeyboard();
     }
     this.render();
     if (!this.state.done && this.state.wordIndex !== previousWordIndex && preferences().autoSpeak) this.speak(true);
@@ -80,6 +92,8 @@ Page({
     if (!this.state || this.state.done) return;
     storage.mistake(this.entry.listId, this.entry.item); this.next();
   },
+  pressKey(event) { this.setData({ pressedKey: event.currentTarget.dataset.key }); },
+  releaseKey() { this.setData({ pressedKey: '' }); },
   key(event) {
     if (!this.state || this.state.done) return;
     const key = event.currentTarget.dataset.key;
@@ -92,7 +106,16 @@ Page({
   advance() { if (this.state && this.state.done) this.next(); else this.skip(); },
   next() { if (this.audio) this.audio.stop(); this.index += 1; this.begin(); },
   replay() { this.index = 0; this.begin(); },
-  selectGrammar(event) { const index = Number(event.currentTarget.dataset.index); const group = (this.entry.item.grammar || [])[index]; if (group) this.setData({ grammarIndex: index, grammarExplanation: group.explanation }); },
+  retryCurrent() { if (!this.state || !this.state.done) return; if (this.audio) this.audio.stop(); this.releaseKey(); this.begin(); },
+  selectGrammar(event) {
+    const index = Number(event.currentTarget.dataset.index);
+    if (index === -1) {
+      this.setData({ grammarIndex: -1, grammarExplanation: this.entry.item.note || (this.entry.item.grammar || []).map((group) => group.explanation).filter(Boolean).join(' ') });
+      return;
+    }
+    const group = (this.entry.item.grammar || [])[index];
+    if (group) this.setData({ grammarIndex: index, grammarExplanation: group.explanation });
+  },
   instructions() { wx.showModal({ title: '玩法说明', content: '看中文，输入当前高亮单词。拼对自动进入下一词；可听发音或使用字母提示。拼错、提示和跳过会进入错题本，独立完成复习即可移除。', showCancel: false, confirmText: '开始练习' }); },
   home() { wx.switchTab({ url: '/pages/learn/index' }); },
   speak(automatic = false) {
@@ -108,6 +131,6 @@ Page({
     this.audio.src = `${apiBaseUrl.replace(/\/$/, '')}/api/pronunciation?word=${encodeURIComponent(word)}&type=${storage.read().settings.accent}`;
     this.audio.play();
   },
-  onHide() { if (this.audio) this.audio.stop(); },
+  onHide() { this.releaseKey(); if (this.audio) this.audio.stop(); },
   onUnload() { this.unloaded = true; if (this.audio) this.audio.destroy(); },
 });

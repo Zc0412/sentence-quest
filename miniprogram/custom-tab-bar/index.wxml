@@ -1,0 +1,6 @@
+<view class="glass-tabs">
+  <button wx:for="{{tabs}}" wx:key="page" class="glass-tab {{selected === item.page ? 'active' : ''}}" data-page="{{item.page}}" bindtap="switchTab" aria-label="{{item.text}}{{selected === item.page ? '，当前页面' : ''}}" aria-pressed="{{selected === item.page}}">
+    <image src="/assets/library-{{item.icon}}-{{selected === item.page ? 'active' : 'muted'}}.svg" />
+    <text>{{item.text}}</text>
+  </button>
+</view>

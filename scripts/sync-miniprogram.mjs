@@ -8,9 +8,16 @@ const json = (path) => JSON.parse(read(path));
 const compile = (path) => ts.transpileModule(read(path), { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2017 } }).outputText;
 for (const name of ['validator', 'practice-xp']) write(`utils/${name}.js`, compile(`src/utils/${name}.ts`));
 for (const name of ['home-phrases', 'sentences']) write(`data/${name}.js`, `module.exports = ${JSON.stringify(json(`src/data/${name}.json`))};\n`);
+const testWords = json('public/dictionaries/words/vocabulary-dev-test.json').map((word, index) => {
+  const meaning = word.trans.join('；').replace(/^[a-z]+\.\s*/i, '');
+  return { id: `vocabulary-dev-test:${index + 1}`, zh: meaning, english: word.name, words: [word.name], note: '', grammar: [],
+    annotations: [{ phonetic: `/${word.ukphone}/`, usphone: `/${word.usphone}/`, meaning, pos: word.trans[0].match(/^[a-z]+\./i)?.[0] || '', color: '#3b82f6' }] };
+});
+write('data/vocabulary-dev-test.js', `module.exports = ${JSON.stringify(testWords)};\n`);
 const lists = [
   { id: 'home-phrases', label: '精选短语', category: '短语练习', wordCount: json('src/data/home-phrases.json').length, kind: 'phrase', bundled: true },
   { id: 'sentences', label: '句子闯关', category: '句子练习', wordCount: json('src/data/sentences.json').length, kind: 'phrase', bundled: true },
+  { id: 'vocabulary-dev-test', label: '单词测试 · 三个单词', category: '单词练习', wordCount: testWords.length, kind: 'word', bundled: true },
 ];
 write('data/catalog.js', `module.exports = ${JSON.stringify(lists)};\n`);
 console.log(`已同步 ${lists.length} 个题库目录、内置题库及共享校验 / XP 规则。`);

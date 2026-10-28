@@ -6,7 +6,8 @@ Page({
   data: { statusBarHeight: 24, navigationHeight: 44, completed: 0, total: 31, percent: 0, xp: 0, inputCount: 0, correctCount: 0, accuracy: '—', week: [], sharing: false },
   onLoad() { this.setData(navigationMetrics()); },
   onShow() {
-    wx.hideTabBar({ animation: false });
+    const tabBar = this.getTabBar && this.getTabBar();
+    if (tabBar) tabBar.syncSelected('stats');
     const state = storage.read();
     const completed = lists.reduce((sum, list) => sum + Math.min(list.wordCount, Object.keys(state.completed).filter((key) => key.startsWith(`${list.id}::`)).length), 0);
     const total = lists.reduce((sum, list) => sum + list.wordCount, 0);
@@ -22,8 +23,6 @@ Page({
     const maximum = Math.max(1, ...week.map((day) => day.count));
     this.setData({ completed, total, percent: Math.round(completed / total * 100), xp: state.xp, inputCount: typing.input, correctCount: typing.correct, accuracy: accuracy(typing), week: week.map((day) => Object.assign({}, day, { height: day.count ? Math.max(12, Math.round(day.count / maximum * 90)) : 6 })) });
   },
-  onHide() { wx.showTabBar({ animation: false }); },
-  tab(event) { const page = event.currentTarget.dataset.page; if (page === 'learn' || page === 'profile') wx.switchTab({ url: `/pages/${page}/index` }); },
   poster() {
     if (this.data.sharing) return;
     this.setData({ sharing: true });

@@ -10,17 +10,12 @@
         <view class="resume-description">{{lastLabel}} · 已掌握 {{lastCompleted}} / {{lastTotal}}</view>
         <button class="resume-button" bindtap="resume">继续练习</button>
       </view>
-      <view class="library-section"><view class="library-title">短语题库</view><view class="accent-control glass"><button class="accent-button {{accent === '1' ? 'selected' : ''}}" data-value="1" bindtap="accent" aria-label="英音" aria-pressed="{{accent === '1'}}">英音</button><button class="accent-button {{accent === '2' ? 'selected' : ''}}" data-value="2" bindtap="accent" aria-label="美音" aria-pressed="{{accent === '2'}}">美音</button></view></view>
+      <view class="library-section"><view class="library-title">练习题库</view><view class="accent-control glass"><button class="accent-button {{accent === '1' ? 'selected' : ''}}" data-value="1" bindtap="accent" aria-label="英音" aria-pressed="{{accent === '1'}}">英音</button><button class="accent-button {{accent === '2' ? 'selected' : ''}}" data-value="2" bindtap="accent" aria-label="美音" aria-pressed="{{accent === '2'}}">美音</button></view></view>
       <button wx:for="{{lists}}" wx:key="id" class="library-card glass" data-id="{{item.id}}" bindtap="open">
         <view class="library-icon {{item.id === 'sentences' ? 'mint-icon' : ''}}"></view>
-        <view class="library-copy"><view class="library-name">{{item.label}}</view><view class="library-meta">{{item.wordCount}} 句 · 已掌握 {{item.completed}} 句</view><view class="library-track"><view class="library-fill" style="width:{{item.percent}}%;"></view></view></view>
+        <view class="library-copy"><view class="library-name">{{item.label}}</view><view class="library-meta">{{item.wordCount}} {{item.kind === 'word' ? '词' : '句'}} · 已掌握 {{item.completed}} {{item.kind === 'word' ? '词' : '句'}}</view><view class="library-track"><view class="library-fill" style="width:{{item.percent}}%;"></view></view></view>
         <view class="chevron" aria-hidden="true"></view>
       </button>
     </view>
-  </view>
-  <view class="floating-tabs glass">
-    <button class="floating-tab active" aria-label="题库，当前页面"><image src="/assets/library-book.svg" class="tab-icon" /><text>题库</text></button>
-    <button class="floating-tab" data-page="stats" bindtap="tab"><image src="/assets/library-stats.svg" class="tab-icon" /><text>统计</text></button>
-    <button class="floating-tab" data-page="profile" bindtap="tab"><image src="/assets/library-user.svg" class="tab-icon" /><text>我的</text></button>
   </view>
 </view>
