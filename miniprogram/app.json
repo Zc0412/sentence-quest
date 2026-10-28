@@ -1,12 +1,39 @@
 {
-  "pages": ["pages/learn/index", "pages/review/index", "pages/profile/index", "pages/practice/index"],
-  "window": { "navigationBarTitleText": "SentLeap", "navigationBarBackgroundColor": "#f6f8fc", "navigationBarTextStyle": "black", "backgroundColor": "#f6f8fc" },
+  "pages": [
+    "pages/learn/index",
+    "pages/review/index",
+    "pages/profile/index",
+    "pages/practice/index",
+    "pages/stats/index"
+  ],
+  "window": {
+    "navigationBarTitleText": "SentLeap",
+    "navigationBarBackgroundColor": "#f8fafc",
+    "navigationBarTextStyle": "black",
+    "backgroundColor": "#f8fafc"
+  },
   "tabBar": {
-    "color": "#64748b", "selectedColor": "#2563eb", "backgroundColor": "#ffffff", "borderStyle": "white",
+    "color": "#64748b",
+    "selectedColor": "#2563eb",
+    "backgroundColor": "#ffffff",
+    "borderStyle": "white",
     "list": [
-      { "pagePath": "pages/learn/index", "text": "学习" },
-      { "pagePath": "pages/review/index", "text": "错题" },
-      { "pagePath": "pages/profile/index", "text": "我的" }
+      {
+        "pagePath": "pages/learn/index",
+        "text": "学习"
+      },
+      {
+        "pagePath": "pages/stats/index",
+        "text": "统计"
+      },
+      {
+        "pagePath": "pages/review/index",
+        "text": "错题"
+      },
+      {
+        "pagePath": "pages/profile/index",
+        "text": "我的"
+      }
     ]
   },
   "style": "v2",

@@ -1,22 +1,26 @@
-<view class="page">
-  <view class="eyebrow">SENTLEAP · 每天进步一点</view>
-  <view class="title">把英语，练成习惯</view>
-  <view class="muted">今天已完成 {{today}} 次练习，继续积累吧。</view>
-  <view class="hero">
-    <view class="hero-label">接着上次的节奏</view>
-    <view class="hero-title">{{lastLabel}}</view>
-    <button class="resume" bindtap="resume">继续练习 →</button>
+<view class="library-page">
+  <view class="ambient" aria-hidden="true"><view class="orb orb-blue"></view><view class="orb orb-purple"></view><view class="orb orb-mint"></view><view class="orb orb-teal"></view><view class="orb orb-peach"></view></view>
+  <view class="library-shell">
+    <view style="height:{{statusBarHeight}}px;"></view>
+    <view class="library-header" style="height:{{navigationHeight}}px;"><view class="brand-mark">句</view><view class="brand-name">句跃<text>SentLeap</text></view></view>
+    <view class="library-content">
+      <view class="resume-card">
+        <view class="resume-caption">继续上次练习</view>
+        <view class="resume-sentence">{{lastSentence}}</view>
+        <view class="resume-description">{{lastLabel}} · 已掌握 {{lastCompleted}} / {{lastTotal}}</view>
+        <button class="resume-button" bindtap="resume">继续练习</button>
+      </view>
+      <view class="library-section"><view class="library-title">短语题库</view><view class="accent-control glass"><button class="accent-button {{accent === '1' ? 'selected' : ''}}" data-value="1" bindtap="accent" aria-label="英音" aria-pressed="{{accent === '1'}}">英音</button><button class="accent-button {{accent === '2' ? 'selected' : ''}}" data-value="2" bindtap="accent" aria-label="美音" aria-pressed="{{accent === '2'}}">美音</button></view></view>
+      <button wx:for="{{lists}}" wx:key="id" class="library-card glass" data-id="{{item.id}}" bindtap="open">
+        <view class="library-icon {{item.id === 'sentences' ? 'mint-icon' : ''}}"></view>
+        <view class="library-copy"><view class="library-name">{{item.label}}</view><view class="library-meta">{{item.wordCount}} 句 · 已掌握 {{item.completed}} 句</view><view class="library-track"><view class="library-fill" style="width:{{item.percent}}%;"></view></view></view>
+        <view class="chevron" aria-hidden="true"></view>
+      </button>
+    </view>
   </view>
-  <view class="section-title">选择你的练习</view>
-  <input class="search" placeholder="搜索题库，如：四级、CET-4" value="{{query}}" bindinput="search" />
-  <view class="filters">
-    <button class="{{filter === 'all' ? 'selected' : ''}}" data-kind="all" bindtap="filter">全部</button>
-    <button class="{{filter === 'word' ? 'selected' : ''}}" data-kind="word" bindtap="filter">单词</button>
-    <button class="{{filter === 'phrase' ? 'selected' : ''}}" data-kind="phrase" bindtap="filter">短语 / 句子</button>
+  <view class="floating-tabs glass">
+    <button class="floating-tab active" aria-label="题库，当前页面"><image src="/assets/library-book.svg" class="tab-icon" /><text>题库</text></button>
+    <button class="floating-tab" data-page="stats" bindtap="tab"><image src="/assets/library-stats.svg" class="tab-icon" /><text>统计</text></button>
+    <button class="floating-tab" data-page="profile" bindtap="tab"><image src="/assets/library-user.svg" class="tab-icon" /><text>我的</text></button>
   </view>
-  <button wx:for="{{lists}}" wx:key="id" class="list-card" data-id="{{item.id}}" bindtap="open">
-    <view class="row"><view class="list-title">{{item.label}}</view><text class="pill">{{item.bundled ? '离线可练' : '在线题库'}}</text></view>
-    <view class="muted">{{item.category}} · {{item.wordCount}} 题 · 已掌握 {{item.completed}}</view>
-  </button>
-  <view wx:if="{{!lists.length}}" class="empty muted">没有找到对应题库，换个关键词试试。</view>
 </view>

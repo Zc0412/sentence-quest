@@ -1,3 +1,5 @@
 {
-  "navigationBarTitleText": "学习"
+  "navigationBarTitleText": "题库",
+  "navigationStyle": "custom",
+  "backgroundColor": "#e4edff"
 }

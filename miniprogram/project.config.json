@@ -1,6 +1,5 @@
 {
   "description": "SentLeap 微信小程序",
-  "projectname": "sentence-quest-miniprogram",
   "compileType": "miniprogram",
   "miniprogramRoot": "",
   "setting": {
@@ -14,8 +13,18 @@
       "disablePlugins": [],
       "outputPath": ""
     },
-    "ignoreUploadUnusedFiles": true
+    "ignoreUploadUnusedFiles": true,
+    "coverView": false,
+    "showShadowRootInWxmlPanel": false,
+    "packNpmRelationList": []
   },
+  "condition": {},
+  "editorSetting": {
+    "tabIndent": "insertSpaces",
+    "tabSize": 2
+  },
+  "appid": "wx4e5b8b62b9f30196",
+  "libVersion": "3.17.5",
   "packOptions": {
     "ignore": [
       {
@@ -24,11 +33,5 @@
       }
     ],
     "include": []
-  },
-  "libVersion": "3.17.5",
-  "condition": {},
-  "editorSetting": {
-    "tabIndent": "insertSpaces",
-    "tabSize": 2
   }
 }

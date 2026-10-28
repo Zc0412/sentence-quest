@@ -1,0 +1,4 @@
+<template name="ambient">
+  <view class="ambient" aria-hidden="true"><view class="orb orb-blue"></view><view class="orb orb-purple"></view><view class="orb orb-mint"></view><view class="orb orb-teal"></view><view class="orb orb-peach"></view></view>
+</template>
+<template name="tabs"><view class="glass-tabs glass-surface"><button class="glass-tab {{activeTab === 'learn' ? 'active' : ''}}" data-page="learn" bindtap="tab"><image src="/assets/library-book-{{activeTab === 'learn' ? 'active' : 'muted'}}.svg"/><text>题库</text></button><button class="glass-tab {{activeTab === 'stats' ? 'active' : ''}}" data-page="stats" bindtap="tab"><image src="/assets/library-stats-{{activeTab === 'stats' ? 'active' : 'muted'}}.svg"/><text>统计</text></button><button class="glass-tab {{activeTab === 'profile' ? 'active' : ''}}" data-page="profile" bindtap="tab"><image src="/assets/library-user-{{activeTab === 'profile' ? 'active' : 'muted'}}.svg"/><text>我的</text></button></view></template>

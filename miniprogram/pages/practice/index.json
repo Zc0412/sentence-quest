@@ -1,4 +1,1 @@
-{
-  "navigationBarTitleText": "练习",
-  "disableScroll": true
-}
+{ "navigationBarTitleText": "练习", "navigationStyle": "custom", "disableScroll": true, "backgroundColor": "#e4edff" }

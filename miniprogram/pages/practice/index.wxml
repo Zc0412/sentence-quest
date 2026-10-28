@@ -1,33 +1,40 @@
-<view class="practice" style="bottom: {{keyboardHeight}}px;">
-  <view wx:if="{{loading}}" class="empty muted">正在准备练习…</view>
-  <view wx:elif="{{loadError}}" class="page"><view class="card empty"><view class="error">{{loadError}}</view><button class="primary gap" bindtap="load">重新加载</button><button class="secondary gap" bindtap="home">返回学习</button></view></view>
-  <view wx:elif="{{finished}}" class="page"><view class="card empty"><view class="eyebrow">WELL DONE</view><view class="title">本轮练习结束</view><view class="muted">每一次练习，都在为下次进步铺路。</view><button class="primary gap" bindtap="home">返回学习</button><button wx:if="{{total}}" class="secondary gap" bindtap="replay">再练一轮</button></view></view>
-  <block wx:else>
-    <view class="progress-head"><view class="row"><text>第 {{number}} / {{total}} 题</text><text>{{done ? '完成了！' : '慢慢来，你可以的'}}</text></view><view class="track"><view class="fill" style="width:{{progress}}%;"></view></view></view>
-    <scroll-view scroll-y class="exercise-scroll">
-      <view class="exercise">
-        <view class="eyebrow">{{done ? '练习完成' : '看中文，拼英文'}}</view>
-        <view class="prompt">{{item.zh}}</view>
-        <block wx:if="{{done}}">
-          <view class="answer">{{item.english}}</view><view class="reward">{{earned ? '+' + earned + ' XP' : '又巩固了一次记忆'}}</view>
-          <view wx:if="{{item.note}}" class="explanation">{{item.note}}</view>
-          <view wx:for="{{item.grammar}}" wx:key="start" class="grammar"><text style="color:{{item.color}};">{{item.role}}</text><view class="muted">{{item.explanation}}</view></view>
-          <button class="secondary gap" bindtap="speak">听完整发音</button>
-        </block>
-        <block wx:else>
-          <view class="slots"><text wx:for="{{slots}}" wx:key="index" class="slot {{item.active ? 'active' : ''}} {{item.passed ? 'passed' : ''}}">{{item.text}}</text></view>
-          <view class="muted">正在拼写第 {{wordNumber}} / {{wordTotal}} 个词</view>
-        </block>
-      </view>
-    </scroll-view>
-    <view class="input-dock {{keyboardHeight ? 'keyboard-open' : ''}}">
-      <block wx:if="{{!done}}">
-        <view class="phonetic">{{phonetic}}</view>
-        <input class="word-input {{error ? 'invalid' : ''}}" value="{{typed}}" type="text" maxlength="-1" placeholder="点击输入英文" focus="{{focus}}" adjust-position="{{false}}" hold-keyboard="{{true}}" confirm-hold="{{true}}" confirm-type="next" bindinput="input" bindfocus="focus" bindblur="blur" bindkeyboardheightchange="keyboard" />
-        <view class="feedback {{error ? 'error' : ''}}">{{error || hintText || '拼对自动进入下一词'}}</view>
-        <view class="actions"><button bindtap="speak">发音</button><button wx:if="{{hints}}" bindtap="hint">提示</button><button bindtap="skip">跳过</button></view>
+<import src="../../templates/glass.wxml" />
+<view class="glass-page practice">
+  <template is="ambient" />
+  <view class="practice-shell">
+    <view class="status-space" style="height:{{statusBarHeight}}px;"></view>
+    <view class="glass-nav" style="height:{{navigationHeight}}px;"><button class="back-button" bindtap="home" aria-label="返回题库">‹</button><view class="glass-nav-title">{{listLabel || '练习'}}</view></view>
+    <scroll-view scroll-y class="practice-scroll">
+      <view wx:if="{{loading}}" class="state-card glass-surface">正在准备练习…</view>
+      <view wx:elif="{{loadError}}" class="state-card glass-surface"><view>{{loadError}}</view><button class="glass-primary" bindtap="load">重新加载</button><button class="glass-action" bindtap="home">返回题库</button></view>
+      <view wx:elif="{{finished}}" class="state-card glass-surface"><view class="finish-icon">✓</view><view class="finish-title">{{reviewMode ? '错题复习完成！' : '本轮练习结束！'}}</view><view class="finish-note">每一次练习，都在为下次进步铺路。</view><button class="glass-primary" bindtap="home">返回题库</button><button wx:if="{{total}}" class="glass-action" bindtap="replay">再练一轮</button></view>
+      <block wx:else>
+        <view class="practice-tools"><view class="accent-switch glass-surface"><button class="accent-button {{accent === '1' ? 'selected' : ''}}" data-value="1" bindtap="accent">英音</button><button class="accent-button {{accent === '2' ? 'selected' : ''}}" data-value="2" bindtap="accent">美音</button></view><view class="practice-xp glass-surface"><image class="xp-icon" src="/assets/glass-xp.svg" />{{xp}}<text class="xp-unit">XP</text></view><button class="help-button glass-surface" bindtap="instructions" aria-label="玩法说明">?</button></view>
+        <view class="mastery"><view class="mastery-label"><view>已掌握 <text>{{mastered}}</text> / {{total}} {{reviewMode ? '道错题' : isPhrase ? '个短语' : '个句子'}}</view><text>{{masteryPercent}}%</text></view><view class="mastery-track"><view style="width:{{masteryPercent}}%;"></view></view></view>
+        <view class="exercise-card glass-surface">
+          <view class="prompt-label">{{done ? 'WELL DONE' : isPhrase ? 'TYPE THIS PHRASE' : 'TYPE THIS SENTENCE'}}</view>
+          <view class="prompt">{{item.zh}}</view>
+          <view class="letter-board">
+            <view wx:for="{{slots}}" wx:key="index" wx:for-item="word" class="word-group">
+              <view class="word-phonetic">{{word.phonetic}}</view>
+              <view class="word-letters"><view wx:for="{{word.letters}}" wx:key="position" wx:for-item="letter" class="letter {{word.passed ? 'passed' : ''}} {{letter.current ? 'current' : ''}} {{letter.hinted ? 'hinted' : ''}} {{letter.wrong ? 'wrong' : ''}} {{letter.value ? 'filled' : ''}}">{{letter.value}}</view></view>
+            </view>
+          </view>
+          <view wx:if="{{error || hintText}}" class="typing-feedback {{error ? 'error' : ''}}">{{error || hintText}}</view>
+          <view wx:if="{{done}}" class="completion"><view class="completion-reward">✓ {{earned ? '+' + earned + ' XP' : '已巩固'}}</view><view class="answer">{{item.english}}</view></view>
+          <view class="exercise-actions"><button class="glass-action" bindtap="speak"><image class="action-icon" src="/assets/glass-sound.svg" />听发音</button><button wx:if="{{hints && !done}}" class="glass-action" bindtap="hint"><image class="action-icon" src="/assets/glass-hint.svg" />提示字母</button><button wx:if="{{!done}}" class="glass-action" bindtap="skip"><image class="action-icon" src="/assets/glass-skip.svg" />跳过</button><button wx:else class="glass-action" bindtap="next">下一题 →</button></view>
+          <view class="sentence-navigation"><button class="sentence-link previous" disabled="{{number === 1}}" bindtap="previous">‹ {{previousLabel ? '上一句：' + previousLabel : '已经是第一句'}}</button><button class="sentence-link" bindtap="advance">{{number === total ? '完成本轮' : '下一句'}} ›</button></view>
+          <view wx:if="{{done && (item.note || item.grammar.length)}}" class="grammar-explanation"><view class="grammar-title">句法解析</view><scroll-view scroll-x class="grammar-tabs"><button wx:for="{{item.grammar}}" wx:key="start" class="grammar-tab {{grammarIndex === index ? 'selected' : ''}}" data-index="{{index}}" bindtap="selectGrammar">{{item.role}}</button></scroll-view><view class="grammar-note">{{grammarExplanation || item.note}}</view></view>
+        </view>
+        <view class="typing-stats glass-surface"><view><text>输入数</text><view>{{inputCount}}</view></view><view><text>正确数</text><view class="correct-count">{{correctCount}}</view></view><view><text>正确率</text><view>{{accuracy}}</view></view></view>
       </block>
-      <button wx:else class="primary" bindtap="next">{{number === total ? '查看完成结果' : '下一题 →'}}</button>
+    </scroll-view>
+    <view wx:if="{{!loading && !loadError && !finished && !done}}" class="glass-keyboard glass-surface">
+      <view wx:for="{{keyRows}}" wx:key="index" wx:for-item="row" wx:for-index="rowIndex" class="keyboard-row">
+        <button wx:if="{{rowIndex === 2}}" class="keyboard-key special {{shift ? 'shift-active' : ''}}" data-key="shift" bindtap="key" aria-label="切换大小写">⇧</button>
+        <button wx:for="{{row}}" wx:key="*this" wx:for-item="keyValue" class="keyboard-key {{shift ? 'uppercase' : ''}}" data-key="{{keyValue}}" bindtap="key">{{keyValue}}</button>
+        <button wx:if="{{rowIndex === 2}}" class="keyboard-key special" data-key="delete" bindtap="key" aria-label="删除字母">⌫</button>
+      </view>
     </view>
-  </block>
+  </view>
 </view>

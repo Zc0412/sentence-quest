@@ -1,21 +1,41 @@
 const { lists } = require('../../utils/catalog');
 const storage = require('../../utils/storage');
+const bundled = { 'home-phrases': require('../../data/home-phrases'), sentences: require('../../data/sentences') };
 Page({
-  data: { query: '', filter: 'all', lists: [], lastLabel: '', today: 0 },
+  data: { lists: [], lastLabel: '', lastSentence: '', lastCompleted: 0, lastTotal: 0, accent: '1', statusBarHeight: 24, navigationHeight: 44 },
+  onLoad() {
+    const info = wx.getWindowInfo ? wx.getWindowInfo() : wx.getSystemInfoSync();
+    const capsule = wx.getMenuButtonBoundingClientRect();
+    const statusBarHeight = info.statusBarHeight || 24;
+    this.setData({ statusBarHeight, navigationHeight: capsule.height && capsule.top >= statusBarHeight ? (capsule.top - statusBarHeight) * 2 + capsule.height : 44 });
+  },
   onShow() {
-    const state = storage.read();
-    this.setData({ lastLabel: (lists.find((list) => list.id === state.lastList) || lists[0]).label, today: state.activity[storage.dateKey()] || 0 });
+    wx.hideTabBar({ animation: false });
     this.refresh();
   },
+  onHide() { wx.showTabBar({ animation: false }); },
   refresh() {
     const state = storage.read();
+    const current = lists.find((list) => list.id === state.lastList) || lists[0];
     const counts = {};
     Object.keys(state.completed).forEach((key) => { const id = key.split('::')[0]; counts[id] = (counts[id] || 0) + 1; });
-    const query = this.data.query.trim().toLowerCase();
-    this.setData({ lists: lists.filter((list) => (this.data.filter === 'all' || list.kind === this.data.filter) && `${list.label} ${list.category}`.toLowerCase().includes(query)).map((list) => Object.assign({}, list, { completed: counts[list.id] || 0 })) });
+    const rows = bundled[current.id];
+    const cursor = Math.max(0, Math.min(state.cursors[current.id] || 0, rows.length - 1));
+    this.setData({
+      lastLabel: current.label, lastSentence: rows[cursor].zh,
+      lastCompleted: Math.min(counts[current.id] || 0, current.wordCount), lastTotal: current.wordCount,
+      accent: state.settings.accent,
+      lists: lists.map((list) => Object.assign({}, list, {
+        completed: Math.min(counts[list.id] || 0, list.wordCount),
+        percent: Math.min(100, Math.round((counts[list.id] || 0) / list.wordCount * 100)),
+      })),
+    });
   },
-  search(event) { this.setData({ query: event.detail.value }); this.refresh(); },
-  filter(event) { this.setData({ filter: event.currentTarget.dataset.kind }); this.refresh(); },
+  accent(event) { const accent = event.currentTarget.dataset.value; storage.settings({ accent }); this.setData({ accent }); },
   open(event) { wx.navigateTo({ url: `/pages/practice/index?list=${encodeURIComponent(event.currentTarget.dataset.id)}` }); },
-  resume() { wx.navigateTo({ url: `/pages/practice/index?list=${encodeURIComponent(storage.read().lastList)}` }); },
+  resume() { wx.navigateTo({ url: `/pages/practice/index?list=${encodeURIComponent((lists.find((list) => list.id === storage.read().lastList) || lists[0]).id)}` }); },
+  tab(event) {
+    const page = event.currentTarget.dataset.page;
+    if (['stats', 'review', 'profile'].includes(page)) wx.switchTab({ url: `/pages/${page}/index` });
+  },
 });

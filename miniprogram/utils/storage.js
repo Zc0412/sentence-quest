@@ -41,5 +41,15 @@ function complete(listId, item, perfect, review) {
   save(); return earned;
 }
 function cursor(listId, index) { const state = read(); state.cursors[listId] = index; state.lastList = listId; save(); }
+function typingStats() {
+  const value = read().typing;
+  return value && Number.isSafeInteger(value.input) && Number.isSafeInteger(value.correct) && value.input >= 0 && value.correct >= 0 && value.correct <= value.input ? value : { input: 0, correct: 0 };
+}
+function recordTyping(delta) {
+  if (!delta.input) return;
+  const value = typingStats();
+  read().typing = { input: value.input + delta.input, correct: value.correct + delta.correct };
+  save();
+}
 function settings(value) { Object.assign(read().settings, value); save(); }
-module.exports = { read, save, key, mistake, complete, cursor, settings, dateKey };
+module.exports = { read, save, key, mistake, complete, cursor, settings, dateKey, typingStats, recordTyping };
