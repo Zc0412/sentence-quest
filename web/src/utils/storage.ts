@@ -1,6 +1,7 @@
 import type { Progress } from '../types/game';
 import { IndexedDbProgressRepository } from '../repositories/indexeddb-progress';
 import { GUEST_PROFILE_ID } from '../repositories/progress';
+import { normalizeXpHistory } from './xp-history';
 
 // 仅用来将 v2.0 的旧数据导入 IndexedDB；新进度不再写入 localStorage。
 const LEGACY_LOCAL_STORAGE_KEY = 'sentence-quest-progress-v1';
@@ -68,6 +69,7 @@ export function normalizeProgress(value: unknown): Progress {
   return {
     completedIds: uniqueIds,
     xp: nonNegative(data.xp),
+    ...(data.xpHistory !== undefined ? { xpHistory: normalizeXpHistory(data.xpHistory, nonNegative(data.xp)) } : {}),
     mistakes,
     totalCorrectWords: nonNegative(data.totalCorrectWords),
     perfectSentences: nonNegative(data.perfectSentences),

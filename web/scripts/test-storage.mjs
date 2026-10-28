@@ -17,6 +17,7 @@ const files = [
   'src/repositories/progress.ts',
   'src/repositories/indexeddb-progress.ts',
   'src/utils/storage.ts',
+  'src/utils/xp-history.ts',
 ];
 for (const file of files) {
   const filename = join(root, file);
@@ -170,6 +171,7 @@ try {
 
   const snapshot = {
     ...result.progress, xp: 60, completedIds: ['daily-001', 'daily-002'],
+    xpHistory: [{ at: '2026-10-28T02:00:00.000Z', kind: 'word', listId: 'test', sourceLabel: '测试词库', text: 'cat', meaning: '猫', amount: 15, perfect: true }],
     vocabularyProgress: { test: { knownWords: ['cat'], index: 1, mistakeWords: ['cat', 'dog'], groupIndices: { 1: 1, 2: 75 } } },
   };
   await Promise.all([
@@ -179,6 +181,8 @@ try {
   ]);
   result = await renamedStorage.loadProgress();
   assert.equal(result.progress.xp, 60, '连续写入后应保留最后一次修改');
+  assert.deepEqual(result.progress.xpHistory, snapshot.xpHistory, '积分明细应与积分一起持久化并在重新打开后保留');
+  assert.equal(result.progress.xp - result.progress.xpHistory.reduce((sum, entry) => sum + entry.amount, 0), 45, '旧版本积分保留为无明细余额');
   assert.deepEqual(result.progress.vocabularyProgress.test.mistakeWords, ['cat', 'dog'], '错词记录应在重新加载存档后保留');
   assert.deepEqual(result.progress.vocabularyProgress.test.groupIndices, { 1: 1, 2: 75 }, '各组位置应在重新加载存档后保留');
   const saved = renamedDatabase.records.get('guest');
@@ -196,6 +200,7 @@ try {
   const fallback = await freshStorage.loadProgress();
   assert.equal(fallback.persistence, 'memory');
   assert.equal(fallback.progress.xp, 73);
+  assert.deepEqual(fallback.progress.xpHistory, snapshot.xpHistory, '存储降级应保留已有明细');
   assert.equal(local.has(legacyKey), true);
 
   console.log('✅ IndexedDB 仓储模拟测试通过：旧数据迁移 / 重复读取 / 顺序写入 / 版本信息 / 数据清洗 / 不可用降级');

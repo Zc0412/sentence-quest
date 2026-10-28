@@ -47,7 +47,10 @@ export function CompletionPanel({ sentence, earnedXp, mistakes, hints, onNext, o
       <p className="completion-translation">{sentence.zh}</p>
       <WordSlots sentence={sentence} index={sentence.words.length} onSpeakWord={speakWord} />
       <div className="completion-caption"><span>{isPerfect ? '完全正确 · 未使用提示' : `${mistakes} 次纠错 · ${hints} 次提示`}</span><Button type="button" variant="ghost" onClick={() => speakEnglish(sentence.english)} className="text-action h-auto"><Volume2 size={17} /> 朗读整句</Button></div>
-      <div className="completion-actions"><Button type="button" variant="secondary" onClick={onReplay} aria-keyshortcuts="r" className="secondary-button"><RotateCcw size={18}/> 再练一次 <kbd>R</kbd></Button><Button type="button" onClick={onNext} aria-keyshortcuts="Enter" className="primary-button">继续下一句 <kbd>Enter</kbd><ArrowRight size={18}/></Button></div>
+      <div className="completion-actions">
+        <Button type="button" variant="secondary" onClick={onReplay} aria-keyshortcuts="r" className="secondary-button"><RotateCcw size={18}/> 再练一次 <kbd>R</kbd></Button>
+        <Button type="button" variant="secondary" onClick={onNext} aria-keyshortcuts="Enter" className="secondary-button completion-next-button"><ArrowRight size={18}/> 继续下一句 <kbd>Enter</kbd></Button>
+      </div>
       <GrammarExplanation sentence={sentence} complete />
     </div>
   );

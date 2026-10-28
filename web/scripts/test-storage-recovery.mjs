@@ -9,7 +9,7 @@ const require = createRequire(import.meta.url);
 const ts = require('typescript');
 const root = fileURLToPath(new URL('../', import.meta.url));
 const tmp = mkdtempSync(join(tmpdir(), 'sentleap-recovery-'));
-const files = ['src/types/game.ts', 'src/repositories/progress.ts', 'src/repositories/indexeddb-progress.ts', 'src/utils/storage.ts'];
+const files = ['src/types/game.ts', 'src/repositories/progress.ts', 'src/repositories/indexeddb-progress.ts', 'src/utils/storage.ts', 'src/utils/xp-history.ts'];
 for (const file of files) {
   const filename = join(root, file);
   const code = ts.transpileModule(readFileSync(filename, 'utf8'), {

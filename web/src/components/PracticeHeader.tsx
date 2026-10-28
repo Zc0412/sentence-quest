@@ -5,17 +5,21 @@ import type { PronunciationType } from '@/utils/speech';
 import { Logo } from './Logo';
 import { XpBadge } from './XpBadge';
 import { Button } from './ui/button';
+import type { XpEntry } from '@/types/xp-history';
 
 interface Props {
   settingsHref: string;
   xp: number;
+  xpHistory?: XpEntry[];
+  xpReady?: boolean;
+  xpWarning?: string;
   pronunciationType: PronunciationType;
   onPronunciationChange: (type: PronunciationType) => void;
   onShowActivity: () => void;
   extraAction?: ReactNode;
 }
 
-export function PracticeHeader({ settingsHref, xp, pronunciationType, onPronunciationChange, onShowActivity, extraAction }: Props) {
+export function PracticeHeader({ settingsHref, xp, xpHistory, xpReady, xpWarning, pronunciationType, onPronunciationChange, onShowActivity, extraAction }: Props) {
   return (
     <header className="app-header flex items-center justify-between gap-3">
       <div className="flex min-w-0 items-center gap-3"><Logo /></div>
@@ -32,7 +36,7 @@ export function PracticeHeader({ settingsHref, xp, pronunciationType, onPronunci
             <Button key={type} type="button" variant="ghost" aria-pressed={pronunciationType === type} onClick={() => onPronunciationChange(type)} className={`h-auto rounded-xl px-2 py-2 text-[12px] font-bold ${pronunciationType === type ? 'bg-[#dbeafe] text-[#2563eb]' : 'text-[#64748b] hover:text-[#0f172a]'}`}>{label}</Button>
           ))}
         </div>
-        <XpBadge xp={xp} />
+        <XpBadge xp={xp} entries={xpHistory} ready={xpReady} warning={xpWarning} />
       </div>
     </header>
   );

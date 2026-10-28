@@ -32,6 +32,9 @@ const { useSentenceGame } = compile('src/hooks/useSentenceGame.ts', (name) => {
   if (name === '../utils/storage') return { EMPTY_PROGRESS: empty };
   if (name === '../utils/validator') return validator;
   if (name === '../utils/speech') return { speakWord: (word) => spoken.push(word), stopSpeech() {} };
+  if (name === '../utils/practice-xp') return compile('src/utils/practice-xp.ts', require);
+  if (name === '../utils/xp-history') return compile('src/utils/xp-history.ts', require);
+  if (name === '../utils/vocabulary-groups') return compile('src/utils/vocabulary-groups.ts', require);
   throw Error(`Unexpected import: ${name}`);
 });
 const render = () => { cursor = 0; return useSentenceGame([sentence], { readWholeOnCompletion: true }); };

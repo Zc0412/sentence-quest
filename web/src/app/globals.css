@@ -159,7 +159,10 @@ kbd { display:inline-block; padding: 1px 6px; border: 1px solid #cbd5e1; border-
 .completion-xp { border-radius:20px; padding:4px 9px; background:#dcfce7; color:#16a34a; font-size:12px; font-weight:700; }
 .completion-translation { margin:32px 0 18px; font-size:20px; color:#667080; text-align:center; }
 .completion-caption { display:flex; flex-wrap:wrap; align-items:center; justify-content:center; gap:12px; margin-top:10px; color:#87919e; font-size:12px; }
-.completion-actions { display:flex; flex-wrap:wrap; justify-content:center; gap:12px; margin-top:32px; }
+.completion-actions { display:flex; flex-wrap:wrap; justify-content:center; gap:12px; width:100%; max-width:420px; margin:32px auto 0; }
+.completion-actions > button { flex:1 1 180px; }
+.completion-actions .completion-next-button { background:#3b82f6; color:white; }
+.completion-actions .completion-next-button:hover { background:#2563eb; }
 @media(max-width:640px) {
   .sentence-typing-board { gap:24px 12px; }
   .grammar-group { padding:18px 10px 9px; border-radius:17px; }

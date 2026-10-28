@@ -1,3 +1,5 @@
+import type { XpEntry } from './xp-history';
+
 export interface WordAnnotation {
   phonetic: string;
   meaning: string;
@@ -50,6 +52,7 @@ export type GamePhase = 'playing' | 'success' | 'allDone' | 'noMistakes' | 'revi
 export interface Progress {
   completedIds: string[];
   xp: number;
+  xpHistory?: XpEntry[];
   mistakes: Record<string, number>;
   totalCorrectWords: number;
   perfectSentences: number;

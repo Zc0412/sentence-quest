@@ -54,7 +54,7 @@ export function NotebookReviewApp({ sessionId }: { sessionId: string }) {
       <div className="pointer-events-none absolute -left-32 top-16 h-[470px] w-[470px] rounded-full bg-[#dbeafe] opacity-55 blur-[110px]" />
       <div className="pointer-events-none absolute -right-32 top-[400px] h-[530px] w-[530px] rounded-full bg-[#ccfbf1] opacity-70 blur-[120px]" />
       <div className="app-shell" inert={showActivity || showInstructions}>
-        <PracticeHeader settingsHref={returnHref} xp={progress?.xp ?? 0} pronunciationType={pronunciationType}
+        <PracticeHeader settingsHref={returnHref} xp={progress?.xp ?? 0} xpHistory={progress?.xpHistory} xpReady={Boolean(progress)} pronunciationType={pronunciationType}
           onShowActivity={() => setShowActivity(true)} onPronunciationChange={(type) => { setAccent(type); setPronunciationType(type); }} />
         <main className="app-main app-main-practice">
           <section className="exercise-section">

@@ -58,6 +58,7 @@ export function SentencePracticeApp({
   const notebook = useMistakeNotebook();
   const sourceLabel = categoryName ? title.replace(` · ${categoryName}`, '') : title;
   const game = useSentenceGame(sentenceList, {
+    xpSource: { listId, label: title, kind: isPhrasePractice ? 'phrase' : 'sentence' },
     readWholeOnCompletion: isPhrasePractice, onLearning: history.record,
     onMistake: (sentence) => notebook.record(phraseMistake(listId, sourceLabel, sentence)),
     onReviewComplete: (sentence, perfect) => {
@@ -106,7 +107,7 @@ export function SentencePracticeApp({
       <div className="pointer-events-none absolute -left-32 top-16 h-[470px] w-[470px] rounded-full bg-[#dbeafe] opacity-55 blur-[110px]" />
       <div className="pointer-events-none absolute -right-32 top-[400px] h-[530px] w-[530px] rounded-full bg-[#ccfbf1] opacity-70 blur-[120px]" />
       <div className="app-shell" inert={showInstructions || showReset || showActivity}>
-        <PracticeHeader settingsHref={settingsHref} xp={game.progress.xp} pronunciationType={pronunciationType}
+        <PracticeHeader settingsHref={settingsHref} xp={game.progress.xp} xpHistory={game.progress.xpHistory} xpReady={game.ready} xpWarning={game.storageStatus === 'memory' ? '当前积分与明细仅保存在内存，刷新后可能丢失。' : ''} pronunciationType={pronunciationType}
           onShowActivity={() => setShowActivity(true)} onPronunciationChange={(type) => { setSelectedPronunciationType(type); setPronunciationType(type); }}
           extraAction={!isPhrasePractice && <Button asChild type="button" variant="outline" size="icon" className="h-10 w-10 rounded-2xl border-[#e2e8f0] bg-white text-[#475569] shadow-sm hover:bg-[#eff6ff]" aria-label="单词练习">
               <Link href="/practice/CET4_T"><BookOpenText size={18} /></Link>

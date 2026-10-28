@@ -73,7 +73,7 @@ export default function App({ listId, group }: Props) {
       <div className="pointer-events-none absolute -left-32 top-16 h-[470px] w-[470px] rounded-full bg-[#dbeafe] opacity-55 blur-[110px]" />
       <div className="pointer-events-none absolute -right-32 top-[400px] h-[530px] w-[530px] rounded-full bg-[#ccfbf1] opacity-70 blur-[120px]" />
       <div className="app-shell" inert={showInstructions || showReset || showActivity}>
-        <PracticeHeader settingsHref={settingsHref} xp={game.progress.xp} pronunciationType={pronunciationType}
+        <PracticeHeader settingsHref={settingsHref} xp={game.progress.xp} xpHistory={game.progress.xpHistory} xpReady={game.ready} xpWarning={game.storageStatus === 'memory' ? '当前积分与明细仅保存在内存，刷新后可能丢失。' : ''} pronunciationType={pronunciationType}
           onShowActivity={() => setShowActivity(true)} onPronunciationChange={(type) => { setSelectedPronunciationType(type); setPronunciationType(type); }} />
 
         <main className="app-main app-main-practice">
@@ -105,7 +105,10 @@ export default function App({ listId, group }: Props) {
                     if (entry) notebook.record(wordMistake(listId, vocabularyList?.label ?? listId, entry, group));
                   }}
                   onCorrect={(word, nextIndex, result) => {
-                    game.recordVocabularyCorrect(listId, word, groupStart + nextIndex, group, result);
+                    game.recordVocabularyCorrect(listId, word, groupStart + nextIndex, group, {
+                      ...result, sourceLabel: vocabularyList?.label ?? listId,
+                      meaning: words.find((entry) => entry.name === word)?.trans.join('；') ?? '',
+                    });
                     if (result.review) {
                       const entry = groupWords.find((item) => item.name === word)!;
                       const snapshot = wordMistake(listId, vocabularyList?.label ?? listId, entry, group);

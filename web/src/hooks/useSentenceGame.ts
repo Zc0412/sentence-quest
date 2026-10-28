@@ -8,6 +8,7 @@ import { isCorrectWord, isCorrectPrefix, nextHintLength } from '../utils/validat
 import { speakWord, stopSpeech } from '../utils/speech';
 import { withVocabularyIndex } from '../utils/vocabulary-groups';
 import { practiceXp } from '../utils/practice-xp';
+import { appendXpEntry } from '../utils/xp-history';
 
 function nextUnfinished(completedIds: string[], sentenceList: Sentence[]): Sentence | undefined {
   return sentenceList.find((item) => !completedIds.includes(item.id));
@@ -28,11 +29,12 @@ function localDateKey(date = new Date()): string {
 
 export function useSentenceGame(
   sentenceList: Sentence[] = sentences,
-  { readWholeOnCompletion = false, onLearning, onMistake, onReviewComplete }: {
+  { readWholeOnCompletion = false, onLearning, onMistake, onReviewComplete, xpSource }: {
     readWholeOnCompletion?: boolean;
     onLearning?: (kind: 'word' | 'sentence', text: string, meaning: string) => void;
     onMistake?: (sentence: Sentence) => void;
     onReviewComplete?: (sentence: Sentence, perfect: boolean) => void;
+    xpSource?: { listId: string; label: string; kind: 'phrase' | 'sentence' };
   } = {},
 ) {
   // 服务端与客户端首屏渲染统一使用空进度，避免 hydration mismatch。
@@ -170,10 +172,16 @@ export function useSentenceGame(
     setWordIndex(sentence.words.length);
     setPhase('success');
     if (mode === 'review') setReviewedIds((ids) => ids.includes(sentence.id) ? ids : [...ids, sentence.id]);
-    setProgress((old) => ({
+    const awardedAt = new Date().toISOString();
+    setProgress((old) => !isFirstPass || old.completedIds.includes(sentence.id) ? old : ({
       ...old,
-      completedIds: isFirstPass ? [...old.completedIds, sentence.id] : old.completedIds,
+      completedIds: [...old.completedIds, sentence.id],
       xp: old.xp + reward,
+      xpHistory: appendXpEntry(old.xpHistory, {
+        at: awardedAt, kind: xpSource?.kind ?? 'sentence', listId: xpSource?.listId ?? 'sentences',
+        sourceLabel: xpSource?.label ?? '句子练习', text: sentence.english, meaning: sentence.zh,
+        amount: reward, perfect: isPerfect,
+      }),
       perfectSentences: old.perfectSentences + (isFirstPass && isPerfect ? 1 : 0),
     }));
   }
@@ -334,8 +342,9 @@ export function useSentenceGame(
     }));
   }
 
-  function recordVocabularyCorrect(listId: VocabularyListId, word: string, nextIndex: number, group?: number, { perfect = false, review = false }: { perfect?: boolean; review?: boolean } = {}) {
+  function recordVocabularyCorrect(listId: VocabularyListId, word: string, nextIndex: number, group?: number, { perfect = false, review = false, sourceLabel = listId, meaning = '' }: { perfect?: boolean; review?: boolean; sourceLabel?: string; meaning?: string } = {}) {
     const today = localDateKey();
+    const awardedAt = new Date().toISOString();
     setProgress((old) => {
       const todayActivity = old.activityByDate[today] ?? { words: 0, sentences: 0 };
       const bankProgress = old.vocabularyProgress[listId] ?? { knownWords: [], index: 0 };
@@ -349,6 +358,10 @@ export function useSentenceGame(
       return {
         ...old,
         xp: old.xp + reward,
+        ...(reward > 0 ? { xpHistory: appendXpEntry(old.xpHistory, {
+          at: awardedAt, kind: 'word', listId, sourceLabel: group ? `${sourceLabel} · 第 ${group} 组` : sourceLabel,
+          text: word, meaning, amount: reward, perfect,
+        }) } : {}),
         knownVocabulary: [...allKnownWords],
         vocabularyIndex: listId === 'CET4_T' ? nextIndex : old.vocabularyIndex,
         vocabularyProgress: {
