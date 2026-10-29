@@ -4,7 +4,9 @@
     "pages/review/index",
     "pages/profile/index",
     "pages/practice/index",
-    "pages/stats/index"
+    "pages/stats/index",
+    "pages/share/index",
+    "pages/library/index"
   ],
   "window": {
     "navigationBarTitleText": "SentLeap",

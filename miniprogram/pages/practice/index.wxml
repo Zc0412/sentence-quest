@@ -23,7 +23,7 @@
             <view class="success-heading"><view class="success-check"><image src="/assets/completion-check.svg" /></view><text class="success-title">{{isWord ? '漂亮，完成一词！' : '漂亮，完成一句！'}}</text><text class="success-badge">练习完成</text></view>
             <view class="success-prompt">{{item.zh}}</view>
             <view class="completed-words">
-              <view wx:for="{{completedWords}}" wx:key="index" wx:for-item="word" class="completed-word glass-surface" style="width:{{word.width}}px;border-color:{{word.roleColor}}55;">
+              <view wx:for="{{completedWords}}" wx:key="index" wx:for-item="word" class="completed-word glass-surface" style="border-color:{{word.roleColor}}55;">
                 <view wx:if="{{word.role}}" class="word-role" style="background:{{word.roleColor}};box-shadow:0 4px 10px {{word.roleColor}}55;">{{word.role}}</view>
                 <view class="completed-phonetic">{{word.phonetic}}</view>
                 <view class="completed-english">{{word.text}}</view>

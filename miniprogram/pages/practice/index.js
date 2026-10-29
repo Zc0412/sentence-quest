@@ -39,7 +39,6 @@ Page({
     const state = this.state;
     const characterCount = state.item.words.join('').length;
     const completionSize = state.item.words.length > 7 || characterCount > 40 ? 'dense' : state.item.words.length > 4 || characterCount > 22 ? 'compact' : 'regular';
-    const cardSize = completionSize === 'dense' ? { min:48, max:120, letter:14, padding:16 } : completionSize === 'compact' ? { min:52, max:144, letter:17, padding:18 } : { min:64, max:180, letter:23, padding:24 };
     const annotation = (state.item.annotations || [])[state.wordIndex] || {};
     const mastered = this.entries.filter((entry) => storage.read().completed[storage.key(entry.listId, entry.item)]).length;
     const phonetic = storage.read().settings.accent === '2' ? annotation.usphone || annotation.phonetic : annotation.phonetic;
@@ -49,7 +48,7 @@ Page({
       completedWords: state.done ? state.item.words.map((text, index) => {
         const details = (state.item.annotations || [])[index] || {};
         const group = (state.item.grammar || []).find((part) => index >= part.start && index < part.end);
-        return { index, text, width: Math.max(cardSize.min, Math.min(cardSize.max, text.length * cardSize.letter + cardSize.padding)),
+        return { index, text,
           phonetic: storage.read().settings.accent === '2' ? details.usphone || details.phonetic || '' : details.phonetic || '',
           meaning: details.meaning || '', pos: details.pos || '', color: details.color || '#3b82f6',
           role: group?.role || '', roleColor: group?.color || '#2f6fed' };
@@ -70,7 +69,7 @@ Page({
     if (!this.state || this.state.done) return '';
     const delta = inputDelta(this.state.typed, event.detail.value, this.state.item.words[this.state.wordIndex]);
     this.typing = this.typing || { input: 0, correct: 0 };
-    this.typing.input += delta.input; this.typing.correct += delta.correct; storage.recordTyping(delta);
+    this.typing.input += delta.input; this.typing.correct += delta.correct; storage.recordTyping(delta, this.entry.listId);
     const previousWordIndex = this.state.wordIndex;
     const wasDirty = this.state.dirty;
     this.state = session.input(this.state, event.detail.value);

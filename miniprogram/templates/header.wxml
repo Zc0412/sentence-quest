@@ -1,6 +1,6 @@
 <template name="header">
   <view class="app-header">
-    <image class="brand-logo" src="/assets/sentleap-logo.png" mode="aspectFit" />
+    <image class="brand-logo" src="/assets/library-logo.png" mode="aspectFit" />
     <view class="header-actions"><text class="offline-badge">离线练习</text><view class="xp-badge"><text class="xp-star">✦</text> {{xp || 0}} XP</view></view>
   </view>
 </template>

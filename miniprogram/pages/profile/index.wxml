@@ -2,7 +2,8 @@
 <view class="glass-page profile-page">
   <template is="ambient" />
   <view class="glass-shell">
-    <view style="height:{{statusBarHeight}}px;"></view><view class="glass-nav" style="height:{{navigationHeight}}px;">我的</view>
+    <view class="persistent-header {{scrolled ? 'is-scrolled' : ''}}"><view style="height:{{statusBarHeight}}px;"></view><view class="glass-nav" style="height:{{navigationHeight}}px;">我的</view></view>
+    <view style="height:{{statusBarHeight + navigationHeight}}px;"></view>
     <view class="profile-content">
       <view class="identity-card glass-surface">
         <view class="identity-row"><view class="avatar"><image src="/assets/profile-user.svg" /></view><view class="identity-copy"><input class="nickname" type="nickname" value="{{nickname}}" placeholder="句跃学习者" placeholder-class="nickname-placeholder" maxlength="24" bindblur="nickname" bindconfirm="nickname" aria-label="设置昵称" /><view class="streak">已连续练习 {{streak}} 天</view></view></view>

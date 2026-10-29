@@ -2,14 +2,14 @@
 <view class="glass-page stats-page">
   <template is="ambient" />
   <view class="glass-shell">
-    <view style="height:{{statusBarHeight}}px;"></view><view class="glass-nav" style="height:{{navigationHeight}}px;">学习统计</view>
+    <view class="persistent-header {{scrolled ? 'is-scrolled' : ''}}"><view style="height:{{statusBarHeight}}px;"></view><view class="glass-nav" style="height:{{navigationHeight}}px;">学习统计</view></view>
+    <view style="height:{{statusBarHeight + navigationHeight}}px;"></view>
     <view class="stats-content">
       <view class="mastery-card glass-surface"><view class="mastery-ring" style="background:conic-gradient(#2f6fed 0% {{percent}}%, rgba(255,255,255,.7) {{percent}}% 100%);"><view>{{percent}}%</view></view><view class="mastery-copy"><view class="mastery-label">已掌握词条</view><view class="mastery-number">{{completed}} <text>/ {{total}}</text></view><view class="total-xp"><image src="/assets/glass-xp.svg" class="xp-icon" /> {{xp}} XP</view></view></view>
       <view class="stat-tiles"><view class="stat-tile glass-surface"><view>输入数</view><text>{{inputCount}}</text></view><view class="stat-tile glass-surface"><view>正确数</view><text class="correct">{{correctCount}}</text></view><view class="stat-tile glass-surface"><view>正确率</view><text>{{accuracy}}</text></view></view>
       <view class="week-card glass-surface"><view class="week-title">本周练习</view><view class="week-chart"><view wx:for="{{week}}" wx:key="key" class="week-day"><view class="bar-area"><view class="week-bar {{item.count ? 'has-activity' : ''}}" style="height:{{item.height}}px;"></view></view><text class="{{item.today ? 'today' : ''}}">{{item.label}}</text><text class="day-count">{{item.count}} 次</text></view></view></view>
-      <button class="share-button" loading="{{sharing}}" disabled="{{sharing}}" bindtap="poster">生成分享海报</button>
+      <button class="share-button" bindtap="poster">生成分享海报</button>
       <view class="stats-note">输入统计从本次版本开始累计，删除和提示不计入输入数。</view>
     </view>
   </view>
-  <canvas canvas-id="stats-poster" class="poster-canvas" style="width:600px;height:800px;" />
 </view>

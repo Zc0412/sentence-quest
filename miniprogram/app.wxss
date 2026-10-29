@@ -5,7 +5,7 @@ button::after { border:0; }
 button[disabled] { opacity:.45; }
 .page { min-height:100vh; padding:10px 14px calc(24px + env(safe-area-inset-bottom)); background:radial-gradient(ellipse at 45% -18%,#eff6ff,transparent 55%),#f8fafc; }
 .app-header { display:flex; align-items:center; justify-content:space-between; gap:8px; min-height:40px; margin-bottom:20px; flex-shrink:0; }
-.brand-logo { width:120px; height:40px; flex-shrink:0; }
+.brand-logo { width:92px; height:34px; flex-shrink:0; display:block; }
 .header-actions { display:flex; align-items:center; gap:8px; }
 .offline-badge { font-size:10px; color:#64748b; white-space:nowrap; }
 .xp-badge { padding:8px 10px; border-radius:16px; background:#fef3c7; color:#92400e; font-size:12px; font-weight:800; white-space:nowrap; }.xp-star { color:#f59e0b; }
@@ -24,3 +24,7 @@ button[disabled] { opacity:.45; }
 .storage-note { text-align:center; margin-top:18px; color:#94a3b8; font-size:10px; line-height:1.8; }
 .track { height:6px; border-radius:100px; background:#f1f5f9; overflow:hidden; }.fill { height:100%; background:#3b82f6; border-radius:100px; }
 .empty-symbol { display:flex; align-items:center; justify-content:center; margin:0 auto 18px; width:64px; height:64px; border-radius:20px; background:#dcfce7; color:#16a34a; font-size:30px; }
+
+/* Show the fixed header background only after the page starts scrolling. */
+.persistent-header { position:fixed; top:0; left:0; right:0; z-index:10; }
+.persistent-header.is-scrolled { background:rgba(228,237,255,.92); -webkit-backdrop-filter:blur(20px); backdrop-filter:blur(20px); }

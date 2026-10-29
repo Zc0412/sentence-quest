@@ -4,12 +4,13 @@ const { navigationMetrics } = require('../../utils/navigation');
 const { accuracy } = require('../../utils/typing-stats');
 const { preferences, speeds, speedLabels, goals, streak } = require('../../utils/preferences');
 Page({
-  data: { statusBarHeight: 24, navigationHeight: 44, xp: 0, completed: 0, streak: 0, accuracy: '—', accent: '1', hints: true, speedLabel: '正常', dailyGoal: 10, autoSpeak: true, nickname: '', version: '2.2.0', goalProgress: 0 },
+  data: { scrolled: false, statusBarHeight: 24, navigationHeight: 44, xp: 0, completed: 0, streak: 0, accuracy: '—', accent: '1', hints: true, speedLabel: '正常', dailyGoal: 10, autoSpeak: true, nickname: '', version: '2.2.0', goalProgress: 0 },
   onLoad() {
     this.setData(navigationMetrics());
     const version = wx.getAccountInfoSync && wx.getAccountInfoSync().miniProgram.version;
     if (version) this.setData({ version });
   },
+  onPageScroll(event) { const scrolled = event.scrollTop > 0; if (scrolled !== this.data.scrolled) this.setData({ scrolled }); },
   onShow() {
     const tabBar = this.getTabBar && this.getTabBar();
     if (tabBar) tabBar.syncSelected('profile');

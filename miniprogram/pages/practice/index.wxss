@@ -57,10 +57,10 @@
 .success-badge { padding:4px 10px; border-radius:14px; background:rgba(34,197,94,.16); color:#15803d; font-size:12px; font-weight:700; border:1px solid rgba(255,255,255,.7); white-space:nowrap; }
 .success-prompt { font-size:18px; color:#475569; margin-top:16px; text-align:center; overflow-wrap:anywhere; }
 .completed-words { width:100%; display:flex; flex-wrap:wrap; justify-content:center; gap:26px 10px; margin-top:26px; align-items:stretch; }
-.completed-word { position:relative; box-sizing:border-box; max-width:100%; min-width:64px; padding:22px 0 14px; border-radius:26px; border-width:1.5px; text-align:center; background:rgba(255,255,255,.5); }
+.completed-word { position:relative; box-sizing:border-box; flex:0 1 auto; width:auto; max-width:100%; min-width:64px; padding:22px 10px 14px; border-radius:26px; border-width:1.5px; text-align:center; background:rgba(255,255,255,.5); }
 .word-role { position:absolute; left:50%; top:-11px; transform:translateX(-50%); padding:3px 12px; border-radius:12px; color:#fff; font-size:12px; font-weight:800; white-space:nowrap; }
 .completed-phonetic { padding:0 4px; font-size:12px; color:#475569; min-height:17px; overflow-wrap:anywhere; }
-.completed-english { padding:0 4px; font-size:38px; font-weight:800; line-height:1.15; margin-top:4px; overflow-wrap:anywhere; }
+.completed-english { padding:0 4px; font-size:38px; font-weight:800; line-height:1.15; margin-top:4px; overflow-wrap:break-word; word-break:normal; }
 .completed-underline { height:4px; border-radius:2px; margin:8px 14px 0; }
 .completed-meaning { padding:0 6px; font-size:15px; font-weight:700; margin-top:10px; overflow-wrap:anywhere; }
 .completed-pos { font-size:12px; color:#475569; margin-top:2px; }
@@ -85,13 +85,13 @@
 .finish-actions image { width:18px; height:18px; flex-shrink:0; }
 .completion-compact.phrase-success,.completion-dense.phrase-success { padding-top:20px; }
 .completion-compact .completed-words,.completion-dense .completed-words { gap:20px 8px; margin-top:22px; }
-.completion-compact .completed-word { min-width:52px; padding:18px 0 10px; border-radius:20px; }
+.completion-compact .completed-word { min-width:52px; padding:18px 8px 10px; border-radius:20px; }
 .completion-compact .completed-english { font-size:28px; }
 .completion-compact .completed-phonetic { font-size:11px; }
 .completion-compact .completed-meaning { font-size:13px; margin-top:8px; }
 .completion-compact .completed-pos { font-size:11px; }
 .completion-compact .word-role,.completion-dense .word-role { padding:3px 8px; font-size:11px; }
-.completion-dense .completed-word { min-width:48px; padding:16px 0 8px; border-radius:16px; }
+.completion-dense .completed-word { min-width:48px; padding:16px 8px 8px; border-radius:16px; }
 .completion-dense .completed-english { font-size:23px; }
 .completion-dense .completed-phonetic { font-size:10px; min-height:14px; }
 .completion-dense .completed-meaning { font-size:12px; margin-top:6px; }

@@ -35,20 +35,31 @@ function complete(listId, item, perfect, review) {
   const first = !state.completed[id];
   const earned = practiceXp(first, perfect);
   state.completed[id] = true; state.xp += earned;
+  state.lastCompleted = { listId, itemId: item.id, date: dateKey() };
   if (review && perfect) delete state.mistakes[id];
   const today = dateKey();
   state.activity[today] = (state.activity[today] || 0) + 1;
   save(); return earned;
 }
-function cursor(listId, index) { const state = read(); state.cursors[listId] = index; state.lastList = listId; save(); }
+function cursor(listId, index) {
+  const state = read(); state.cursors[listId] = index; state.lastList = listId;
+  const previous = Array.isArray(state.recentLists) ? state.recentLists : [];
+  state.recentLists = [listId, ...previous.filter((id) => id !== listId)].slice(0, 20);
+  save();
+}
 function typingStats() {
   const value = read().typing;
   return value && Number.isSafeInteger(value.input) && Number.isSafeInteger(value.correct) && value.input >= 0 && value.correct >= 0 && value.correct <= value.input ? value : { input: 0, correct: 0 };
 }
-function recordTyping(delta) {
+function recordTyping(delta, listId) {
   if (!delta.input) return;
   const value = typingStats();
-  read().typing = { input: value.input + delta.input, correct: value.correct + delta.correct };
+  const state = read();
+  state.typing = { input: value.input + delta.input, correct: value.correct + delta.correct };
+  if (typeof listId === 'string' && listId) {
+    if (!state.startedLists || typeof state.startedLists !== 'object' || Array.isArray(state.startedLists)) state.startedLists = {};
+    state.startedLists[listId] = true;
+  }
   save();
 }
 function settings(value) { Object.assign(read().settings, value); save(); }

@@ -1,20 +1,34 @@
 <view class="library-page">
   <view class="ambient" aria-hidden="true"><view class="orb orb-blue"></view><view class="orb orb-purple"></view><view class="orb orb-mint"></view><view class="orb orb-teal"></view><view class="orb orb-peach"></view></view>
   <view class="library-shell">
-    <view style="height:{{statusBarHeight}}px;"></view>
-    <view class="library-header" style="height:{{navigationHeight}}px;"><view class="brand-mark">句</view><view class="brand-name">句跃<text>SentLeap</text></view></view>
+    <view class="persistent-header {{scrolled ? 'is-scrolled' : ''}}"><view style="height:{{statusBarHeight}}px;"></view>
+      <view class="library-header" style="height:{{navigationHeight}}px;"><image class="brand-image" src="/assets/library-logo.png" mode="aspectFit" aria-label="句跃 SentLeap" /></view>
+    </view>
+    <view style="height:{{statusBarHeight + navigationHeight}}px;"></view>
     <view class="library-content">
-      <view class="resume-card">
+      <view wx:if="{{!hasProgress}}" class="welcome-card glass">
+        <view class="welcome-title">开始你的第一句</view>
+        <view class="welcome-description">看中文释义，拼写英文短语</view>
+        <view class="welcome-example">
+          <view class="example-prompt">{{firstSentence}}</view>
+          <view class="example-board"><view wx:for="{{sampleWords}}" wx:key="index" wx:for-item="word" class="example-word {{word.active ? 'example-active' : word.passed ? 'example-passed' : 'example-pending'}}"><view class="example-phonetic">{{word.phonetic}}</view><view class="example-letters"><view wx:for="{{word.letters}}" wx:key="position" wx:for-item="letter" class="example-letter"><text wx:if="{{letter.value}}">{{letter.value}}</text><view wx:else class="example-dot"></view></view></view><view class="example-underline"></view></view></view>
+        </view>
+        <view class="welcome-steps"><view><text>1</text><view>看中文释义</view></view><view><text>2</text><view>逐词拼写</view></view><view><text>3</text><view>拼对自动进入下一词</view></view></view>
+        <button class="first-button" bindtap="startFirst">开始第一句 <image src="/assets/completion-next.svg" /></button>
+        <view class="welcome-caption">{{firstLabel}} · 共 {{firstTotal}} 句 · 已掌握 0 句</view>
+      </view>
+      <view wx:else class="resume-card">
         <view class="resume-caption">继续上次练习</view>
         <view class="resume-sentence">{{lastSentence}}</view>
         <view class="resume-description">{{lastLabel}} · 已掌握 {{lastCompleted}} / {{lastTotal}}</view>
         <button class="resume-button" bindtap="resume">继续练习</button>
       </view>
-      <view class="library-section"><view class="library-title">练习题库</view><view class="accent-control glass"><button class="accent-button {{accent === '1' ? 'selected' : ''}}" data-value="1" bindtap="accent" aria-label="英音" aria-pressed="{{accent === '1'}}">英音</button><button class="accent-button {{accent === '2' ? 'selected' : ''}}" data-value="2" bindtap="accent" aria-label="美音" aria-pressed="{{accent === '2'}}">美音</button></view></view>
-      <button wx:for="{{lists}}" wx:key="id" class="library-card glass" data-id="{{item.id}}" bindtap="open">
+      <view class="library-section"><view class="library-title">{{hasProgress ? '最近练习' : '练习题库'}}</view><button class="all-libraries" bindtap="showAll"><text>全部</text><image src="/assets/library-all-arrow.svg" /></button></view>
+      <view wx:if="{{hasProgress && !recentLists.length}}" class="no-recent">暂无最近练习，去全部题库选择吧。</view>
+      <button wx:for="{{hasProgress ? recentLists : recommendedLists}}" wx:key="id" class="library-card glass" data-id="{{item.id}}" bindtap="open">
         <view class="library-icon {{item.id === 'sentences' ? 'mint-icon' : ''}}"></view>
-        <view class="library-copy"><view class="library-name">{{item.label}}</view><view class="library-meta">{{item.wordCount}} {{item.kind === 'word' ? '词' : '句'}} · 已掌握 {{item.completed}} {{item.kind === 'word' ? '词' : '句'}}</view><view class="library-track"><view class="library-fill" style="width:{{item.percent}}%;"></view></view></view>
-        <view class="chevron" aria-hidden="true"></view>
+        <view class="library-copy"><view class="library-name">{{item.label}}</view><view class="library-meta">{{item.wordCount}} {{item.kind === 'word' ? '词' : '句'}} · {{hasProgress ? '已掌握 ' + item.completed + (item.kind === 'word' ? ' 词' : ' 句') : '尚未开始'}}</view><view wx:if="{{hasProgress}}" class="library-track"><view class="library-fill" style="width:{{item.percent}}%;"></view></view></view>
+        <view wx:if="{{hasProgress}}" class="chevron" aria-hidden="true"></view><view wx:elif="{{item.id === 'home-phrases'}}" class="start-pill">开始</view><view wx:else class="not-started">未开始</view>
       </button>
     </view>
   </view>
