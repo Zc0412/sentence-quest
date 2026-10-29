@@ -29,6 +29,7 @@ Page({
     } catch (error) { if (!this.unloaded) this.setData({ loading: false, loadError: error.message }); }
   },
   begin() {
+    this.playbackToken = (this.playbackToken || 0) + 1;
     if (this.index >= this.entries.length) {
       this.setData({ finished: true }); wx.hideKeyboard(); return;
     }
@@ -37,6 +38,10 @@ Page({
     const entryList = catalog.lists.find((list) => list.id === this.entry.listId);
     this.setData({ isPhrase: this.entry.listId === 'home-phrases', isWord: entryList?.kind === 'word', hideCompletionBadge: entryList?.category === '短语练习', grammarIndex: 0, grammarExplanation: (this.entry.item.grammar || [])[0]?.explanation || '', item: this.entry.item, number: this.index + 1, total: this.entries.length, progress: Math.round(this.index / this.entries.length * 100), earned: 0, finished: false });
     this.render();
+    if (entryList?.kind === 'word') {
+      this.preloadWords();
+      if (!this.hidden && preferences().autoSpeak) this.speak(true);
+    }
   },
   render() {
     const state = this.state;
@@ -107,7 +112,7 @@ Page({
     const value = key === 'delete' ? this.state.typed.slice(0, -1) : this.state.typed + (this.data.shift ? key.toUpperCase() : key);
     this.input({ detail: { value } });
   },
-  accent(event) { const accent = event.currentTarget.dataset.value; storage.settings({ accent }); this.setData({ accent }); if (this.state) this.render(); },
+  accent(event) { const accent = event.currentTarget.dataset.value; this.playbackToken = (this.playbackToken || 0) + 1; if (this.audio) this.audio.stop(); storage.settings({ accent }); this.setData({ accent }); if (this.state) this.render(); if (this.data.isWord) this.preloadWords(); },
   previous() { if (this.index > 0) { if (this.audio) this.audio.stop(); this.index -= 1; this.begin(); } },
   advance() { if (this.state && this.state.done) this.next(); else this.skip(); },
   next() { if (this.audio) this.audio.stop(); this.index += 1; this.begin(); },
@@ -124,19 +129,49 @@ Page({
   },
   instructions() { wx.showModal({ title: '玩法说明', content: '看中文，输入当前高亮单词。拼对自动进入下一词；可听发音或使用字母提示。拼错、提示和跳过会进入错题本，独立完成复习即可移除。', showCancel: false, confirmText: '开始练习' }); },
   home() { wx.switchTab({ url: '/pages/learn/index' }); },
+  audioUrl(word, accent) { return `${apiBaseUrl.replace(/\/$/, '')}/api/pronunciation?word=${encodeURIComponent(word)}&type=${accent}`; },
+  preloadAudio(word, accent) {
+    if (!word || !/^https:\/\//.test(apiBaseUrl) || typeof wx.downloadFile !== 'function') return Promise.resolve('');
+    this.audioCache = this.audioCache || new Map();
+    const key = `${accent}:${word}`;
+    if (this.audioCache.has(key)) return this.audioCache.get(key);
+    const request = new Promise((resolve) => {
+      wx.downloadFile({ url: this.audioUrl(word, accent), success: (result) => resolve(result.statusCode === 200 ? result.tempFilePath : ''), fail: () => resolve('') });
+    });
+    this.audioCache.set(key, request);
+    request.then((path) => { if (!path && this.audioCache && this.audioCache.get(key) === request) this.audioCache.delete(key); });
+    while (this.audioCache.size > 8) this.audioCache.delete(this.audioCache.keys().next().value);
+    return request;
+  },
+  preloadWords() {
+    const accent = storage.read().settings.accent;
+    const next = this.entries[this.index + 1];
+    this.preloadAudio(this.entry.item.english, accent);
+    if (next && catalog.lists.find((list) => list.id === next.listId)?.kind === 'word') this.preloadAudio(next.item.english, accent);
+  },
   speak(automatic = false) {
     if (!this.state) return;
     if (!/^https:\/\//.test(apiBaseUrl)) { if (automatic !== true) wx.showToast({ title: '发音需先配置 Web 服务域名', icon: 'none' }); return; }
     const word = this.state.done ? this.state.item.english : this.state.item.words[this.state.wordIndex];
+    const isAutomatic = automatic === true;
+    const accent = storage.read().settings.accent;
+    const token = this.playbackToken = (this.playbackToken || 0) + 1;
     if (!this.audio) {
       this.audio = wx.createInnerAudioContext();
-      this.audio.onError(() => wx.showToast({ title: '播放失败，请检查网络与域名配置', icon: 'none' }));
+      this.audio.onError(() => { if (!this.automaticPlayback) wx.showToast({ title: '播放失败，请检查网络与域名配置', icon: 'none' }); });
     }
     this.audio.stop();
-    this.audio.playbackRate = 1;
-    this.audio.src = `${apiBaseUrl.replace(/\/$/, '')}/api/pronunciation?word=${encodeURIComponent(word)}&type=${storage.read().settings.accent}`;
-    this.audio.play();
+    this.automaticPlayback = isAutomatic;
+    const play = (path) => {
+      if (this.unloaded || token !== this.playbackToken) return;
+      this.audio.playbackRate = 1;
+      this.audio.src = path || this.audioUrl(word, accent);
+      this.audio.play();
+    };
+    if (this.data.isWord && typeof wx.downloadFile === 'function') this.preloadAudio(word, accent).then(play);
+    else play('');
   },
-  onHide() { this.releaseKey(); if (this.audio) this.audio.stop(); },
-  onUnload() { this.unloaded = true; if (this.audio) this.audio.destroy(); },
+  onShow() { this.hidden = false; },
+  onHide() { this.hidden = true; this.playbackToken = (this.playbackToken || 0) + 1; this.releaseKey(); if (this.audio) this.audio.stop(); },
+  onUnload() { this.unloaded = true; this.playbackToken = (this.playbackToken || 0) + 1; if (this.audio) this.audio.destroy(); },
 });

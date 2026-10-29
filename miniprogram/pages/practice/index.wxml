@@ -17,10 +17,10 @@
         </view>
       </view>
       <block wx:else>
-        <view class="practice-tools"><view class="accent-switch glass-surface"><button class="accent-button {{accent === '1' ? 'selected' : ''}}" data-value="1" bindtap="accent">英音</button><button class="accent-button {{accent === '2' ? 'selected' : ''}}" data-value="2" bindtap="accent">美音</button></view><view class="practice-xp glass-surface"><image class="xp-icon" src="/assets/glass-xp.svg" />{{xp}}<text class="xp-unit">XP</text></view><button class="help-button glass-surface" bindtap="instructions" aria-label="玩法说明"><image class="help-icon" src="/assets/profile-help.svg" /></button></view>
+        <view class="practice-tools"><view wx:if="{{!done || !(hideCompletionBadge || isWord)}}" class="accent-switch glass-surface"><button class="accent-button {{accent === '1' ? 'selected' : ''}}" data-value="1" bindtap="accent">英音</button><button class="accent-button {{accent === '2' ? 'selected' : ''}}" data-value="2" bindtap="accent">美音</button></view><view wx:if="{{!done || !(hideCompletionBadge || isWord)}}" class="practice-xp glass-surface"><image class="xp-icon" src="/assets/glass-xp.svg" />{{xp}}<text class="xp-unit">XP</text></view><button class="help-button glass-surface" bindtap="instructions" aria-label="玩法说明"><image class="help-icon" src="/assets/profile-help.svg" /></button></view>
         <block wx:if="{{done}}">
           <view class="phrase-success completion-{{completionSize}}">
-            <view class="success-heading"><view class="success-check"><image src="/assets/completion-check.svg" /></view><text class="success-title">{{isWord ? '漂亮，完成一词！' : '漂亮，完成一句！'}}</text><text wx:if="{{!hideCompletionBadge}}" class="success-badge">练习完成</text></view>
+            <view class="success-heading"><view class="success-check"><image src="/assets/completion-check.svg" /></view><text class="success-title">{{isWord ? '漂亮，完成一词！' : '漂亮，完成一句！'}}</text><text wx:if="{{!(hideCompletionBadge || isWord)}}" class="success-badge">练习完成</text></view>
             <view class="success-prompt">{{item.zh}}</view>
             <view class="completed-words">
               <view wx:for="{{completedWords}}" wx:key="index" wx:for-item="word" class="completed-word glass-surface" style="border-color:{{word.roleColor}}55;">
