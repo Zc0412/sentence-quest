@@ -9,7 +9,7 @@ function normalize(list, rows) {
     if (list.kind === 'word' && !list.bundled) {
       if (!item || typeof item.name !== 'string' || !item.name.trim() || !Array.isArray(item.trans) || !item.trans.length || !item.trans.every((part) => typeof part === 'string')) throw new Error('词库格式错误');
       const meaning = item.trans.join('；');
-      return { id: `${list.id}:${index}`, zh: meaning, english: item.name, words: [item.name], note: '', grammar: [],
+      return { id: `${list.id}:${index}`, zh: meaning, english: item.name, words: [item.name], definitions: item.trans, note: '', grammar: [],
         annotations: [{ phonetic: phonetic(item.ukphone || item.usphone), usphone: phonetic(item.usphone), meaning, pos: '', color: '#3b82f6' }] };
     }
     if (!item || typeof item.id !== 'string' || typeof item.zh !== 'string' || typeof item.english !== 'string' || !Array.isArray(item.words) || !item.words.length || !item.words.every((word) => typeof word === 'string' && word.length)) throw new Error('题库格式错误');

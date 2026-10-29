@@ -6,6 +6,7 @@ const { inputDelta, accuracy } = require('../../utils/typing-stats');
 const { normalizeWord } = require('../../utils/validator');
 const { preferences } = require('../../utils/preferences');
 const { apiBaseUrl } = require('../../config');
+const { wordDefinitions } = require('../../utils/word-definitions');
 Page({
   data: { loading: true, loadError: '', done: false, finished: false, typed: '', slots: [], hints: true, earned: 0, xp: 0, grammarIndex: 0, statusBarHeight: 24, navigationHeight: 44, accent: '1', shift: false, pressedKey: '', keyRows: ['qwertyuiop'.split(''), 'asdfghjkl'.split(''), 'zxcvbnm'.split('')], inputCount: 0, correctCount: 0, accuracy: '—' },
   onLoad(options) { this.setData(navigationMetrics()); this.options = options; this.review = options.review === '1'; this.load(); },
@@ -36,7 +37,7 @@ Page({
     this.entry = this.entries[this.index]; this.state = session.start(this.entry.item);
     if (!this.review) storage.cursor(this.entry.listId, this.index, this.entry.item);
     const entryList = catalog.lists.find((list) => list.id === this.entry.listId);
-    this.setData({ isPhrase: this.entry.listId === 'home-phrases', isWord: entryList?.kind === 'word', hideCompletionBadge: entryList?.category === '短语练习', grammarIndex: 0, grammarExplanation: (this.entry.item.grammar || [])[0]?.explanation || '', item: this.entry.item, number: this.index + 1, total: this.entries.length, progress: Math.round(this.index / this.entries.length * 100), earned: 0, finished: false });
+    this.setData({ isPhrase: this.entry.listId === 'home-phrases', isWord: entryList?.kind === 'word', hideCompletionBadge: entryList?.category === '短语练习', definitionsExpanded: false, wordDefinitions: wordDefinitions(this.entry.item), grammarIndex: 0, grammarExplanation: (this.entry.item.grammar || [])[0]?.explanation || '', item: this.entry.item, number: this.index + 1, total: this.entries.length, progress: Math.round(this.index / this.entries.length * 100), earned: 0, finished: false });
     this.render();
     if (entryList?.kind === 'word') {
       this.preloadWords();
@@ -118,6 +119,7 @@ Page({
   next() { if (this.audio) this.audio.stop(); this.index += 1; this.begin(); },
   replay() { this.index = 0; this.begin(); },
   retryCurrent() { if (!this.state || !this.state.done) return; if (this.audio) this.audio.stop(); this.releaseKey(); this.begin(); },
+  toggleDefinitions() { this.setData({ definitionsExpanded: !this.data.definitionsExpanded }); },
   selectGrammar(event) {
     const index = Number(event.currentTarget.dataset.index);
     if (index === -1) {
