@@ -6,14 +6,14 @@ function posterData(state, now = new Date()) {
   const today = storage.dateKey(now);
   const last = state.lastCompleted;
   const rows = last && bundled[last.listId];
-  const completed = rows && rows.find((item) => item.id === last.itemId);
+  const completed = rows && rows.find((item) => item.id === last.itemId) || (last && typeof last.zh === 'string' && typeof last.english === 'string' ? last : null);
   const recommended = bundled['home-phrases'][0];
   const item = completed || recommended;
   const phraseList = lists.find((list) => list.id === 'home-phrases');
   const count = Object.keys(state.completed).filter((key) => key.startsWith('home-phrases::')).length;
   return {
     date: today.replace(/-/g, '.'), todayCount: state.activity[today] || 0,
-    phraseLabel: completed && last.date === today ? (last.listId === 'vocabulary-dev-test' ? "TODAY'S WORD" : "TODAY'S PHRASE") : 'FEATURED PHRASE',
+    phraseLabel: completed && last.date === today ? ((lists.find((list) => list.id === last.listId) || {}).kind === 'word' ? "TODAY'S WORD" : "TODAY'S PHRASE") : 'FEATURED PHRASE',
     zh: item.zh, english: item.english,
     xp: state.xp, streak: streak(state.activity, now),
     percent: Math.min(100, Math.round(count / phraseList.wordCount * 100)),

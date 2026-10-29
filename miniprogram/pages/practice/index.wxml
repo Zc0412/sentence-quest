@@ -3,7 +3,7 @@
   <template is="ambient" />
   <view class="practice-shell">
     <view class="status-space" style="height:{{statusBarHeight}}px;"></view>
-    <view class="glass-nav" style="height:{{navigationHeight}}px;"><button class="back-button" bindtap="home" aria-label="返回题库"><image class="back-icon" src="/assets/practice-back.svg" /></button><view class="glass-nav-title">{{listLabel || '练习'}}</view></view>
+    <view class="glass-nav" style="height:{{navigationHeight}}px;"><button class="nav-back" bindtap="home" aria-label="返回题库"><view class="nav-back-icon"><image src="/assets/practice-back.svg" /></view><view class="glass-nav-title">{{listLabel || '练习'}}</view></button></view>
     <scroll-view scroll-y class="practice-scroll">
       <view wx:if="{{loading}}" class="state-card glass-surface">正在准备练习…</view>
       <view wx:elif="{{loadError}}" class="state-card glass-surface"><view>{{loadError}}</view><button class="glass-primary" bindtap="load">重新加载</button><button class="glass-action" bindtap="home">返回题库</button></view>
@@ -20,7 +20,7 @@
         <view class="practice-tools"><view class="accent-switch glass-surface"><button class="accent-button {{accent === '1' ? 'selected' : ''}}" data-value="1" bindtap="accent">英音</button><button class="accent-button {{accent === '2' ? 'selected' : ''}}" data-value="2" bindtap="accent">美音</button></view><view class="practice-xp glass-surface"><image class="xp-icon" src="/assets/glass-xp.svg" />{{xp}}<text class="xp-unit">XP</text></view><button class="help-button glass-surface" bindtap="instructions" aria-label="玩法说明"><image class="help-icon" src="/assets/profile-help.svg" /></button></view>
         <block wx:if="{{done}}">
           <view class="phrase-success completion-{{completionSize}}">
-            <view class="success-heading"><view class="success-check"><image src="/assets/completion-check.svg" /></view><text class="success-title">{{isWord ? '漂亮，完成一词！' : '漂亮，完成一句！'}}</text><text class="success-badge">练习完成</text></view>
+            <view class="success-heading"><view class="success-check"><image src="/assets/completion-check.svg" /></view><text class="success-title">{{isWord ? '漂亮，完成一词！' : '漂亮，完成一句！'}}</text><text wx:if="{{!hideCompletionBadge}}" class="success-badge">练习完成</text></view>
             <view class="success-prompt">{{item.zh}}</view>
             <view class="completed-words">
               <view wx:for="{{completedWords}}" wx:key="index" wx:for-item="word" class="completed-word glass-surface" style="border-color:{{word.roleColor}}55;">
@@ -53,13 +53,14 @@
           </view>
           <view wx:if="{{error}}" class="typing-feedback error">{{error}}</view>
           <view class="exercise-actions"><button class="glass-action" bindtap="speak"><image class="action-icon" src="/assets/glass-sound.svg" />听发音</button><button wx:if="{{hints && !done}}" class="glass-action" bindtap="hint"><image class="action-icon" src="/assets/glass-hint.svg" />提示字母</button><button wx:if="{{!done}}" class="glass-action" bindtap="skip"><image class="action-icon" src="/assets/glass-skip.svg" />跳过</button><button wx:else class="glass-action" bindtap="next">下一题 →</button></view>
-          <view class="sentence-navigation"><button class="sentence-link previous" disabled="{{number === 1}}" bindtap="previous">‹ {{previousLabel ? (isWord ? '上一词：' : '上一句：') + previousLabel : isWord ? '已经是第一词' : '已经是第一句'}}</button><button class="sentence-link" bindtap="advance">{{number === total ? '完成本轮' : isWord ? '下一词' : '下一句'}} ›</button></view>
+          <view class="sentence-navigation"><button class="sentence-link previous" disabled="{{number === 1}}" bindtap="previous"><image class="sentence-arrow arrow-left" src="/assets/library-all-arrow.svg" /><text>{{previousLabel ? (isWord ? '上一词：' : '上一句：') + previousLabel : isWord ? '已经是第一词' : '已经是第一句'}}</text></button><button class="sentence-link" bindtap="advance"><text>{{number === total ? '完成本轮' : isWord ? '下一词' : '下一句'}}</text><image class="sentence-arrow" src="/assets/library-all-arrow.svg" /></button></view>
         </view>
         <view class="typing-stats glass-surface"><view><text>输入数</text><view>{{inputCount}}</view></view><view><text>正确数</text><view class="correct-count">{{correctCount}}</view></view><view><text>正确率</text><view>{{accuracy}}</view></view></view>
         </block>
       </block>
     </scroll-view>
     <view wx:if="{{!loading && !loadError && !finished && !done}}" class="glass-keyboard glass-surface">
+      <view wx:if="{{extraKeys.length}}" class="keyboard-row extra-keys"><button wx:for="{{extraKeys}}" wx:key="*this" class="keyboard-key symbol-key" data-key="{{item}}" bindtap="key" aria-label="{{item}}" hover-class="key-pressed">{{item}}</button></view>
       <view wx:for="{{keyRows}}" wx:key="index" wx:for-item="row" wx:for-index="rowIndex" class="keyboard-row keyboard-row-{{rowIndex}}">
         <button wx:if="{{rowIndex === 2}}" class="keyboard-key special" data-key="'" bindtap="key" aria-label="撇号" hover-class="key-pressed">’</button>
         <view wx:for="{{row}}" wx:key="*this" wx:for-item="keyValue" class="key-wrap">

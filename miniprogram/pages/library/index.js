@@ -2,7 +2,7 @@ const storage = require('../../utils/storage');
 const { navigationMetrics } = require('../../utils/navigation');
 const { libraryItems, recentIds } = require('../../utils/library-list');
 Page({
-  data: { statusBarHeight: 24, navigationHeight: 44, kind: 'phrase', filter: 'all', query: '', lists: [], filters: [], phraseCount: 0, wordCount: 0, filterLabel: '全部' },
+  data: { statusBarHeight: 24, navigationHeight: 44, kind: 'word', filter: 'all', query: '', lists: [], filters: [], phraseCount: 0, wordCount: 0, filterLabel: '全部' },
   onLoad() { this.setData(navigationMetrics()); },
   onShow() { this.refresh(); },
   refresh() {

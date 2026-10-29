@@ -1,4 +1,4 @@
-const { lists, bundled } = require('../../utils/catalog');
+const { lists, bundled, cached } = require('../../utils/catalog');
 const storage = require('../../utils/storage');
 const { libraryItems, recentIds } = require('../../utils/library-list');
 Page({
@@ -33,11 +33,13 @@ Page({
     }));
     const listItems = libraryItems(state);
     const itemsById = new Map(listItems.map((list) => [list.id, list]));
-    const rows = bundled[current.id];
-    const cursor = Math.max(0, Math.min(state.cursors[current.id] || 0, rows.length - 1));
+    const rows = cached(current.id);
+    const cursor = Math.max(0, Math.min(state.cursors[current.id] || 0, current.wordCount - 1));
+    const savedPreview = state.lastPreview;
+    const lastSentence = rows && rows[cursor] ? rows[cursor].zh : savedPreview && savedPreview.listId === current.id && savedPreview.index === cursor ? savedPreview.zh : '继续上次练习';
     this.setData({
       hasProgress, sampleWords, firstSentence: example.zh, firstLabel: first.label, firstTotal: first.wordCount,
-      lastLabel: current.label, lastSentence: rows[cursor].zh,
+      lastLabel: current.label, lastSentence,
       lastCompleted: Math.min(counts[current.id] || 0, current.wordCount), lastTotal: current.wordCount,
       recentLists: recentIds(state).map((id) => itemsById.get(id)).filter(Boolean),
       recommendedLists: lists.filter((list) => list.id === 'home-phrases' || list.id === 'sentences').map((list) => Object.assign({}, list, { completed: Math.min(counts[list.id] || 0, list.wordCount), percent: Math.min(100, Math.round((counts[list.id] || 0) / list.wordCount * 100)) })),

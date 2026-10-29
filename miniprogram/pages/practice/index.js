@@ -3,6 +3,7 @@ const storage = require('../../utils/storage');
 const session = require('../../utils/session');
 const { navigationMetrics } = require('../../utils/navigation');
 const { inputDelta, accuracy } = require('../../utils/typing-stats');
+const { normalizeWord } = require('../../utils/validator');
 const { preferences } = require('../../utils/preferences');
 const { apiBaseUrl } = require('../../config');
 Page({
@@ -21,6 +22,7 @@ Page({
         this.index = Math.max(0, Math.min(storage.read().cursors[id] || 0, this.entries.length - 1));
       }
       if (this.unloaded) return;
+      this.mastered = this.entries.filter((entry) => storage.read().completed[storage.key(entry.listId, entry.item)]).length;
       const list = catalog.lists.find((item) => item.id === (this.options.list || 'home-phrases'));
       wx.setNavigationBarTitle({ title: this.review ? '错题复习' : list.label });
       this.setData({ loading: false, xp: storage.read().xp, accent: storage.read().settings.accent, reviewMode: this.review, listLabel: this.review ? '巩固练习' : list.label, hints: storage.read().settings.hints }); this.begin();
@@ -31,8 +33,9 @@ Page({
       this.setData({ finished: true }); wx.hideKeyboard(); return;
     }
     this.entry = this.entries[this.index]; this.state = session.start(this.entry.item);
-    if (!this.review) storage.cursor(this.entry.listId, this.index);
-    this.setData({ isPhrase: this.entry.listId === 'home-phrases', isWord: catalog.lists.find((list) => list.id === this.entry.listId)?.kind === 'word', grammarIndex: 0, grammarExplanation: (this.entry.item.grammar || [])[0]?.explanation || '', item: this.entry.item, number: this.index + 1, total: this.entries.length, progress: Math.round(this.index / this.entries.length * 100), earned: 0, finished: false });
+    if (!this.review) storage.cursor(this.entry.listId, this.index, this.entry.item);
+    const entryList = catalog.lists.find((list) => list.id === this.entry.listId);
+    this.setData({ isPhrase: this.entry.listId === 'home-phrases', isWord: entryList?.kind === 'word', hideCompletionBadge: entryList?.category === '短语练习', grammarIndex: 0, grammarExplanation: (this.entry.item.grammar || [])[0]?.explanation || '', item: this.entry.item, number: this.index + 1, total: this.entries.length, progress: Math.round(this.index / this.entries.length * 100), earned: 0, finished: false });
     this.render();
   },
   render() {
@@ -40,9 +43,11 @@ Page({
     const characterCount = state.item.words.join('').length;
     const completionSize = state.item.words.length > 7 || characterCount > 40 ? 'dense' : state.item.words.length > 4 || characterCount > 22 ? 'compact' : 'regular';
     const annotation = (state.item.annotations || [])[state.wordIndex] || {};
-    const mastered = this.entries.filter((entry) => storage.read().completed[storage.key(entry.listId, entry.item)]).length;
+    const mastered = this.mastered;
+    const currentWord = state.item.words[state.wordIndex] || '';
+    const extraKeys = [...new Set(Array.from(normalizeWord(currentWord)).filter((character) => !/[a-z\s']/i.test(character)))];
     const phonetic = storage.read().settings.accent === '2' ? annotation.usphone || annotation.phonetic : annotation.phonetic;
-    this.setData({ mastered, masteryPercent: Math.round(mastered / this.entries.length * 100), previousLabel: this.index > 0 ? this.entries[this.index - 1].item.zh : '', inputCount: this.typing.input, correctCount: this.typing.correct, accuracy: accuracy(this.typing), progress: Math.round((this.index + (state.done ? 1 : 0)) / this.entries.length * 100), xp: storage.read().xp, done: state.done, typed: state.typed, error: state.error, wordNumber: state.wordIndex + 1, wordTotal: state.item.words.length, phonetic: phonetic || '',
+    this.setData({ extraKeys, mastered, masteryPercent: Math.round(mastered / this.entries.length * 100), previousLabel: this.index > 0 ? this.entries[this.index - 1].item.zh : '', inputCount: this.typing.input, correctCount: this.typing.correct, accuracy: accuracy(this.typing), progress: Math.round((this.index + (state.done ? 1 : 0)) / this.entries.length * 100), xp: storage.read().xp, done: state.done, typed: state.typed, error: state.error, wordNumber: state.wordIndex + 1, wordTotal: state.item.words.length, phonetic: phonetic || '',
       completionClean: !state.dirty,
       completionSize,
       completedWords: state.done ? state.item.words.map((text, index) => {
@@ -73,10 +78,12 @@ Page({
     const previousWordIndex = this.state.wordIndex;
     const wasDirty = this.state.dirty;
     this.state = session.input(this.state, event.detail.value);
-    if (!wasDirty && this.state.dirty) storage.mistake(this.entry.listId, this.entry.item);
+    if (!wasDirty && this.state.dirty) storage.mistake(this.entry.listId, this.entry.item, 'error');
     if (this.state.done) {
+      const wasCompleted = !!storage.read().completed[storage.key(this.entry.listId, this.entry.item)];
       const earned = storage.complete(this.entry.listId, this.entry.item, !this.state.dirty, this.review);
-      if (!this.review) storage.cursor(this.entry.listId, Math.min(this.index + 1, this.entries.length - 1));
+      if (!wasCompleted) this.mastered += 1;
+      if (!this.review) { const nextIndex = Math.min(this.index + 1, this.entries.length - 1); storage.cursor(this.entry.listId, nextIndex, this.entries[nextIndex].item); }
       this.setData({ earned, pressedKey: '', grammarIndex: -1, grammarExplanation: this.entry.item.note || (this.entry.item.grammar || []).map((group) => group.explanation).filter(Boolean).join(' ') }); wx.hideKeyboard();
     }
     this.render();
@@ -85,11 +92,11 @@ Page({
   },
   hint() {
     if (!this.state || this.state.done || !this.data.hints) return;
-    this.state = session.hint(this.state); storage.mistake(this.entry.listId, this.entry.item); this.render();
+    this.state = session.hint(this.state); storage.mistake(this.entry.listId, this.entry.item, 'hint'); this.render();
   },
   skip() {
     if (!this.state || this.state.done) return;
-    storage.mistake(this.entry.listId, this.entry.item); this.next();
+    storage.mistake(this.entry.listId, this.entry.item, 'skip'); this.next();
   },
   pressKey(event) { this.setData({ pressedKey: event.currentTarget.dataset.key }); },
   releaseKey() { this.setData({ pressedKey: '' }); },
@@ -126,7 +133,7 @@ Page({
       this.audio.onError(() => wx.showToast({ title: '播放失败，请检查网络与域名配置', icon: 'none' }));
     }
     this.audio.stop();
-    this.audio.playbackRate = preferences().speed;
+    this.audio.playbackRate = 1;
     this.audio.src = `${apiBaseUrl.replace(/\/$/, '')}/api/pronunciation?word=${encodeURIComponent(word)}&type=${storage.read().settings.accent}`;
     this.audio.play();
   },

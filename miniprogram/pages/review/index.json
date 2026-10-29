@@ -1,3 +1,1 @@
-{
-  "navigationBarTitleText": "错题本"
-}
+{ "navigationBarTitleText": "错题本", "navigationStyle": "custom", "backgroundColor": "#e4edff" }

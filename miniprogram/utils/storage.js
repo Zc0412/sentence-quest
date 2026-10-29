@@ -26,8 +26,11 @@ function dateKey(date = new Date()) {
   return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
 }
 function key(listId, item) { return `${listId}::${item.id}`; }
-function mistake(listId, item) {
-  read().mistakes[key(listId, item)] = { listId, item };
+function mistake(listId, item, reason) {
+  const mistakes = read().mistakes; const id = key(listId, item);
+  const previous = mistakes[id];
+  const validReason = ['error', 'hint', 'skip'].includes(reason) ? reason : previous && previous.reason;
+  mistakes[id] = { listId, item, ...(validReason ? { reason: validReason } : {}) };
   save();
 }
 function complete(listId, item, perfect, review) {
@@ -35,14 +38,16 @@ function complete(listId, item, perfect, review) {
   const first = !state.completed[id];
   const earned = practiceXp(first, perfect);
   state.completed[id] = true; state.xp += earned;
-  state.lastCompleted = { listId, itemId: item.id, date: dateKey() };
+  state.lastCompleted = { listId, itemId: item.id, date: dateKey(), zh: item.zh, english: item.english };
   if (review && perfect) delete state.mistakes[id];
   const today = dateKey();
   state.activity[today] = (state.activity[today] || 0) + 1;
   save(); return earned;
 }
-function cursor(listId, index) {
+function cursor(listId, index, item) {
   const state = read(); state.cursors[listId] = index; state.lastList = listId;
+  if (item && typeof item.zh === 'string') state.lastPreview = { listId, index, zh: item.zh };
+  else if (!state.lastPreview || state.lastPreview.listId !== listId || state.lastPreview.index !== index) delete state.lastPreview;
   const previous = Array.isArray(state.recentLists) ? state.recentLists : [];
   state.recentLists = [listId, ...previous.filter((id) => id !== listId)].slice(0, 20);
   save();
@@ -63,4 +68,15 @@ function recordTyping(delta, listId) {
   save();
 }
 function settings(value) { Object.assign(read().settings, value); save(); }
-module.exports = { read, save, key, mistake, complete, cursor, settings, dateKey, typingStats, recordTyping };
+function localUserId() {
+  const state = read();
+  if (typeof state.localUserId === 'string' && /^\d{18}$/.test(state.localUserId)) return state.localUserId;
+  const previous = state.localUserId;
+  const id = `${Date.now()}${String(Math.floor(Math.random() * 100000)).padStart(5, '0')}`;
+  state.localUserId = id;
+  if (save()) return id;
+  if (previous === undefined) delete state.localUserId;
+  else state.localUserId = previous;
+  return '';
+}
+module.exports = { read, save, key, mistake, complete, cursor, settings, dateKey, typingStats, recordTyping, localUserId };

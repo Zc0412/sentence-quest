@@ -1,2 +1,2 @@
-// 仅在线发音需要填写 Web 服务 HTTPS 域名；两个题库始终离线加载。
+// 在线题库与发音使用同一 Web 服务；三个测试题库可离线使用。
 module.exports = { apiBaseUrl: 'https://sentence-quest.vercel.app' };

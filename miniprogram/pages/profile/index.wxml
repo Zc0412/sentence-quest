@@ -6,24 +6,26 @@
     <view style="height:{{statusBarHeight + navigationHeight}}px;"></view>
     <view class="profile-content">
       <view class="identity-card glass-surface">
-        <view class="identity-row"><view class="avatar"><image src="/assets/profile-user.svg" /></view><view class="identity-copy"><input class="nickname" type="nickname" value="{{nickname}}" placeholder="句跃学习者" placeholder-class="nickname-placeholder" maxlength="24" bindblur="nickname" bindconfirm="nickname" aria-label="设置昵称" /><view class="streak">已连续练习 {{streak}} 天</view></view></view>
-        <view class="identity-stats"><view><text>经验值</text><view class="xp-value">{{xp}} XP</view></view><view><text>已掌握</text><view class="mastered-value">{{completed}} 句</view></view><view><text>正确率</text><view>{{accuracy}}</view></view></view>
+        <view class="identity-row"><view class="avatar"><view class="avatar-inner"><image src="/assets/profile-user.svg" /></view></view><view class="identity-copy"><input class="nickname" type="nickname" value="{{nickname}}" placeholder="句跃学习者" placeholder-class="nickname-placeholder" maxlength="24" bindblur="nickname" bindconfirm="nickname" aria-label="设置昵称" /><button class="user-id" bindtap="copyUserId" aria-label="复制本机 ID"><text>ID</text><text class="user-id-value">{{userId || '暂不可用'}}</text><image wx:if="{{userId}}" src="/assets/profile-copy.svg" /></button><view class="streak"><image src="/assets/profile-streak.svg" />连续练习 {{streak}} 天</view></view></view>
+        <view class="identity-stats">
+          <view class="identity-stat xp-stat"><view class="stat-label"><image src="/assets/glass-xp.svg" />经验值</view><view class="stat-value">{{xp}}<text>XP</text></view></view>
+          <view class="identity-stat mastered-stat"><view class="stat-label"><image src="/assets/library-book-active.svg" />已掌握</view><view class="stat-value">{{completed}}<text>词条</text></view></view>
+          <view class="identity-stat accuracy-stat"><view class="stat-label"><image src="/assets/profile-accuracy.svg" />正确率</view><view class="stat-value">{{accuracy}}</view></view>
+        </view>
       </view>
       <view class="settings-card glass-surface">
         <view class="setting-row"><view class="setting-icon"><image src="/assets/glass-sound.svg" /></view><view class="setting-title">发音口音</view><view class="accent-toggle"><button class="accent-option {{accent === '1' ? 'selected' : ''}}" data-value="1" bindtap="accent">英音</button><button class="accent-option {{accent === '2' ? 'selected' : ''}}" data-value="2" bindtap="accent">美音</button></view></view>
-        <button class="setting-row" bindtap="speed"><view class="setting-icon"><image src="/assets/profile-clock.svg" /></view><view class="setting-title">发音速度</view><view class="setting-value">{{speedLabel}}<view class="setting-chevron"></view></view></button>
-        <button class="setting-row" bindtap="goal"><view class="setting-icon"><image src="/assets/profile-target.svg" /></view><view class="setting-title">每日目标</view><view class="setting-value">{{dailyGoal}} 句<view class="setting-chevron"></view></view></button>
         <button class="setting-row" bindtap="reminder" aria-label="学习提醒，暂未开通"><view class="setting-icon"><image src="/assets/profile-bell.svg" /></view><view class="setting-title">学习提醒</view><text class="unavailable">暂未开通</text><view class="toggle-switch"></view></button>
         <button class="setting-row" data-setting="autoSpeak" bindtap="toggle" aria-label="切词后自动发音" aria-pressed="{{autoSpeak}}"><view class="setting-icon"><image src="/assets/glass-sound.svg" /></view><view class="setting-title">切词后自动发音</view><view class="toggle-switch {{autoSpeak ? 'enabled' : ''}}"></view></button>
         <button class="setting-row" data-setting="hints" bindtap="toggle" aria-label="字母提示" aria-pressed="{{hints}}"><view class="setting-icon"><image src="/assets/glass-hint.svg" /></view><view class="setting-title">字母提示</view><view class="toggle-switch {{hints ? 'enabled' : ''}}"></view></button>
       </view>
       <view class="settings-card glass-surface">
+        <button class="setting-row" data-page="review" bindtap="tab"><view class="setting-icon"><image src="/assets/profile-review.svg" /></view><view class="setting-title">我的错题本</view><view class="setting-chevron"></view></button>
         <button class="setting-row" bindtap="instructions"><view class="setting-icon"><image src="/assets/profile-help.svg" /></view><view class="setting-title">玩法说明</view><view class="setting-chevron"></view></button>
-        <button class="setting-row" data-page="review" bindtap="tab"><view class="setting-icon"><image src="/assets/library-review.svg" /></view><view class="setting-title">我的错题本</view><view class="setting-chevron"></view></button>
         <button class="setting-row" open-type="feedback"><view class="setting-icon"><image src="/assets/profile-feedback.svg" /></view><view class="setting-title">意见反馈</view><view class="setting-chevron"></view></button>
         <button class="setting-row" bindtap="about"><view class="setting-icon"><image src="/assets/profile-info.svg" /></view><view class="setting-title">关于句跃 SentLeap</view><view class="setting-value version">{{version}}<view class="setting-chevron"></view></view></button>
       </view>
-      <view class="profile-note">今日已完成 {{goalProgress}} / {{dailyGoal}} 句{{goalProgress >= dailyGoal ? ' · 目标已达成' : ''}}<view>学习进度自动保存在当前设备</view></view>
+      <view class="profile-note">学习进度自动保存在当前设备</view>
     </view>
   </view>
 </view>

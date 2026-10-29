@@ -3,7 +3,7 @@
   <template is="ambient" />
   <view class="share-shell">
     <view class="status-space" style="height:{{statusBarHeight}}px;"></view>
-    <view class="glass-nav share-nav" style="height:{{navigationHeight}}px;"><button class="back-button" bindtap="back" aria-label="返回">‹</button><view>分享海报</view></view>
+    <view class="glass-nav share-nav" style="height:{{navigationHeight}}px;"><button class="nav-back" bindtap="back" aria-label="返回"><view class="nav-back-icon back-glyph">‹</view><view class="glass-nav-title">分享海报</view></button></view>
     <scroll-view scroll-y class="poster-scroll"><view class="poster-wrapper" style="width:{{canvasWidth}}px;height:{{canvasHeight}}px;"><canvas canvas-id="share-poster" class="poster-canvas" style="width:{{canvasWidth}}px;height:{{canvasHeight}}px;" /><view wx:if="{{generating}}" class="poster-status">正在生成海报…</view><view wx:elif="{{error}}" class="poster-status"><view>{{error}}</view><button bindtap="generate">重新生成</button></view></view></scroll-view>
     <view class="share-actions glass-surface"><view class="action-row"><button class="share-friend" open-type="share" disabled="{{generating || !imagePath}}"><image src="/assets/share-send.svg" />发给好友</button><button class="save-image" bindtap="save" disabled="{{generating || !imagePath || saving}}" loading="{{saving}}"><image src="/assets/share-save.svg" />保存到相册</button></view><view class="share-note">保存后可发到朋友圈</view></view>
   </view>

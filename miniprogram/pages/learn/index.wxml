@@ -13,7 +13,7 @@
           <view class="example-prompt">{{firstSentence}}</view>
           <view class="example-board"><view wx:for="{{sampleWords}}" wx:key="index" wx:for-item="word" class="example-word {{word.active ? 'example-active' : word.passed ? 'example-passed' : 'example-pending'}}"><view class="example-phonetic">{{word.phonetic}}</view><view class="example-letters"><view wx:for="{{word.letters}}" wx:key="position" wx:for-item="letter" class="example-letter"><text wx:if="{{letter.value}}">{{letter.value}}</text><view wx:else class="example-dot"></view></view></view><view class="example-underline"></view></view></view>
         </view>
-        <view class="welcome-steps"><view><text>1</text><view>看中文释义</view></view><view><text>2</text><view>逐词拼写</view></view><view><text>3</text><view>拼对自动进入下一词</view></view></view>
+        <view class="welcome-steps"><view class="welcome-step"><view class="step-icon"><image src="/assets/welcome-eye.svg" /></view><text>看中文释义</text></view><image class="step-chevron" src="/assets/welcome-chevron.svg" /><view class="welcome-step"><view class="step-icon"><image src="/assets/welcome-keyboard.svg" /></view><text>逐词拼写</text></view><image class="step-chevron" src="/assets/welcome-chevron.svg" /><view class="welcome-step"><view class="step-icon"><image src="/assets/welcome-next.svg" /></view><text>自动下一词</text></view></view>
         <button class="first-button" bindtap="startFirst">开始第一句 <image src="/assets/completion-next.svg" /></button>
         <view class="welcome-caption">{{firstLabel}} · 共 {{firstTotal}} 句 · 已掌握 0 句</view>
       </view>

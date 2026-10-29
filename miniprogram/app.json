@@ -17,6 +17,7 @@
     "backgroundColorBottom": "#eaf8f6"
   },
   "style": "v2",
+  "lazyCodeLoading": "requiredComponents",
   "sitemapLocation": "sitemap.json",
   "tabBar": {
     "custom": true,
