@@ -131,10 +131,10 @@
 .word-definitions-inline .word-definitions-toggle image { width:14px; height:14px; }
 .word-definitions-heading { display:flex; justify-content:space-between; align-items:center; margin-bottom:6px; font-weight:800; font-size:15px; }
 .word-definitions-count { font-size:12px; color:#475569; font-weight:400; }
-.word-definition-row { display:flex; gap:10px; align-items:flex-start; padding:9px 0; border-top:1px solid rgba(255,255,255,.7); }
+.word-definition-row { display:flex; gap:10px; align-items:flex-start; padding:9px 0; border-top:1rpx solid rgba(255,255,255,.7); }
 .word-definition-pos { flex:none; min-width:34px; text-align:center; padding:2px 0; border-radius:9px; font-size:13px; font-weight:800; border:1px solid rgba(255,255,255,.7); }
 .word-definition-text { flex:1; min-width:0; font-size:15px; line-height:1.5; font-weight:600; overflow-wrap:anywhere; }
-.word-definitions .word-definitions-toggle { width:100%; border:0; border-top:1px solid rgba(255,255,255,.7); background:transparent; padding:10px 0 0; color:#2f6fed; font-size:13px; font-weight:700; display:flex; align-items:center; justify-content:center; gap:4px; }
+.word-definitions .word-definitions-toggle { width:100%; border:0; border-top:1rpx solid rgba(255,255,255,.7); background:transparent; padding:10px 0 0; color:#2f6fed; font-size:13px; font-weight:700; display:flex; align-items:center; justify-content:center; gap:4px; }
 .word-definitions-toggle image { width:16px; height:16px; }
 .word-definitions-toggle .expanded { transform:rotate(180deg); }
 
