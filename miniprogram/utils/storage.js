@@ -38,6 +38,22 @@ function complete(listId, item, perfect, review) {
   const first = !state.completed[id];
   const earned = practiceXp(first, perfect);
   state.completed[id] = true; state.xp += earned;
+  if (!state.masteredItems || typeof state.masteredItems !== 'object' || Array.isArray(state.masteredItems)) state.masteredItems = {};
+  if (!state.masteredItems[id]) {
+    const annotation = (item.annotations || [])[0] || {};
+    state.masteredItems[id] = { english: item.english, zh: item.zh, phonetic: annotation.phonetic || '', usphone: annotation.usphone || '' };
+  }
+  if (earned > 0) {
+    const now = new Date();
+    if (!Array.isArray(state.xpHistory)) state.xpHistory = [];
+    if (!state.xpDaily || typeof state.xpDaily !== 'object' || Array.isArray(state.xpDaily)) state.xpDaily = {};
+    const date = dateKey(now);
+    state.xpDaily[date] = (state.xpDaily[date] || 0) + earned;
+    const time = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+    state.xpHistory.unshift({ date, time, listId, amount: earned, perfect: !!perfect, review: !!review });
+    if (state.xpHistory.length > 500) state.xpHistory.length = 500;
+    Object.keys(state.xpDaily).sort().slice(0, -90).forEach((day) => delete state.xpDaily[day]);
+  }
   state.lastCompleted = { listId, itemId: item.id, date: dateKey(), zh: item.zh, english: item.english };
   if (review && perfect) delete state.mistakes[id];
   const today = dateKey();

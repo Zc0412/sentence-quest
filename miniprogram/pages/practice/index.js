@@ -135,6 +135,7 @@ Page({
   closeModal() { this.setData({ modal: null }); },
   confirmModal() { this.closeModal(); },
   home() { wx.switchTab({ url: '/pages/learn/index' }); },
+  openXp() { wx.navigateTo({ url: '/pages/xp/index' }); },
   audioUrl(word, accent) { return `${apiBaseUrl.replace(/\/$/, '')}/api/pronunciation?word=${encodeURIComponent(word)}&type=${accent}`; },
   preloadAudio(word, accent) {
     if (!word || !/^https:\/\//.test(apiBaseUrl) || typeof wx.downloadFile !== 'function') return Promise.resolve('');

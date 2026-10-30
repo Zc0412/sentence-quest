@@ -6,7 +6,9 @@
     "pages/practice/index",
     "pages/stats/index",
     "pages/share/index",
-    "pages/library/index"
+    "pages/library/index",
+    "pages/xp/index",
+    "pages/mastered/index"
   ],
   "window": {
     "navigationBarTitleText": "SentLeap",

@@ -25,4 +25,6 @@ Page({
     this.setData({ completed, total, percent: Math.round(completed / total * 100), xp: state.xp, inputCount: typing.input, correctCount: typing.correct, accuracy: accuracy(typing), week: week.map((day) => Object.assign({}, day, { height: day.count ? Math.max(12, Math.round(day.count / maximum * 90)) : 6 })) });
   },
   poster() { wx.navigateTo({ url: '/pages/share/index' }); },
+  openXp() { wx.navigateTo({ url: '/pages/xp/index' }); },
+  openMastered() { wx.navigateTo({ url: '/pages/mastered/index' }); },
 });

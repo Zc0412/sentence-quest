@@ -1,0 +1,19 @@
+<import src="../../templates/glass.wxml" />
+<view class="glass-page mastered-page">
+  <template is="ambient" />
+  <view class="glass-shell">
+    <view class="persistent-header {{scrolled ? 'is-scrolled' : ''}}"><view style="height:{{statusBarHeight}}px;"></view><view class="glass-nav mastered-nav" style="height:{{navigationHeight}}px;"><button class="nav-back" bindtap="back" aria-label="返回"><view class="nav-back-icon"><image src="/assets/practice-back.svg" /></view><view class="glass-nav-title">已掌握词条</view></button></view></view>
+    <view style="height:{{statusBarHeight + navigationHeight}}px;"></view>
+    <view class="mastered-summary"><view class="summary-icon"><image src="/assets/library-book-active.svg" /></view><view><view class="summary-label">已掌握</view><view class="summary-value">{{total}}<text>词条</text></view></view></view>
+    <view wx:if="{{!total}}" class="mastered-empty glass-surface"><view class="empty-icon"><image src="/assets/library-book-active.svg" /></view><view class="empty-title">还没有已掌握的词条</view><view class="empty-description">练习中掌握的单词和短语会收录在这里。<view>开始练习，积累你的第一个词条。</view></view><button class="learn-button" bindtap="learn">去练习<image src="/assets/review-next.svg" /></button></view>
+    <block wx:else>
+      <view class="mastered-search glass-surface"><image src="/assets/library-search.svg" /><input value="{{query}}" bindinput="search" placeholder="搜索已掌握的单词或短语" placeholder-class="search-placeholder" /></view>
+      <scroll-view scroll-x class="filter-scroll" enhanced show-scrollbar="{{false}}"><view class="filter-row"><button class="filter-chip {{!selected ? 'selected' : ''}}" bindtap="filter">全部</button><button wx:for="{{filters}}" wx:key="id" class="filter-chip {{selected === item.id ? 'selected' : ''}}" data-id="{{item.id}}" bindtap="filter">{{item.label}}</button></view></scroll-view>
+      <view class="list-heading"><text>最近掌握</text><text>共 {{items.length}} 条</text></view>
+      <view wx:if="{{items.length}}" class="mastered-list glass-surface"><view wx:for="{{items}}" wx:key="key" class="mastered-row"><view class="item-copy"><view class="item-english">{{item.english}}<text wx:if="{{item.phonetic}}" class="item-phonetic">{{item.phonetic}}</text></view><view class="item-zh">{{item.zh}}</view></view><button class="read-button" data-word="{{item.english}}" bindtap="speak" aria-label="朗读 {{item.english}}"><image src="/assets/glass-sound.svg" /></button></view></view>
+      <view wx:if="{{loading}}" class="list-note">正在加载已掌握词条…</view>
+      <view wx:elif="{{failed}}" class="list-note">部分词条加载失败，请检查网络。<button class="retry-button" bindtap="refresh">重试</button></view>
+      <view wx:elif="{{!items.length}}" class="list-note">没有匹配的词条</view>
+    </block>
+  </view>
+</view>

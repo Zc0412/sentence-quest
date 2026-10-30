@@ -6,12 +6,12 @@
     <view style="height:{{statusBarHeight + navigationHeight}}px;"></view>
     <view class="stats-content">
       <view class="summary-cards">
-        <view class="mastery-card glass-surface">
+        <view class="mastery-card glass-surface" role="button" aria-label="查看已掌握词条" bindtap="openMastered">
           <view class="summary-heading"><view class="summary-icon mastery-icon"><image src="/assets/library-book-active.svg" /></view><text>已掌握词条</text></view>
           <view class="summary-number">{{completed}}<text class="summary-total">/ {{total}}</text></view>
           <view class="progress-row"><view class="progress-track"><view class="progress-fill" style="width:{{percent}}%;"></view></view><text>{{percent}}%</text></view>
         </view>
-        <view class="xp-card">
+        <view class="xp-card" role="button" aria-label="查看经验值明细" bindtap="openXp">
           <view class="summary-heading"><view class="summary-icon xp-icon"><image src="/assets/glass-xp.svg" /></view><text>经验值</text></view>
           <view class="summary-number">{{xp}}<text class="xp-unit">XP</text></view>
           <view class="xp-spacer"></view>

@@ -19,6 +19,8 @@ Page({
     this.setData(Object.assign({}, settings, { userId: storage.localUserId(), xp: state.xp, completed, streak: streak(state.activity), accuracy: accuracy(storage.typingStats()) }));
   },
   copyUserId() { if (this.data.userId) wx.setClipboardData({ data: this.data.userId }); },
+  openXp() { wx.navigateTo({ url: '/pages/xp/index' }); },
+  openMastered() { wx.navigateTo({ url: '/pages/mastered/index' }); },
   nickname(event) { const nickname = event.detail.value.trim().slice(0, 24); storage.settings({ nickname }); this.setData({ nickname }); },
   accent(event) { const accent = event.currentTarget.dataset.value; storage.settings({ accent }); this.setData({ accent }); },
   toggle(event) { const key = event.currentTarget.dataset.setting; if (!['autoSpeak', 'hints'].includes(key)) return; const value = !this.data[key]; storage.settings({ [key]: value }); this.setData({ [key]: value }); },
@@ -28,5 +30,5 @@ Page({
   swallowModal() {},
   closeModal() { this.setData({ modal: null }); },
   confirmModal() { this.closeModal(); },
-  tab(event) { if (event.currentTarget.dataset.page === 'review') wx.navigateTo({ url: '/pages/review/index' }); },
+  tab(event) { const page = event.currentTarget.dataset.page; if (page === 'review' || page === 'library') wx.navigateTo({ url: `/pages/${page}/index` }); },
 });

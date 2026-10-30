@@ -137,3 +137,7 @@
 .word-definitions .word-definitions-toggle { width:100%; border:0; border-top:1px solid rgba(255,255,255,.7); background:transparent; padding:10px 0 0; color:#2f6fed; font-size:13px; font-weight:700; display:flex; align-items:center; justify-content:center; gap:4px; }
 .word-definitions-toggle image { width:16px; height:16px; }
 .word-definitions-toggle .expanded { transform:rotate(180deg); }
+
+.modern-practice .exercise-actions { margin-top:12px; }
+.modern-practice .exercise-actions .glass-action { height:34px; padding:0 3px; border:0; border-radius:10px; background:transparent; color:#64748b; font-size:12px; font-weight:600; gap:4px; }
+.modern-practice .exercise-actions .action-icon { width:15px; height:15px; }

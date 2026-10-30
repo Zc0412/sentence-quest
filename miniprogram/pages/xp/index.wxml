@@ -1,0 +1,22 @@
+<import src="../../templates/glass.wxml" />
+<view class="glass-page xp-page">
+  <template is="ambient" />
+  <view class="glass-shell">
+    <view class="persistent-header {{scrolled ? 'is-scrolled' : ''}}"><view style="height:{{statusBarHeight}}px;"></view><view class="glass-nav xp-nav" style="height:{{navigationHeight}}px;"><button class="nav-back" bindtap="back" aria-label="返回"><view class="nav-back-icon"><image src="/assets/practice-back.svg" /></view><view class="glass-nav-title">经验值</view></button></view></view>
+    <view style="height:{{statusBarHeight + navigationHeight}}px;"></view>
+    <view class="xp-summary"><view class="summary-icon"><image src="/assets/glass-xp.svg" /></view><view class="summary-copy"><view class="summary-title">累计经验值</view><view class="summary-value">{{xp}}<text>XP</text></view></view><view class="today-xp">今日记录 +{{todayXp}}</view></view>
+    <view class="xp-tabs glass-surface"><button class="xp-tab {{tab === 'detail' ? 'selected' : ''}}" data-tab="detail" bindtap="switchTab">明细</button><button class="xp-tab {{tab === 'rules' ? 'selected' : ''}}" data-tab="rules" bindtap="switchTab">获取规则</button></view>
+    <block wx:if="{{tab === 'detail'}}">
+      <view wx:if="{{!groups.length}}" class="xp-empty glass-surface">暂无经验值明细，完成练习后将在这里显示。</view>
+      <view wx:for="{{groups}}" wx:key="date" wx:for-item="group" class="detail-group"><view class="group-heading"><text>{{group.title}}</text><text>+{{group.total}} XP</text></view><view class="xp-list glass-surface"><view wx:for="{{group.items}}" wx:key="key" wx:for-item="entry" class="xp-row"><view class="row-icon icon-{{entry.color}}"><image src="{{entry.icon}}" /></view><view class="row-copy"><view class="row-title">{{entry.title}}</view><view class="row-description">{{entry.description}}</view></view><view class="row-amount">+{{entry.amount}}<text>XP</text></view></view></view></view>
+      <view class="history-note">经验值明细从此版本开始记录，最多显示最近 500 次获奖；此前累计经验值仍然保留。</view>
+    </block>
+    <block wx:else>
+      <view class="xp-list rules-list glass-surface">
+        <view class="xp-row"><view class="row-icon icon-green"><image src="/assets/xp-check.svg" /></view><view class="row-copy"><view class="row-title">首次完成一句 / 一词</view><view class="row-description">每个词条首次完成时获得</view></view><view class="row-amount">+10<text>XP</text></view></view>
+        <view class="xp-row"><view class="row-icon icon-gold"><image src="/assets/xp-star.svg" /></view><view class="row-copy"><view class="row-title">无提示奖励</view><view class="row-description">首次完成时完全正确且未使用提示</view></view><view class="row-amount">+5<text>XP</text></view></view>
+      </view>
+      <view class="rules-note glass-surface"><view class="note-heading"><image src="/assets/glass-hint.svg" />其他说明</view><view class="note-content"><view>· 重复练习已完成的词条不再获得 XP。</view><view>· 使用提示或拼错后完成，仍可获得首次完成的 10 XP，但没有无提示奖励。</view><view>· 跳过不会获得 XP；错题复习遵循相同规则。</view></view></view>
+    </block>
+  </view>
+</view>
