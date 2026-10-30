@@ -1,7 +1,7 @@
 const storage = require('../../utils/storage');
 const catalog = require('../../utils/catalog');
 const { navigationMetrics } = require('../../utils/navigation');
-const { apiBaseUrl } = require('../../config');
+const { createAudioStore } = require('../../utils/pronunciation');
 Page({
   data: { statusBarHeight: 24, navigationHeight: 44, scrolled: false, total: 0, items: [], filters: [], selected: '', query: '', loading: false, failed: false },
   onLoad() { this.setData(navigationMetrics()); },
@@ -55,14 +55,18 @@ Page({
   filter(event) { this.setData({ selected: event.currentTarget.dataset.id || '' }); this.applyFilter(); },
   speak(event) {
     const word = event.currentTarget.dataset.word;
-    if (!word || !/^https:\/\//.test(apiBaseUrl)) { wx.showToast({ title: '发音需先配置 Web 服务域名', icon: 'none' }); return; }
-    if (!this.audio) { this.audio = wx.createInnerAudioContext(); this.audio.onError(() => wx.showToast({ title: '播放失败，请检查网络与域名配置', icon: 'none' })); }
-    this.audio.stop(); this.audio.playbackRate = 1;
-    this.audio.src = `${apiBaseUrl.replace(/\/$/, '')}/api/pronunciation?word=${encodeURIComponent(word)}&type=${storage.read().settings.accent}`;
-    this.audio.play();
+    if (!word) return;
+    const token = this.playbackToken = (this.playbackToken || 0) + 1;
+    this.audioStore = this.audioStore || createAudioStore();
+    if (!this.audio) { this.audio = wx.createInnerAudioContext(); this.audio.onError(() => wx.showToast({ title: '播放失败，请检查网络与云开发配置', icon: 'none' })); }
+    this.audio.stop();
+    this.audioStore.load(word, storage.read().settings.accent).then((path) => {
+      if (this.unloaded || token !== this.playbackToken) return;
+      this.audio.playbackRate = 1; this.audio.src = path; this.audio.play();
+    }).catch(() => { if (!this.unloaded && token === this.playbackToken) wx.showToast({ title: '发音失败，请检查云开发配置', icon: 'none' }); });
   },
   back() { wx.navigateBack({ delta: 1, fail: () => wx.switchTab({ url: '/pages/profile/index' }) }); },
   learn() { wx.switchTab({ url: '/pages/learn/index' }); },
-  onHide() { this.generation = (this.generation || 0) + 1; if (this.audio) this.audio.stop(); },
-  onUnload() { this.unloaded = true; this.generation = (this.generation || 0) + 1; if (this.audio) this.audio.destroy(); },
+  onHide() { this.generation = (this.generation || 0) + 1; this.playbackToken = (this.playbackToken || 0) + 1; if (this.audio) this.audio.stop(); },
+  onUnload() { this.unloaded = true; this.generation = (this.generation || 0) + 1; this.playbackToken = (this.playbackToken || 0) + 1; if (this.audio) this.audio.destroy(); if (this.audioStore) this.audioStore.dispose(); },
 });

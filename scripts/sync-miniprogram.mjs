@@ -1,6 +1,5 @@
 import { readFileSync, writeFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
-import vm from 'node:vm';
 const require = createRequire(new URL('../web/package.json', import.meta.url));
 const ts = require('typescript');
 const read = (path) => readFileSync(new URL(`../web/${path}`, import.meta.url), 'utf8');
@@ -15,14 +14,10 @@ const testWords = json('public/dictionaries/words/vocabulary-dev-test.json').map
     annotations: [{ phonetic: `/${word.ukphone}/`, usphone: `/${word.usphone}/`, meaning, pos: word.trans[0].match(/^[a-z]+\./i)?.[0] || '', color: '#3b82f6' }] };
 });
 write('data/vocabulary-dev-test.js', `module.exports = ${JSON.stringify(testWords)};\n`);
-const context = { exports: {}, process: { env: { NODE_ENV: 'production' } } };
-vm.runInNewContext(compile('src/data/phrase-practice.ts'), context);
 const lists = [
   { id: 'home-phrases', label: '精选短语', category: '短语练习', wordCount: json('src/data/home-phrases.json').length, kind: 'phrase', bundled: true },
   { id: 'sentences', label: '句子闯关', category: '句子练习', wordCount: json('src/data/sentences.json').length, kind: 'phrase', bundled: true },
   { id: 'vocabulary-dev-test', label: '单词测试 · 三个单词', category: '单词练习', wordCount: testWords.length, kind: 'word', bundled: true },
-  ...context.exports.phrasePracticeLists.map((list) => ({ ...list, kind: 'phrase', bundled: false })),
-  ...json('src/data/vocabulary-catalog.json').map(({ id, label, category, wordCount, description, tags }) => ({ id, label, category, wordCount, description, tags, kind: 'word', bundled: false, file: `/dictionaries/words/${encodeURIComponent(id)}.json` })),
 ];
 write('data/catalog.js', `module.exports = ${JSON.stringify(lists)};\n`);
 console.log(`已同步 ${lists.length} 个题库目录、内置题库及共享校验 / XP 规则。`);

@@ -26,7 +26,7 @@ Page({
   toggle(event) { const key = event.currentTarget.dataset.setting; if (!['autoSpeak', 'hints'].includes(key)) return; const value = !this.data[key]; storage.settings({ [key]: value }); this.setData({ [key]: value }); },
   reminder() { this.setData({ modal: { title: '学习提醒暂未开通', content: '当前版本尚未接入微信订阅消息，无法在离开小程序后发送提醒。' } }); },
   instructions() { this.setData({ modal: { title: '玩法说明', help: true } }); },
-  about() { this.setData({ modal: { title: '关于句跃 SentLeap', content: `版本 ${this.data.version}\n通过逐词拼写，积累日常英文表达。\n内置测试题库，其他题库和发音需要联网。学习记录保存在本机，暂不支持登录和云同步。` } }); },
+  about() { this.setData({ modal: { title: '关于句跃 SentLeap', content: `版本 ${this.data.version}\n通过逐词拼写，积累日常英文表达。\n内置题库可离线练习，发音需要联网。学习记录保存在本机，暂不支持登录和云同步。` } }); },
   swallowModal() {},
   closeModal() { this.setData({ modal: null }); },
   confirmModal() { this.closeModal(); },

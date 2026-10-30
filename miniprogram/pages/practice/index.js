@@ -5,7 +5,7 @@ const { navigationMetrics } = require('../../utils/navigation');
 const { inputDelta, accuracy } = require('../../utils/typing-stats');
 const { normalizeWord } = require('../../utils/validator');
 const { preferences } = require('../../utils/preferences');
-const { apiBaseUrl } = require('../../config');
+const { createAudioStore } = require('../../utils/pronunciation');
 const { wordDefinitions } = require('../../utils/word-definitions');
 Page({
   data: { loading: true, loadError: '', done: false, finished: false, typed: '', slots: [], hints: true, earned: 0, xp: 0, grammarIndex: 0, statusBarHeight: 24, navigationHeight: 44, accent: '1', shift: false, pressedKey: '', keyRows: ['qwertyuiop'.split(''), 'asdfghjkl'.split(''), 'zxcvbnm'.split('')], inputCount: 0, correctCount: 0, accuracy: '—' },
@@ -136,49 +136,37 @@ Page({
   confirmModal() { this.closeModal(); },
   home() { wx.switchTab({ url: '/pages/learn/index' }); },
   openXp() { wx.navigateTo({ url: '/pages/xp/index' }); },
-  audioUrl(word, accent) { return `${apiBaseUrl.replace(/\/$/, '')}/api/pronunciation?word=${encodeURIComponent(word)}&type=${accent}`; },
   preloadAudio(word, accent) {
-    if (!word || !/^https:\/\//.test(apiBaseUrl) || typeof wx.downloadFile !== 'function') return Promise.resolve('');
-    this.audioCache = this.audioCache || new Map();
-    const key = `${accent}:${word}`;
-    if (this.audioCache.has(key)) return this.audioCache.get(key);
-    const request = new Promise((resolve) => {
-      wx.downloadFile({ url: this.audioUrl(word, accent), success: (result) => resolve(result.statusCode === 200 ? result.tempFilePath : ''), fail: () => resolve('') });
-    });
-    this.audioCache.set(key, request);
-    request.then((path) => { if (!path && this.audioCache && this.audioCache.get(key) === request) this.audioCache.delete(key); });
-    while (this.audioCache.size > 8) this.audioCache.delete(this.audioCache.keys().next().value);
-    return request;
+    this.audioStore = this.audioStore || createAudioStore();
+    return this.audioStore.load(word, accent);
   },
   preloadWords() {
     const accent = storage.read().settings.accent;
     const next = this.entries[this.index + 1];
-    this.preloadAudio(this.entry.item.english, accent);
-    if (next && catalog.lists.find((list) => list.id === next.listId)?.kind === 'word') this.preloadAudio(next.item.english, accent);
+    this.preloadAudio(this.entry.item.english, accent).catch(() => {});
+    if (next && catalog.lists.find((list) => list.id === next.listId)?.kind === 'word') this.preloadAudio(next.item.english, accent).catch(() => {});
   },
   speak(automatic = false) {
     if (!this.state) return;
-    if (!/^https:\/\//.test(apiBaseUrl)) { if (automatic !== true) wx.showToast({ title: '发音需先配置 Web 服务域名', icon: 'none' }); return; }
     const word = this.state.done ? this.state.item.english : this.state.item.words[this.state.wordIndex];
     const isAutomatic = automatic === true;
     const accent = storage.read().settings.accent;
     const token = this.playbackToken = (this.playbackToken || 0) + 1;
     if (!this.audio) {
       this.audio = wx.createInnerAudioContext();
-      this.audio.onError(() => { if (!this.automaticPlayback) wx.showToast({ title: '播放失败，请检查网络与域名配置', icon: 'none' }); });
+      this.audio.onError(() => { if (!this.automaticPlayback) wx.showToast({ title: '播放失败，请检查网络与云开发配置', icon: 'none' }); });
     }
     this.audio.stop();
     this.automaticPlayback = isAutomatic;
     const play = (path) => {
       if (this.unloaded || token !== this.playbackToken) return;
       this.audio.playbackRate = 1;
-      this.audio.src = path || this.audioUrl(word, accent);
+      this.audio.src = path;
       this.audio.play();
     };
-    if (this.data.isWord && typeof wx.downloadFile === 'function') this.preloadAudio(word, accent).then(play);
-    else play('');
+    this.preloadAudio(word, accent).then(play).catch(() => { if (!isAutomatic && !this.unloaded && token === this.playbackToken) wx.showToast({ title: '发音失败，请检查云开发配置', icon: 'none' }); });
   },
   onShow() { this.hidden = false; },
   onHide() { this.hidden = true; this.playbackToken = (this.playbackToken || 0) + 1; this.releaseKey(); if (this.audio) this.audio.stop(); },
-  onUnload() { this.unloaded = true; this.playbackToken = (this.playbackToken || 0) + 1; if (this.audio) this.audio.destroy(); },
+  onUnload() { this.unloaded = true; this.playbackToken = (this.playbackToken || 0) + 1; if (this.audio) this.audio.destroy(); if (this.audioStore) this.audioStore.dispose(); },
 });
