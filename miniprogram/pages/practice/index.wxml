@@ -2,9 +2,9 @@
 <template name="word-definitions">
 <view class="word-definitions {{embedded ? 'word-definitions-inline' : 'glass-surface'}}">
 <view wx:if="{{!embedded}}" class="word-definitions-heading"><text>释义</text><text class="word-definitions-count">共 {{wordDefinitions.length}} 项</text></view>
-<block wx:for="{{wordDefinitions}}" wx:key="index"><view wx:if="{{definitionsExpanded || index < 2}}" class="word-definition-row"><text wx:if="{{item.pos}}" class="word-definition-pos" style="color:{{item.color}};background:{{item.color}}1f;">{{item.pos}}</text><text class="word-definition-text">{{item.meaning}}</text></view>
+<block wx:for="{{wordDefinitions}}" wx:key="index"><view wx:if="{{definitionsExpanded || index < 2}}" class="word-definition-row"><text wx:if="{{item.pos}}" class="word-definition-pos" style="color:{{item.color}};background:{{item.color}}1f;">{{item.pos}}</text><text class="word-definition-text {{embedded && !definitionsExpanded && hasLongDefinition ? 'definition-clamped' : ''}}">{{item.meaning}}</text></view>
 </block>
-<button wx:if="{{wordDefinitions.length > 2}}" class="word-definitions-toggle" bindtap="toggleDefinitions" aria-expanded="{{definitionsExpanded}}">{{definitionsExpanded ? '收起' : '展开其余 ' + (wordDefinitions.length - 2) + ' 项'}}<image class="{{definitionsExpanded ? 'expanded' : ''}}" src="/assets/definition-chevron.svg" /></button>
+<button wx:if="{{wordDefinitions.length > 2 || (embedded && hasLongDefinition)}}" class="word-definitions-toggle" bindtap="toggleDefinitions" aria-expanded="{{definitionsExpanded}}">{{definitionsExpanded ? '收起' : embedded ? (wordDefinitions.length > 2 ? '还有 ' + (wordDefinitions.length - 2) + ' 项 · 查看全部' : '查看全部') : '展开其余 ' + (wordDefinitions.length - 2) + ' 项'}}<image class="{{definitionsExpanded ? 'expanded' : ''}}" src="/assets/definition-chevron.svg" /></button>
 </view>
 </template>
 <view class="glass-page practice modern-practice {{done && isWord && !finished ? 'word-complete' : ''}} {{done && !finished ? 'practice-complete' : ''}}">
@@ -59,7 +59,7 @@
         <view class="mastery"><view class="mastery-label"><view>已掌握 <text>{{mastered}}</text> / {{total}} {{reviewMode ? '道错题' : isWord ? '个单词' : isPhrase ? '个短语' : '个句子'}}</view><text>{{masteryPercent}}%</text></view><view class="mastery-track"><view style="width:{{masteryPercent}}%;"></view></view></view>
         <view class="exercise-card glass-surface">
           <view class="prompt-label">{{isWord ? 'TYPE THIS WORD' : isPhrase ? 'TYPE THIS PHRASE' : 'TYPE THIS SENTENCE'}}</view>
-          <block wx:if="{{isWord}}"><template is="word-definitions" data="{{wordDefinitions, definitionsExpanded, embedded: true}}" /></block>
+          <block wx:if="{{isWord}}"><template is="word-definitions" data="{{wordDefinitions, definitionsExpanded, hasLongDefinition, embedded: true}}" /></block>
           <view wx:if="{{!isWord}}" class="prompt">{{item.zh}}</view>
           <view class="letter-board">
             <view wx:for="{{slots}}" wx:key="index" wx:for-item="word" class="word-group {{word.active ? 'word-active' : word.passed ? 'word-passed' : 'word-pending'}} {{word.incorrect ? 'word-incorrect' : ''}}">
@@ -93,3 +93,5 @@
     </view>
   </view>
 </view>
+
+<template is="glass-modal" data="{{modal}}" />

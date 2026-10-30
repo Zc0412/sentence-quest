@@ -10,7 +10,7 @@ Page({
     const mistakes = storage.read().mistakes;
     this.setData({ items: Object.keys(mistakes).filter((key) => lists.some((list) => list.id === mistakes[key].listId)).map((key) => {
       const entry = mistakes[key];
-      return { key, zh: entry.item.zh, english: entry.item.english, reason: reasonLabels[entry.reason] ? entry.reason : '', reasonLabel: reasonLabels[entry.reason] || '待复习' };
+      return { key, zh: entry.item.zh, english: entry.item.english, isWord: lists.some((list) => list.id === entry.listId && list.kind === 'word'), reason: reasonLabels[entry.reason] ? entry.reason : '', reasonLabel: reasonLabels[entry.reason] || '待复习' };
     }) });
   },
   back() { wx.navigateBack({ delta: 1, fail: () => wx.switchTab({ url: '/pages/profile/index' }) }); },

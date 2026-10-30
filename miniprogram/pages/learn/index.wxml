@@ -19,7 +19,7 @@
       </view>
       <view wx:else class="resume-card">
         <view class="resume-caption">继续上次练习</view>
-        <view class="resume-sentence">{{lastSentence}}</view>
+        <view class="resume-sentence {{lastIsWord ? 'resume-word-meaning' : ''}}">{{lastSentence}}</view>
         <view class="resume-description">{{lastLabel}} · 已掌握 {{lastCompleted}} / {{lastTotal}}</view>
         <button class="resume-button" bindtap="resume">继续练习</button>
       </view>

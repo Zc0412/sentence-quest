@@ -8,3 +8,5 @@
     <view class="share-actions glass-surface"><view class="action-row"><button class="share-friend" open-type="share" disabled="{{generating || !imagePath}}"><image src="/assets/share-send.svg" />发给好友</button><button class="save-image" bindtap="save" disabled="{{generating || !imagePath || saving}}" loading="{{saving}}"><image src="/assets/share-save.svg" />保存到相册</button></view><view class="share-note">保存后可发到朋友圈</view></view>
   </view>
 </view>
+
+<template is="glass-modal" data="{{modal}}" />

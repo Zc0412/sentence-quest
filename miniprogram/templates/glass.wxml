@@ -1,3 +1,21 @@
 <template name="ambient">
   <view class="ambient" aria-hidden="true"><view class="orb orb-blue"></view><view class="orb orb-purple"></view><view class="orb orb-mint"></view><view class="orb orb-teal"></view><view class="orb orb-peach"></view></view>
 </template>
+
+<template name="glass-modal">
+<view wx:if="{{modal}}" class="modal-overlay" catchtouchmove="swallowModal">
+  <view class="modal-card" role="dialog" aria-label="{{modal.title}}" catchtap="swallowModal">
+    <view class="modal-heading"><view class="modal-title-icon"><image src="/assets/glass-hint.svg" /></view><text>{{modal.title}}</text></view>
+    <scroll-view scroll-y class="modal-body">
+      <view wx:if="{{modal.help}}" class="help-rows">
+        <view class="help-row"><view class="modal-help-icon help-blue"><image src="/assets/welcome-keyboard.svg" /></view><text>看中文，用下方键盘逐词拼写英文，拼对自动切词。</text></view>
+        <view class="help-row"><view class="modal-help-icon help-teal"><image src="/assets/modal-sound.svg" /></view><text>听发音、提示字母可以帮助练习。</text></view>
+        <view class="help-row"><view class="modal-help-icon help-red"><image src="/assets/modal-book.svg" /></view><text>拼错、提示或跳过会进入错题本，独立完成复习后即可移除。</text></view>
+        <view class="help-row"><view class="modal-help-icon help-gold"><image src="/assets/modal-device.svg" /></view><text>进度保存在当前设备。</text></view>
+      </view>
+      <view wx:else class="modal-message">{{modal.content}}</view>
+    </scroll-view>
+    <view class="modal-actions"><button wx:if="{{modal.showCancel}}" class="modal-cancel" bindtap="closeModal">{{modal.cancelText || '取消'}}</button><button class="modal-confirm" bindtap="confirmModal">{{modal.confirmText || '知道了'}}</button></view>
+  </view>
+</view>
+</template>

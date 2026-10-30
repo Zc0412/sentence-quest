@@ -38,10 +38,13 @@ Page({
         if (this.unloaded) return;
         this.setData({ saving: false });
         if (/auth|deny|permission/i.test((error && error.errMsg) || '')) {
-          wx.showModal({ title: '无法保存到相册', content: '请在微信设置中允许保存图片到相册，然后重试。', confirmText: '打开设置', success: ({ confirm }) => { if (confirm) wx.openSetting(); } });
+          this.setData({ modal: { title: '无法保存到相册', content: '请在微信设置中允许保存图片到相册，然后重试。', confirmText: '打开设置', showCancel: true } });
         } else wx.showToast({ title: '保存失败，请重试', icon: 'none' });
       },
     });
   },
+  swallowModal() {},
+  closeModal() { this.setData({ modal: null }); },
+  confirmModal() { this.closeModal(); wx.openSetting(); },
   onShareAppMessage() { return { title: this.data.shareTitle || '和我一起练习英语', path: '/pages/learn/index', imageUrl: this.data.imagePath || undefined }; },
 });

@@ -29,3 +29,5 @@
     </view>
   </view>
 </view>
+
+<template is="glass-modal" data="{{modal}}" />

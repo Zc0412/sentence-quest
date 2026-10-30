@@ -122,11 +122,13 @@
 .word-completion-underline { height:4px; border-radius:2px; background:linear-gradient(90deg,#4f86f7,#2f6fed); box-shadow:0 2px 10px rgba(47,111,237,.5); margin:10px 0 0; }
 .word-completion-card .success-detail { margin-top:14px; }
 .word-definitions { margin:12px 16px 16px; padding:14px 16px; border-radius:24px; }
-.word-definitions.word-definitions-inline { margin:6px 0 0; padding:0; border-radius:0; }
-.word-definitions-inline .word-definition-text { font-size:12px; }
-.word-definitions-inline .word-definition-pos { font-size:11px; }
-.word-definitions-inline .word-definition-row { border-top:0; }
-.word-definitions-inline .word-definitions-toggle { border-top:0; font-size:12px; }
+.word-definitions.word-definitions-inline { margin:8px 0 0; padding:0; border-radius:0; }
+.word-definitions-inline .word-definition-row { gap:8px; margin-top:6px; padding:0; border-top:0; }
+.word-definitions-inline .word-definition-pos { min-width:30px; padding:1px 0; border-radius:8px; font-size:12px; }
+.word-definitions-inline .word-definition-text { font-size:14px; line-height:1.45; text-align:left; }
+.word-definitions-inline .definition-clamped { display:-webkit-box; -webkit-box-orient:vertical; -webkit-line-clamp:2; overflow:hidden; }
+.word-definitions.word-definitions-inline .word-definitions-toggle { width:auto; margin:8px auto 0; padding:0; border:0; font-size:12px; gap:2px; }
+.word-definitions-inline .word-definitions-toggle image { width:14px; height:14px; }
 .word-definitions-heading { display:flex; justify-content:space-between; align-items:center; margin-bottom:6px; font-weight:800; font-size:15px; }
 .word-definitions-count { font-size:12px; color:#475569; font-weight:400; }
 .word-definition-row { display:flex; gap:10px; align-items:flex-start; padding:9px 0; border-top:1px solid rgba(255,255,255,.7); }

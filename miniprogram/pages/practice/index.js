@@ -37,7 +37,8 @@ Page({
     this.entry = this.entries[this.index]; this.state = session.start(this.entry.item);
     if (!this.review) storage.cursor(this.entry.listId, this.index, this.entry.item);
     const entryList = catalog.lists.find((list) => list.id === this.entry.listId);
-    this.setData({ isPhrase: this.entry.listId === 'home-phrases', isWord: entryList?.kind === 'word', hideCompletionBadge: entryList?.category === '短语练习', definitionsExpanded: false, wordDefinitions: wordDefinitions(this.entry.item), grammarIndex: 0, grammarExplanation: (this.entry.item.grammar || [])[0]?.explanation || '', item: this.entry.item, number: this.index + 1, total: this.entries.length, progress: Math.round(this.index / this.entries.length * 100), earned: 0, finished: false });
+    const definitions = wordDefinitions(this.entry.item);
+    this.setData({ isPhrase: this.entry.listId === 'home-phrases', isWord: entryList?.kind === 'word', hideCompletionBadge: entryList?.category === '短语练习', definitionsExpanded: false, wordDefinitions: definitions, hasLongDefinition: definitions.slice(0, 2).some((definition) => Array.from(definition.meaning).length > 24), grammarIndex: 0, grammarExplanation: (this.entry.item.grammar || [])[0]?.explanation || '', item: this.entry.item, number: this.index + 1, total: this.entries.length, progress: Math.round(this.index / this.entries.length * 100), earned: 0, finished: false });
     this.render();
     if (entryList?.kind === 'word') {
       this.preloadWords();
@@ -53,7 +54,7 @@ Page({
     const currentWord = state.item.words[state.wordIndex] || '';
     const extraKeys = [...new Set(Array.from(normalizeWord(currentWord)).filter((character) => !/[a-z\s']/i.test(character)))];
     const phonetic = storage.read().settings.accent === '2' ? annotation.usphone || annotation.phonetic : annotation.phonetic;
-    this.setData({ extraKeys, mastered, masteryPercent: Math.round(mastered / this.entries.length * 100), previousLabel: this.index > 0 ? this.entries[this.index - 1].item.zh : '', inputCount: this.typing.input, correctCount: this.typing.correct, accuracy: accuracy(this.typing), progress: Math.round((this.index + (state.done ? 1 : 0)) / this.entries.length * 100), xp: storage.read().xp, done: state.done, typed: state.typed, error: state.error, wordNumber: state.wordIndex + 1, wordTotal: state.item.words.length, phonetic: phonetic || '',
+    this.setData({ extraKeys, mastered, masteryPercent: Math.round(mastered / this.entries.length * 100), previousLabel: this.index > 0 ? this.entries[this.index - 1].item.english : '', inputCount: this.typing.input, correctCount: this.typing.correct, accuracy: accuracy(this.typing), progress: Math.round((this.index + (state.done ? 1 : 0)) / this.entries.length * 100), xp: storage.read().xp, done: state.done, typed: state.typed, error: state.error, wordNumber: state.wordIndex + 1, wordTotal: state.item.words.length, phonetic: phonetic || '',
       completionClean: !state.dirty,
       completionSize,
       completedWords: state.done ? state.item.words.map((text, index) => {
@@ -129,7 +130,10 @@ Page({
     const group = (this.entry.item.grammar || [])[index];
     if (group) this.setData({ grammarIndex: index, grammarExplanation: group.explanation });
   },
-  instructions() { wx.showModal({ title: '玩法说明', content: '看中文，输入当前高亮单词。拼对自动进入下一词；可听发音或使用字母提示。拼错、提示和跳过会进入错题本，独立完成复习即可移除。', showCancel: false, confirmText: '开始练习' }); },
+  instructions() { this.setData({ modal: { title: '玩法说明', help: true, confirmText: '开始练习' } }); },
+  swallowModal() {},
+  closeModal() { this.setData({ modal: null }); },
+  confirmModal() { this.closeModal(); },
   home() { wx.switchTab({ url: '/pages/learn/index' }); },
   audioUrl(word, accent) { return `${apiBaseUrl.replace(/\/$/, '')}/api/pronunciation?word=${encodeURIComponent(word)}&type=${accent}`; },
   preloadAudio(word, accent) {

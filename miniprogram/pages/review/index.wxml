@@ -6,7 +6,7 @@
     <view style="height:{{statusBarHeight + navigationHeight}}px;"></view>
     <view class="review-intro">集中复习拼错、提示和跳过的题目，逐步巩固记忆。</view>
     <view class="review-summary glass-surface"><view><view class="summary-label">待复习</view><view class="summary-count"><text class="summary-value">{{items.length}}</text><text class="summary-unit">道题</text></view></view><button class="start-review" disabled="{{!items.length}}" bindtap="start">开始复习（{{items.length}}）</button></view>
-    <view wx:if="{{items.length}}" class="mistakes-list"><view class="list-heading">错题列表</view><view wx:for="{{items}}" wx:key="key" class="mistake-card glass-surface"><view class="mistake-copy"><view class="mistake-zh">{{item.zh}}</view><view class="mistake-english">{{item.english}}</view></view><text class="reason-badge reason-{{item.reason}}">{{item.reasonLabel}}</text></view></view>
+    <view wx:if="{{items.length}}" class="mistakes-list"><view class="list-heading">错题列表</view><view wx:for="{{items}}" wx:key="key" class="mistake-card glass-surface"><view class="mistake-copy"><view class="mistake-zh {{item.isWord ? 'mistake-word-meaning' : ''}}">{{item.zh}}</view><view class="mistake-english">{{item.english}}</view></view><text class="reason-badge reason-{{item.reason}}">{{item.reasonLabel}}</text></view></view>
     <view wx:else class="review-empty glass-surface"><view class="empty-icon"><image src="/assets/completion-check.svg" /></view><view class="empty-title">暂时没有错题</view><view class="empty-description">练习中的难点会自动收录在这里。<view>继续练习，让每一次进步都有迹可循。</view></view><button class="learn-button" bindtap="learn">去练习 <image src="/assets/review-next.svg" /></button></view>
     <view class="review-note">复习时独立答对，即可移出错题本</view>
   </view>
