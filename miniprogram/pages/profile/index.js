@@ -1,4 +1,5 @@
 const storage = require('../../utils/storage');
+const keySound = require('../../utils/keySound');
 const { lists } = require('../../utils/catalog');
 const { navigationMetrics } = require('../../utils/navigation');
 const { accuracy } = require('../../utils/typing-stats');
@@ -15,10 +16,17 @@ Page({
     const tabBar = this.getTabBar && this.getTabBar();
     if (tabBar) tabBar.syncSelected('profile');
     const state = storage.read(); const settings = preferences();
+    this.setData({ soundOn: keySound.isEnabled() });
     const completed = lists.reduce((sum, list) => sum + Math.min(list.wordCount, Object.keys(state.completed).filter((key) => key.startsWith(`${list.id}::`)).length), 0);
     this.setData(Object.assign({}, settings, { userId: storage.localUserId(), xp: state.xp, completed, streak: streak(state.activity), accuracy: accuracy(storage.typingStats()) }));
   },
   copyUserId() { if (this.data.userId) wx.setClipboardData({ data: this.data.userId }); },
+  toggleKeySound() {
+    const soundOn = !keySound.isEnabled();
+    keySound.setEnabled(soundOn);
+    this.setData({ soundOn });
+    if (soundOn) keySound.play();
+  },
   openXp() { wx.navigateTo({ url: '/pages/xp/index' }); },
   openMastered() { wx.navigateTo({ url: '/pages/mastered/index' }); },
   nickname(event) { const nickname = event.detail.value.trim().slice(0, 24); storage.settings({ nickname }); this.setData({ nickname }); },

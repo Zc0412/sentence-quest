@@ -7,13 +7,43 @@ const root = path.resolve(__dirname, '../miniprogram');
 const appSource = fs.readFileSync(path.join(root, 'app.js'), 'utf8');
 function launchApp(cloudEnvId, cloud) {
   let app;
-  vm.runInNewContext(appSource, { require: () => ({ cloudEnvId }), App: (value) => { app = value; }, wx: { cloud }, console: { warn() {} } });
+  let soundInitialized = false;
+  vm.runInNewContext(appSource, { require: (name) => name === './config' ? { cloudEnvId } : { init() { soundInitialized = true; }, stop() {} }, App: (value) => { app = value; }, wx: { cloud }, console: { warn() {} } });
   app.onLaunch();
+  assert.equal(soundInitialized, true, '音效初始化不依赖云开发配置');
 }
 let initializedEnv;
 launchApp('', { init: ({ env }) => { initializedEnv = env; } }); assert.equal(initializedEnv, undefined);
 launchApp('test-cloud-env', { init: ({ env }) => { initializedEnv = env; } }); assert.equal(initializedEnv, 'test-cloud-env');
 assert.doesNotThrow(() => launchApp('test-cloud-env', undefined));
+const soundSource = fs.readFileSync(path.join(root, 'utils/keySound.js'), 'utf8');
+let soundSetting;
+const soundContexts = [];
+function loadKeySound() {
+  const module = { exports: {} };
+  vm.runInNewContext(soundSource, { module, wx: {
+    getStorageSync() { return soundSetting === undefined ? '' : soundSetting; },
+    setStorageSync(key, value) { assert.equal(key, 'keySoundOn'); soundSetting = value; },
+    createInnerAudioContext() {
+      const context = { plays: 0, stops: 0, onError() {}, stop() { this.stops += 1; }, play() { this.plays += 1; }, destroy() {} };
+      soundContexts.push(context); return context;
+    },
+  } });
+  return module.exports;
+}
+const keySound = loadKeySound();
+assert.equal(keySound.isEnabled(), true);
+keySound.init(); keySound.init(); assert.equal(soundContexts.length, 8, '重复初始化不应创建更多播放器');
+for (let index = 0; index < 5; index += 1) keySound.play();
+assert.deepEqual(soundContexts.slice(0, 4).map((ctx) => ctx.plays), [2, 1, 1, 1]);
+keySound.play('del'); assert.equal(soundContexts[4].plays, 1);
+assert.equal(soundContexts[4].src, '/sounds/key_ios_delete.wav');
+assert.ok(soundContexts.every((ctx) => ctx.volume === 0.1 && ctx.obeyMuteSwitch));
+keySound.setEnabled(false); keySound.play(); keySound.play('del');
+assert.equal(soundContexts.reduce((sum, ctx) => sum + ctx.plays, 0), 6, '关闭后停止发声');
+assert.equal(loadKeySound().isEnabled(), false, '重启后保留关闭状态');
+keySound.setEnabled(true); keySound.play();
+assert.equal(soundContexts[1].plays, 2);
 const files = (dir) => fs.readdirSync(dir, { withFileTypes: true }).flatMap((entry) => entry.isDirectory() ? files(path.join(dir, entry.name)) : [path.join(dir, entry.name)]);
 const all = files(root);
 for (const file of all) {
@@ -31,11 +61,12 @@ const packageBytes = all.reduce((sum, file) => sum + fs.statSync(file).size, 0);
 assert.ok(packageBytes < 2 * 1024 * 1024, '内置包超过 2 MiB 预算');
 
 let saved; let failWrite = false; let failRead = false; const toasts = [];
+const playedAudio = [];
 global.wx = {
-  getStorageSync() { if (failRead) throw new Error('read failure'); return saved && JSON.parse(JSON.stringify(saved)); },
-  setStorageSync(key, value) { if (failWrite) throw new Error('quota'); saved = JSON.parse(JSON.stringify(value)); },
+  getStorageSync(key) { if (failRead) throw new Error('read failure'); if (key === 'keySoundOn') return soundSetting; return saved && JSON.parse(JSON.stringify(saved)); },
+  setStorageSync(key, value) { if (failWrite) throw new Error('quota'); if (key === 'keySoundOn') { soundSetting = value; return; } saved = JSON.parse(JSON.stringify(value)); },
   showToast(value) { toasts.push(value); }, hideKeyboard() {}, setNavigationBarTitle() {},
-  createInnerAudioContext() { return { onError() {}, stop() {}, play() {}, destroy() {} }; },
+  createInnerAudioContext() { return { onError() {}, stop() {}, play() { playedAudio.push(this.src); }, destroy() {} }; },
 };
 const storagePath = require.resolve('../miniprogram/utils/storage');
 let storage = require(storagePath);
@@ -167,7 +198,9 @@ delete require.cache[storagePath];
   definitionsPage.toggleDefinitions(); assert.equal(definitionsPage.data.definitionsExpanded, true);
   definitionsPage.next(); assert.equal(definitionsPage.data.definitionsExpanded, false); assert.equal(definitionsPage.data.hasLongDefinition, false); assert.equal(definitionsPage.data.previousLabel, 'cat');
   wordPage.key({ currentTarget: { dataset: { key: 'x' } } });
+  assert.equal(playedAudio.at(-1), '/sounds/key_ios.wav');
   wordPage.key({ currentTarget: { dataset: { key: 'delete' } } });
+  assert.equal(playedAudio.at(-1), '/sounds/key_ios_delete.wav');
   for (const key of 'cat') wordPage.key({ currentTarget: { dataset: { key } } });
   assert.equal(wordPage.data.done, true);
   assert.equal(wordPage.data.completedWords[0].text, 'cat');
@@ -374,6 +407,12 @@ delete require.cache[storagePath];
   require(storagePath).read().localUserId = 'OLDALPHANUMERIC1';
   require(storagePath).save();
   profile.onLoad(); profile.onShow();
+  assert.equal(profile.data.soundOn, true);
+  profile.toggleKeySound(); profile.onShow();
+  assert.equal(profile.data.soundOn, false);
+  assert.equal(soundSetting, false);
+  profile.toggleKeySound();
+  assert.equal(profile.data.soundOn, true);
   assert.match(profile.data.userId, /^\d{18}$/);
   let copiedId; wx.setClipboardData = ({ data }) => { copiedId = data; };
   profile.copyUserId(); assert.equal(copiedId, profile.data.userId);

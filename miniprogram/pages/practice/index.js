@@ -1,4 +1,5 @@
 const catalog = require('../../utils/catalog');
+const keySound = require('../../utils/keySound');
 const storage = require('../../utils/storage');
 const session = require('../../utils/session');
 const { navigationMetrics } = require('../../utils/navigation');
@@ -110,6 +111,7 @@ Page({
   key(event) {
     if (!this.state || this.state.done) return;
     const key = event.currentTarget.dataset.key;
+    keySound.play(key === 'delete' ? 'del' : 'key');
     if (key === 'shift') { this.setData({ shift: !this.data.shift }); return; }
     const value = key === 'delete' ? this.state.typed.slice(0, -1) : this.state.typed + (this.data.shift ? key.toUpperCase() : key);
     this.input({ detail: { value } });

@@ -18,6 +18,7 @@
         <button class="setting-row" bindtap="reminder" aria-label="学习提醒，暂未开通"><view class="setting-icon"><image src="/assets/profile-bell.svg" /></view><view class="setting-title">学习提醒</view><text class="unavailable">暂未开通</text><view class="toggle-switch"></view></button>
         <button class="setting-row" data-setting="autoSpeak" bindtap="toggle" aria-label="切词后自动发音" aria-pressed="{{autoSpeak}}"><view class="setting-icon"><image src="/assets/glass-sound.svg" /></view><view class="setting-title">切词后自动发音</view><view class="toggle-switch {{autoSpeak ? 'enabled' : ''}}"></view></button>
         <button class="setting-row" data-setting="hints" bindtap="toggle" aria-label="字母提示" aria-pressed="{{hints}}"><view class="setting-icon"><image src="/assets/glass-hint.svg" /></view><view class="setting-title">字母提示</view><view class="toggle-switch {{hints ? 'enabled' : ''}}"></view></button>
+        <button class="setting-row" bindtap="toggleKeySound" aria-label="按键音效" aria-pressed="{{soundOn}}"><view class="setting-icon"><image src="/assets/profile-keyboard.svg" /></view><view class="setting-title">按键音效</view><view class="toggle-switch {{soundOn ? 'enabled' : ''}}"></view></button>
       </view>
       <view class="settings-card glass-surface">
         <button class="setting-row" data-page="library" bindtap="tab"><view class="setting-icon"><image src="/assets/library-book-active.svg" /></view><view class="setting-title">全部题库</view><view class="setting-chevron"></view></button>

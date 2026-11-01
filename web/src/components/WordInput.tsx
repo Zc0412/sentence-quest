@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import type { ChangeEvent, CompositionEvent, KeyboardEvent } from 'react';
 import { Input } from './ui/input';
 import { getTypingKey } from '../utils/typingKey';
+import { playKeySound } from '../utils/keySound';
 
 interface Props {
   value: string;
@@ -51,6 +52,7 @@ export function WordInput({ value, onChange, wordNumber, focusSignal, error, sup
       // 主动接住重新聚焦的第一个按键，避免用户必须点击或丢失首字母。
       event.preventDefault();
       input.focus({ preventScroll: true });
+      if (key !== 'Escape') playKeySound();
       onChange(key === 'Escape' ? '' : key === 'Backspace' ? value.slice(0, -1) : value + key);
     }
     function resumeFocus() {
@@ -75,6 +77,7 @@ export function WordInput({ value, onChange, wordNumber, focusSignal, error, sup
       setCompositionValue(event.currentTarget.value);
       return;
     }
+    if (event.currentTarget.value !== value) playKeySound();
     onChange(event.currentTarget.value);
   }
 
@@ -88,6 +91,7 @@ export function WordInput({ value, onChange, wordNumber, focusSignal, error, sup
     const key = getTypingKey(event, inputCharacters);
     if (key) {
       event.preventDefault();
+      if (key !== 'Escape') playKeySound();
       // IME 可能将 key 设为 Process/Unidentified，code 仍表示实际字母键。
       if (composing.current || event.nativeEvent.isComposing || event.keyCode === 229) {
         physicalComposition.current = true;
