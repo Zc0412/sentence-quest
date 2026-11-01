@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import type { ChangeEvent, CompositionEvent, KeyboardEvent } from 'react';
 import { Input } from './ui/input';
 import { getTypingKey } from '../utils/typingKey';
-import { playKeySound } from '../utils/keySound';
+import { playKeySound, preloadKeySound } from '../utils/keySound';
 
 interface Props {
   value: string;
@@ -27,6 +27,8 @@ export function WordInput({ value, onChange, wordNumber, focusSignal, error, sup
   const [compositionValue, setCompositionValue] = useState('');
   const [useSoftKeyboard, setUseSoftKeyboard] = useState(false);
   const readOnly = suppressIme && !useSoftKeyboard;
+
+  useEffect(() => { preloadKeySound(); }, []);
 
   useEffect(() => {
     const query = window.matchMedia('(pointer: coarse)');
