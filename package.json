@@ -12,7 +12,7 @@
     "start": "npm --prefix web run start",
     "typecheck": "npm --prefix web run typecheck",
     "check:data": "npm --prefix web run check:data",
-    "check": "npm --prefix web run check && npm run test:miniprogram",
+    "check": "npm --prefix web run check && npm run typecheck:miniprogram && npm run test:miniprogram && npm run test:dictionary-upload",
     "test:notebook": "npm --prefix web run test:notebook",
     "test:selection": "npm --prefix web run test:selection",
     "test:review": "npm --prefix web run test:review",
@@ -21,8 +21,19 @@
     "test:feedback": "npm --prefix web run test:feedback",
     "test:id": "npm --prefix web run test:id",
     "test:history": "npm --prefix web run test:history",
-    "sync:miniprogram": "node scripts/sync-miniprogram.mjs",
-    "test:miniprogram": "node scripts/test-miniprogram.cjs",
-    "test:pwa": "npm --prefix web run test:pwa"
+    "sync:miniprogram": "node --import tsx scripts/sync-miniprogram.mts",
+    "upload:dictionary": "node --import tsx scripts/upload-cloud-dictionary.ts",
+    "test:dictionary-upload": "node --import tsx --test scripts/test-cloud-dictionary-upload.ts",
+    "pretest:miniprogram": "npm run build:cloudfunctions",
+    "test:miniprogram": "node --import tsx scripts/test-miniprogram.ts",
+    "test:pwa": "npm --prefix web run test:pwa",
+    "typecheck:miniprogram": "tsc -p miniprogram/tsconfig.json && tsc -p tsconfig.tools.json && tsc -p miniprogram/tsconfig.cloud.json --noEmit",
+    "build:cloudfunctions": "node --import tsx scripts/build-cloudfunctions.ts"
+  },
+  "devDependencies": {
+    "@types/node": "^22.20.5",
+    "miniprogram-api-typings": "^5.2.3",
+    "tsx": "^4.23.15",
+    "typescript": "^5.9.3"
   }
 }

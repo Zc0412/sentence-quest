@@ -10,3 +10,6 @@ dist/
 
 *.tsbuildinfo
 miniprogram/project.private.config.json
+
+# Compiled cloud functions (generated from TypeScript)
+miniprogram/cloudfunctions-dist/

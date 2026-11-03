@@ -1,6 +1,6 @@
 # SentLeap 微信小程序
 
-原生 JavaScript + WXML + WXSS，无第三方运行时依赖。导入本目录即可预览，不需要构建 npm。
+原生 TypeScript + WXML + WXSS。微信开发者工具使用 TypeScript 编译插件；开发与类型检查依赖安装在仓库根目录，不需要在开发者工具中构建 npm。
 
 ## 界面与页面
 
@@ -14,7 +14,7 @@
 
 ## 导入与联网
 
-1. 微信开发者工具 → 导入项目 → 选择 `miniprogram/`。
+1. 在仓库根目录执行 `npm install` 和 `npm run build:cloudfunctions`，然后在微信开发者工具导入 `miniprogram/`。项目已开启 TypeScript 编译插件。
 2. 本地体验可使用默认测试配置；真机预览 / 上传请在 `project.config.json` 使用你自己的小程序 AppID。
 3. 内置三个离线测试词库：精选短语（20 题）、句子闯关（11 题）和单词测试（3 词）。`npm run sync:miniprogram` 同步这三个题库及共享规则。其他题库暂不提供，后续可接入云开发存储。
 4. 发音通过 `pronunciation` 云函数请求有道发音服务，口音 `1` 为英音，`2` 为美音。云函数调用不使用客户端直接下载音频；保持开发工具 `urlCheck` 开启。
@@ -23,9 +23,25 @@
 
 ## 微信云开发
 
-在微信开发者工具打开 `miniprogram/`，使用与项目 AppID 关联的账号开通云开发并创建环境；在云开发控制台复制环境 ID，填入 `config.js` 的 `cloudEnvId`。小程序启动时会调用 `wx.cloud.init({ env: cloudEnvId })`。环境 ID 不是 AppSecret，不要把 AppSecret 或服务端密钥写进小程序代码。
+在微信开发者工具打开 `miniprogram/`，使用与项目 AppID 关联的账号开通云开发并创建环境；在云开发控制台复制环境 ID，填入 `config.ts` 的 `cloudEnvId`。小程序启动时会调用 `wx.cloud.init({ env: cloudEnvId })`。环境 ID 不是 AppSecret，不要把 AppSecret 或服务端密钥写进小程序代码。
 
-配置为空时跳过初始化，离线练习仍可用，但发音不可用。配置完成后，在开发者工具中右键 `cloudfunctions/pronunciation`，选择上传并部署云函数，并确认目标环境与当前小程序 AppID 已关联。云函数直接请求有道发音服务，不接受客户端指定的上游地址。小程序将返回的音频写入本地临时文件用于播放，页面关闭时清理。学习进度仍保存在本机，尚未接入云存储题库或进度云同步。
+配置为空时跳过初始化，离线练习仍可用，但发音不可用。云函数源码位于 `cloudfunctions/`；修改后先运行 `npm run build:cloudfunctions`，再在开发者工具中右键生成的 `cloudfunctions-dist/pronunciation` 上传并部署，并确认目标环境与当前小程序 AppID 已关联。生成目录不纳入版本控制。云函数直接请求有道发音服务，不接受客户端指定的上游地址。小程序将返回的音频写入本地临时文件用于播放，页面关闭时清理。学习进度仍保存在本机，尚未接入云存储题库或进度云同步。
+
+### 上传题库到云存储
+
+上传工具在开发电脑运行，适用于传统模式的云开发存储。先安装 [CloudBase CLI](https://docs.cloudbase.net/cli-v1/install) 并执行 `tcb login`，确保登录的账号有目标环境的存储写入权限。无需在小程序代码中填写密钥。
+
+在仓库根目录执行以下命令，先校验并预览：
+
+```sh
+npm run upload:dictionary -- --file web/public/dictionaries/words/CET4_T.json --id CET4_T --kind word --label CET-4
+```
+
+确认题库 ID、数量和环境后，在同一命令末尾加 `--upload` 执行上传。默认使用 `miniprogram/config.ts` 中的环境 ID；如需其他环境，可指定 `--env <环境ID>`。单词库使用 `--kind word`，短语库使用 `--kind phrase`。工具验证字段但不改写文件或条目顺序，并将内容 SHA-256 加入云路径，更新内容会产生新路径。上传后保留终端输出的题库信息，并在云存储控制台查看文件 ID。
+
+批量处理 Web 的 193 个单词库和两个短语库，可先执行 `npm run upload:dictionary -- --all` 预览，再加 `--upload` 上传。工具会先校验全部文件，再逐个上传；如果中途失败，此前成功上传的文件仍保留在云端。
+
+上传文件不会自动添加小程序题库入口；后续还需建立题库目录并接入云存储读取。以前的单词进度依赖题库 ID 和条目顺序，恢复旧题库时应保持二者一致。可运行 `npm run test:dictionary-upload` 验证上传工具。
 
 ## 进度与故障处理
 
@@ -37,7 +53,7 @@
 
 ## 验证
 
-在仓库根目录执行 `npm run test:miniprogram`。这些检查使用 Node 模拟微信 API，不能替代开发工具编译和真机测试。
+在仓库根目录执行 `npm run typecheck:miniprogram`、`npm run test:miniprogram` 和 `npm run test:dictionary-upload`。这些检查使用 Node 模拟微信 API，不能替代开发工具编译和真机测试。
 
 真机验收重点：
 

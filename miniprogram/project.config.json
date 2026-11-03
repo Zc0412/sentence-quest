@@ -25,7 +25,7 @@
     "minifyWXML": true,
     "localPlugins": false,
     "disableUseStrict": false,
-    "useCompilerPlugins": false,
+    "useCompilerPlugins": ["typescript"],
     "condition": false
   },
   "condition": {},
@@ -41,9 +41,13 @@
       {
         "value": "README.md",
         "type": "file"
+      },
+      {
+        "value": "cloudfunctions",
+        "type": "folder"
       }
     ],
     "include": []
   },
-  "cloudfunctionRoot": "cloudfunctions/"
+  "cloudfunctionRoot": "cloudfunctions-dist/"
 }
