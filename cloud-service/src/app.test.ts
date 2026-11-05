@@ -47,3 +47,50 @@ test('大题库分批返回且保持顺序', async () => {
   assert.deepEqual([...first.items, ...second.items], source);
   assert.equal(second.next, null);
 });
+
+test('题库详情只返回可见题库公开资料', async () => {
+  assert.equal((await app.request('/api/dictionaries/hidden')).status, 404);
+  const result = await (await app.request('/api/dictionaries/test')).json() as any;
+  assert.equal(result.dictionary.id, 'test');
+  assert.equal(result.dictionary.fileID, undefined);
+});
+
+test('管理员鉴权、上传、更新和下架', async () => {
+  const token = 'x'.repeat(32);
+  const records = new Map<string, Dictionary>();
+  const files = new Map<string, Buffer>();
+  const admin = createApp({
+    adminToken: token,
+    async list() { return [...records.values()]; },
+    async get(id) { return records.get(id); },
+    async download(id) { return files.get(id)!; },
+    async upload(path, bytes) { const id = `cloud://env/${path}`; files.set(id, bytes); return id; },
+    async create(record) { records.set(record.id, record); },
+    async update(id, fields) { const row = records.get(id); if (!row) return false; records.set(id, { ...row, ...fields }); return true; },
+    async pronounce() { return { ok: false }; },
+  });
+  const request = (path: string, method: string, body?: unknown, key = token) => admin.request(path, { method, headers: { authorization: `Bearer ${key}`, 'content-type': 'application/json' }, ...(body === undefined ? {} : { body: JSON.stringify(body) }) });
+  const data = { id: 'cet4', label: '四级', kind: 'word', entries: [{ name: 'cat', trans: ['n. 猫'] }] };
+  assert.equal((await request('/api/admin/dictionaries', 'POST', data, 'wrong')).status, 401);
+  assert.equal(records.size, 0);
+  assert.equal((await request('/api/admin/dictionaries', 'POST', { ...data, entries: [] })).status, 400);
+  assert.equal((await request('/api/admin/dictionaries', 'POST', data)).status, 201);
+  assert.equal((await request('/api/admin/dictionaries', 'POST', data)).status, 409);
+  const old = records.get('cet4')!;
+  assert.equal(old.wordCount, 1);
+  assert.equal(JSON.parse(files.get(old.fileID)!.toString())[0].name, 'cat');
+  assert.equal((await request('/api/admin/dictionaries/cet4', 'PUT', { kind: 'phrase' })).status, 400);
+  assert.equal((await request('/api/admin/dictionaries/cet4', 'PUT', { label: '新四级', entries: [{ name: 'dog', trans: ['n. 狗'] }] })).status, 200);
+  assert.notEqual(records.get('cet4')!.sha256, old.sha256);
+  assert.equal((await request('/api/admin/dictionaries/cet4', 'DELETE')).status, 200);
+  assert.equal(records.get('cet4')!.status, 'archived');
+  assert.equal((await admin.request('/api/dictionaries/cet4')).status, 404);
+  assert.equal((await request('/api/admin/dictionaries/cet4', 'PUT', { status: 'published' })).status, 200);
+  assert.equal((await admin.request('/api/dictionaries/cet4')).status, 200);
+  assert.equal((await request('/api/admin/dictionaries/missing', 'DELETE')).status, 404);
+});
+
+test('没有配置管理员令牌时拒绝写入', async () => {
+  const response = await app.request('/api/admin/dictionaries', { method: 'POST', headers: { authorization: `Bearer ${'x'.repeat(32)}` } });
+  assert.equal(response.status, 401);
+});

@@ -15,6 +15,21 @@ function check(result: any) {
 }
 
 const app = createApp({
+  // 管理令牌只从容器环境变量读取，不发送给普通小程序用户。
+  adminToken: process.env.DICTIONARY_ADMIN_TOKEN,
+  // 上传经接口校验后的 JSON，并记录云存储返回的真实文件 ID。
+  async upload(cloudPath, bytes) {
+    const result = check(await cloud.uploadFile({ cloudPath, fileContent: bytes }));
+    if (typeof result.fileID !== 'string' || !result.fileID.startsWith('cloud://')) throw new Error('云存储未返回有效文件 ID');
+    return result.fileID;
+  },
+  // 使用题库 ID 作为文档 ID，新建时由数据库保证唯一性。
+  async create(record) { check(await collection.add({ _id: record.id, ...record })); },
+  // 更新字段并保留未修改的其他管理信息。
+  async update(id, fields) {
+    const result = check(await collection.doc(id).update(fields));
+    return result.updated !== 0;
+  },
   // 分页读取全部记录，避免只返回数据库默认页的题库。
   async list() {
     const rows: Dictionary[] = [];

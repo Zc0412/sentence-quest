@@ -25,7 +25,7 @@
 
 在微信开发者工具打开 `miniprogram/`，使用与项目 AppID 关联的账号开通云开发并创建环境；在云开发控制台复制环境 ID，填入 `config.ts` 的 `cloudEnvId`。小程序启动时会调用 `wx.cloud.init({ env: cloudEnvId })`。环境 ID 不是 AppSecret，不要把 AppSecret 或服务端密钥写进小程序代码。
 
-配置为空时跳过初始化，离线练习仍可用。将 `cloud-service/` 部署为微信云托管服务，并在 `config.ts` 的 `cloudServiceName` 填入实际服务名（默认 `sentleap-api`）。小程序通过 `wx.cloud.callContainer` 请求服务，具体部署、权限和验证方式见 [云托管服务说明](../cloud-service/README.md)。发音返回 Base64 音频并写入本地临时文件，页面关闭时清理；学习进度仍保存在本机。
+配置为空时跳过初始化，离线练习仍可用。将 `cloud-service/` 部署为微信云托管服务，并在 `config.ts` 的 `cloudServiceName` 填入实际服务名（当前为 `sentleap-service`）。小程序通过 `wx.cloud.callContainer` 请求服务，具体部署、权限和验证方式见 [云托管服务说明](../cloud-service/README.md)。发音返回 Base64 音频并写入本地临时文件，页面关闭时清理；学习进度仍保存在本机。
 
 “全部题库”先显示内置及上次缓存的目录，再刷新云端目录；读取题库后按内容 SHA-256 缓存在本地。缓存受设备空间限制，缓存写入失败时仍可进行本次练习。云端不可用时内置题库仍可练习。旧云题库重新上线时应保持题库 ID 和条目顺序不变，以便继续使用本地进度。
 
