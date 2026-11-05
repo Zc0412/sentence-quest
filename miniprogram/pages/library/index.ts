@@ -1,10 +1,13 @@
+/** 全部题库页面：展示离线和云端题库，并提供分类、搜索与练习入口。 */
+import { refreshCloud } from '../../utils/catalog';
 import * as storage from '../../utils/storage';
 import { navigationMetrics } from '../../utils/navigation';
 import { libraryItems, recentIds } from '../../utils/library-list';
 Page({
   data: { statusBarHeight: 24, navigationHeight: 44, kind: 'word', filter: 'all', query: '', lists: [], filters: [], phraseCount: 0, wordCount: 0, filterLabel: '全部' },
   onLoad() { this.setData(navigationMetrics()); },
-  onShow() { this.refresh(); },
+  // 先显示本地目录，再刷新云端题库。
+  onShow() { this.refresh(); refreshCloud().then(() => this.refresh()).catch(() => {}); },
   refresh() {
     const state = storage.read(); const all = libraryItems(state); const recent = recentIds(state);
     const selected = all.filter((item) => item.kind === this.data.kind);

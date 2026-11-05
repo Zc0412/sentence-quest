@@ -1,3 +1,3 @@
-// 发音通过云函数请求，环境 ID 在云开发控制台获取。
-const config = { cloudEnvId: 'cloud1-d1g074jp484d32a9f' };
+// 云环境 ID 与已部署的云托管服务名。
+const config = { cloudEnvId: 'cloud1-d1g074jp484d32a9f', cloudServiceName: 'sentleap-api' };
 export default config;

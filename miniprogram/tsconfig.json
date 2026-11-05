@@ -4,13 +4,19 @@
     "module": "commonjs",
     "moduleResolution": "node",
     "esModuleInterop": true,
-    "lib": ["ES2020"],
-    "types": ["miniprogram-api-typings", "node"],
+    "lib": [
+      "ES2020"
+    ],
+    "types": [
+      "miniprogram-api-typings",
+      "node"
+    ],
     "skipLibCheck": true,
     "noEmit": true,
     "strict": false,
     "moduleDetection": "force"
   },
-  "include": ["**/*.ts"],
-  "exclude": ["cloudfunctions-dist", "cloudfunctions"]
+  "include": [
+    "**/*.ts"
+  ]
 }

@@ -1,16 +1,19 @@
 #!/usr/bin/env node
 import * as fs from 'node:fs';
 import * as path from 'node:path';
-import * as os from 'node:os';
 import * as crypto from 'node:crypto';
-import { spawnSync } from 'node:child_process';
+import * as cloudbase from '@cloudbase/node-sdk';
 import config from '../miniprogram/config';
-interface UploadOptions { file?: string; id?: string; kind?: string; label?: string; env?: string; upload?: boolean; help?: boolean; all?: boolean }
+interface UploadOptions { file?: string; id?: string; kind?: string; label?: string; category?: string; env?: string; upload?: boolean; help?: boolean; all?: boolean }
+interface DictionaryMetadata { id: string; label: string; kind: string; category: string; wordCount: number; sha256: string; cloudPath: string; envId: string }
+interface Plan { bytes: Buffer; metadata: DictionaryMetadata }
+interface DocumentRef { get(): Promise<any>; update(data: object): Promise<any> }
+interface CloudClient { uploadFile(options: { cloudPath: string; fileContent: Buffer }): Promise<any>; database(): { collection(name: string): { doc(id: string): DocumentRef; add(data: object): Promise<any> } } }
 
 function usage() {
-  console.log('用法: npm run upload:dictionary -- --file <JSON文件> --id <题库ID> --kind <word|phrase> --label <名称> [--env <环境ID>] [--upload]');
+  console.log('用法: npm run upload:dictionary -- --file <JSON文件> --id <题库ID> --kind <word|phrase> --label <名称> [--category <分类>] [--env <环境ID>] [--upload]');
   console.log('批量上传 Web 题库: npm run upload:dictionary -- --all [--env <环境ID>] [--upload]');
-  console.log('默认只校验并显示上传计划；加 --upload 才使用已登录的 tcb 上传。');
+  console.log('默认只校验并显示上传计划；加 --upload 后上传并写入云数据库 dictionaries 集合。');
 }
 function argumentsOf(args: string[]): UploadOptions {
   const options: UploadOptions = {}; const flags = new Set(['upload', 'help', 'all']);
@@ -19,7 +22,7 @@ function argumentsOf(args: string[]): UploadOptions {
     if (!arg.startsWith('--')) throw new Error(`不支持的参数: ${arg}`);
     const key = arg.slice(2);
     if (flags.has(key)) { options[key] = true; continue; }
-    if (!['file', 'id', 'kind', 'label', 'env'].includes(key) || !args[i + 1] || args[i + 1].startsWith('--')) throw new Error(`参数 ${arg} 无效或缺少值`);
+    if (!['file', 'id', 'kind', 'label', 'category', 'env'].includes(key) || !args[i + 1] || args[i + 1].startsWith('--')) throw new Error(`参数 ${arg} 无效或缺少值`);
     options[key] = args[++i];
   }
   return options;
@@ -40,15 +43,40 @@ function prepare(options: UploadOptions) {
     if (options.kind === 'phrase') { if (ids.has(row.id)) throw new Error(`第 ${index + 1} 条的 ID 重复: ${row.id}`); ids.add(row.id); }
   });
   const sha256 = crypto.createHash('sha256').update(bytes).digest('hex');
-  return { bytes, metadata: { id: options.id, label: options.label, kind: options.kind, wordCount: rows.length, sha256, cloudPath: `dictionaries/${options.kind}/${options.id}/${sha256}.json`, envId: options.env || config.cloudEnvId } };
+  return { bytes, metadata: { id: options.id, label: options.label, kind: options.kind, category: options.category || (options.kind === 'word' ? '单词练习' : '短语练习'), wordCount: rows.length, sha256, cloudPath: `dictionaries/${options.kind}/${options.id}/${sha256}.json`, envId: options.env || config.cloudEnvId } };
 }
-function main(args) {
+function checkResult(result: any, action: string) {
+  if (result && result.code && result.code !== 0 && result.code !== '0') throw new Error(`${action}失败: ${result.message || result.code}`);
+  if (result && result.error) throw new Error(`${action}失败: ${result.error.message || result.error}`);
+}
+async function uploadAndRecord(plan: Plan, app: CloudClient) {
+  const { bytes, metadata } = plan;
+  const collection = app.database().collection('dictionaries');
+  const doc = collection.doc(metadata.id);
+  const existing = await doc.get(); checkResult(existing, '读取题库记录');
+  const uploaded = await app.uploadFile({ cloudPath: metadata.cloudPath, fileContent: bytes });
+  checkResult(uploaded, '上传文件');
+  if (typeof uploaded.fileID !== 'string' || !uploaded.fileID.startsWith('cloud://')) throw new Error('上传未返回有效文件 ID，无法写入数据库');
+  const now = new Date().toISOString();
+  const { envId, ...fields } = metadata;
+  const record = { ...fields, fileID: uploaded.fileID, updatedAt: now };
+  try {
+    const exists = Array.isArray(existing.data) ? existing.data.length > 0 : Boolean(existing.data);
+    const saved = exists ? await doc.update(record) : await collection.add({ _id: metadata.id, ...record, createdAt: now });
+    checkResult(saved, '写入题库记录');
+    if (exists && saved && saved.updated === 0) throw new Error('题库记录已变化，请重新运行');
+  } catch (error) {
+    throw new Error(`文件已上传，但数据库写入失败。fileID: ${uploaded.fileID}；可重新运行相同命令重试。原因: ${error.message}`);
+  }
+  return record;
+}
+async function main(args: string[]) {
   const options = argumentsOf(args);
   if (options.help) { usage(); return; }
-  if (options.all && ['file', 'id', 'kind', 'label'].some((key) => options[key])) throw new Error('--all 不能与单题库参数同时使用');
+  if (options.all && ['file', 'id', 'kind', 'label', 'category'].some((key) => options[key])) throw new Error('--all 不能与单题库参数同时使用');
   const base = path.resolve(__dirname, '../web/public/dictionaries/words');
   const selected = options.all ? [
-    ...JSON.parse(fs.readFileSync(path.join(base, '../../../src/data/vocabulary-catalog.json'), 'utf8')).map((list) => ({ file: path.join(base, `${list.id}.json`), id: list.id, label: list.label, kind: 'word', env: options.env })),
+    ...JSON.parse(fs.readFileSync(path.join(base, '../../../src/data/vocabulary-catalog.json'), 'utf8')).map((list) => ({ file: path.join(base, `${list.id}.json`), id: list.id, label: list.label, category: list.category, kind: 'word', env: options.env })),
     { file: path.join(base, 'everyday-expressions-900.json'), id: 'phrase-sentences', label: '常用表达 · 场景篇', kind: 'phrase', env: options.env },
     { file: path.join(base, 'basic-sentence-patterns-1000.json'), id: 'phrase-english-sentences', label: '常用表达 · 句型篇', kind: 'phrase', env: options.env },
   ] : [options];
@@ -56,20 +84,16 @@ function main(args) {
   if (plans.some(({ metadata }) => !metadata.envId)) throw new Error('缺少云环境 ID，请使用 --env 指定');
   console.log(JSON.stringify(options.all ? plans.map(({ metadata }) => metadata) : plans[0].metadata, null, 2));
   if (!options.upload) { console.log('以上为预览，未上传。添加 --upload 后执行上传。'); return; }
-  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'sentleap-upload-'));
-  try {
-    for (const { bytes, metadata } of plans) {
-      console.log(`正在上传 ${metadata.id}…`);
-      const snapshot = path.join(dir, `${metadata.id}.json`); fs.writeFileSync(snapshot, bytes);
-      const result = spawnSync('tcb', ['storage', 'upload', snapshot, metadata.cloudPath, '-e', metadata.envId], { stdio: 'inherit' });
-      if (result.error && (result.error as NodeJS.ErrnoException).code === 'ENOENT') throw new Error('未找到 tcb，请安装 @cloudbase/cli 并登录');
-      if (result.error) throw result.error;
-      if (result.status !== 0) throw new Error(`${metadata.id} 上传失败（退出码 ${result.status ?? '未知'}），此前成功的文件仍保留在云端`);
-    }
-    console.log('上传成功。请保留以上题库 ID、SHA-256 和云存储路径；接入小程序时需要对应文件 ID。');
-  } finally { fs.rmSync(dir, { recursive: true, force: true }); }
+  if (!process.env.CLOUDBASE_APIKEY && !(process.env.TENCENTCLOUD_SECRETID && process.env.TENCENTCLOUD_SECRETKEY)) throw new Error('请在本机环境变量配置云开发 API Key 或腾讯云密钥对；不要将密钥写入代码');
+  const app = cloudbase.init({ env: plans[0].metadata.envId });
+  for (const plan of plans) {
+    console.log(`正在上传 ${plan.metadata.id}…`);
+    const record = await uploadAndRecord(plan, app);
+    console.log(`已登记 ${record.id}：${record.fileID}`);
+  }
+  console.log('上传完成，文件 ID 和题库资料已写入云数据库 dictionaries 集合。');
 }
 if (process.argv[1] && path.resolve(process.argv[1]) === path.resolve(__filename)) {
-  try { main(process.argv.slice(2)); } catch (error) { console.error(`上传工具：${error.message}`); process.exitCode = 1; }
+  main(process.argv.slice(2)).catch((error) => { console.error(`上传工具：${error.message}`); process.exitCode = 1; });
 }
-export { argumentsOf, prepare };
+export { argumentsOf, prepare, uploadAndRecord };

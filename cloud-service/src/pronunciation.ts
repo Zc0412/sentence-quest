@@ -1,9 +1,12 @@
+/** 请求有道发音并限制返回大小，供云托管发音接口使用。 */
 import * as https from 'node:https';
 import { createHash } from 'node:crypto';
 
-const MAX_AUDIO_BYTES = 1024 * 1024;
+// Base64 会增加数据体积，限制音频大小以适应云托管响应。
+const MAX_AUDIO_BYTES = 512 * 1024;
 const UPSTREAM = 'https://dict.youdao.com/pronounce/base';
 
+/** 校验单词和口音后请求音频，返回可供小程序保存的 Base64。 */
 export async function main(event: { word?: unknown; type?: string } = {}) {
   const word = typeof event.word === 'string' ? event.word.trim() : '';
   const type = event.type;

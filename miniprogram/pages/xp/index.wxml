@@ -1,3 +1,4 @@
+<!-- 经验值页面：展示累计值、明细和获取规则。 -->
 <import src="../../templates/glass.wxml" />
 <view class="glass-page xp-page">
   <template is="ambient" />
