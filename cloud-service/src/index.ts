@@ -39,4 +39,4 @@ const app = createApp({
   pronounce,
 });
 
-serve({ fetch: app.fetch, port: Number(process.env.PORT || 80), hostname: '0.0.0.0' });
+serve({ fetch: app.fetch, port: Number(process.env.PORT || 8080), hostname: '0.0.0.0' });
