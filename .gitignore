@@ -10,3 +10,8 @@ dist/
 
 *.tsbuildinfo
 miniprogram/project.private.config.json
+
+# 本地云服务环境配置（示例文件可提交）
+cloud-service/.env
+cloud-service/.env.*
+!cloud-service/.env.example

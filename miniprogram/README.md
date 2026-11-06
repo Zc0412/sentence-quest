@@ -31,7 +31,9 @@
 
 ### 上传题库到云存储
 
-上传工具在开发电脑运行，适用于传统模式的云开发存储与文档型数据库。先在目标云环境创建 `dictionaries` 数据库集合，并在本机环境变量中配置有该环境云存储及数据库操作权限的 `CLOUDBASE_APIKEY`，或 `TENCENTCLOUD_SECRETID` 和 `TENCENTCLOUD_SECRETKEY`。不要将密钥写入项目文件或发送给他人；建议使用权限受限的账号。[CloudBase Node SDK 鉴权说明](https://docs.cloudbase.net/recipes/add-ai-nextjs)。`tcb login` 的 CLI 登录态不能代替此工具所需的 SDK 凭据。
+需同时安装根目录及 `cloud-service/` 依赖，并配置 MySQL 连接信息，详见 [MySQL 配置](../cloud-service/README.md#mysql-配置)。本机必须能连接目标 MySQL。
+
+上传工具在开发电脑运行，适用于云开发存储与云托管 MySQL。先在目标 MySQL 数据库执行 `cloud-service/sql/001-dictionaries.sql` 创建 `dictionaries` 表，并在本机环境变量中配置有该环境云存储操作权限的 `CLOUDBASE_APIKEY`，或 `TENCENTCLOUD_SECRETID` 和 `TENCENTCLOUD_SECRETKEY`。不要将密钥写入项目文件或发送给他人；建议使用权限受限的账号。[CloudBase Node SDK 鉴权说明](https://docs.cloudbase.net/recipes/add-ai-nextjs)。`tcb login` 的 CLI 登录态不能代替此工具所需的 SDK 凭据。
 
 在仓库根目录执行以下命令，先校验并预览：
 
@@ -41,7 +43,7 @@ npm run upload:dictionary -- --file web/public/dictionaries/words/CET4_T.json --
 
 确认题库 ID、数量和环境后，在同一命令末尾加 `--upload` 执行上传。默认使用 `miniprogram/config.ts` 中的环境 ID；如需其他环境，可指定 `--env <环境ID>`。单词库使用 `--kind word`，短语库使用 `--kind phrase`；可通过 `--category <分类>` 指定分类。工具验证字段但不改写文件或条目顺序，并将内容 SHA-256 加入云路径，更新内容会产生新路径。
 
-上传成功后，工具将云存储返回的 `fileID` 与题库 ID、名称、分类、类型、条目数、SHA-256、云路径和时间写入 `dictionaries` 集合。文档 ID 为题库 ID；同 ID 已存在时只更新这些字段，保留其他管理字段和原始创建时间。云存储与数据库不能作为同一个事务：若文件上传成功但数据库写入失败，工具会输出文件 ID，可修复问题后运行相同命令重试；不会自动删除已上传的文件。
+上传成功后，工具将云存储返回的 `fileID` 与题库 ID、名称、分类、类型、条目数、SHA-256、云路径和时间写入 MySQL `dictionaries` 表。表主键为题库 ID；同 ID 已存在时只更新这些字段，保留其他管理字段和原始创建时间。云存储与数据库不能作为同一个事务：若文件上传成功但数据库写入失败，工具会输出文件 ID，可修复问题后运行相同命令重试；不会自动删除已上传的文件。
 
 批量处理 Web 的 193 个单词库和两个短语库，可先执行 `npm run upload:dictionary -- --all` 预览，再加 `--upload` 上传。工具会先校验全部文件，再逐个上传；如果中途失败，此前成功上传的文件仍保留在云端。
 

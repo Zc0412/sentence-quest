@@ -491,7 +491,7 @@ delete require.cache[storagePath];
   await Promise.resolve(); await Promise.resolve();
   assert.equal(plays, playsBeforeWord + 1, '离开页面后不能播放延迟完成的预加载音频');
   wordAudio.onUnload(); assert.ok(deletedAudio.includes(writtenAudio[1].filePath));
-  const pronunciationFunction = require('../cloud-service/src/pronunciation.ts');
+  const pronunciationFunction = require('../cloud-service/src/services/pronunciation.ts');
   const https = require('node:https'); const { EventEmitter } = require('node:events');
   const originalGet = https.get; let requestedUrl;
   https.get = (url, callback) => {

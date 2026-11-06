@@ -1,7 +1,8 @@
 /** 验证云托管接口的题库访问边界和发音参数转发。 */
 import { test } from 'node:test';
 import { strict as assert } from 'node:assert';
-import { createApp, type Dictionary } from './app';
+import {createApp} from '../app';
+import type {Dictionary} from '../types/services';
 
 const published: Dictionary = { id: 'test', label: '测试', kind: 'word', category: '单词', wordCount: 1, sha256: 'a'.repeat(64), fileID: 'cloud://test/file' };
 const hidden = { ...published, id: 'hidden', status: 'draft' };
@@ -10,6 +11,20 @@ const app = createApp({
   async get(id) { return [published, hidden].find((row) => row.id === id); },
   async download(fileID) { assert.equal(fileID, published.fileID); return Buffer.from('[{"name":"cat"}]'); },
   async pronounce(event) { return event.word === 'cat' && event.type === '1' ? { ok: true, audio: 'YQ==' } : { ok: false, error: '无效' }; },
+});
+
+test('Swagger UI 与 OpenAPI 文档可访问', async () => {
+  const ui = await app.request('/swagger');
+  assert.equal(ui.status, 200);
+  assert.match(ui.headers.get('content-type') || '', /text\/html/);
+  assert.match(await ui.text(), /swagger-ui/);
+
+  const response = await app.request('/openapi.json');
+  assert.equal(response.status, 200);
+  const document = await response.json() as any;
+  assert.equal(document.openapi, '3.0.3');
+  assert.ok(document.paths['/api/admin/dictionaries/{id}'].delete);
+  assert.equal(document.components.securitySchemes.AdminBearerAuth.scheme, 'bearer');
 });
 
 test('目录不暴露文件 ID 或未发布题库', async () => {

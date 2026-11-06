@@ -2,10 +2,14 @@
   "dependencies": {
     "@cloudbase/node-sdk": "^3.18.7",
     "@hono/node-server": "^2.1.6",
-    "hono": "^4.13.16"
+    "@hono/swagger-ui": "^0.6.2",
+    "drizzle-orm": "^0.45.4",
+    "hono": "^4.13.16",
+    "mysql2": "^3.24.6"
   },
   "devDependencies": {
     "@types/node": "^26.6.6",
+    "drizzle-kit": "^0.31.11",
     "tsx": "^4.23.15",
     "typescript": "^7.0.2"
   },
@@ -14,7 +18,10 @@
   "private": true,
   "scripts": {
     "build": "tsc -p tsconfig.json",
-    "start": "node dist/index.js",
-    "test": "node --import tsx --test src/app.test.ts"
+    "start": "node --env-file=.env dist/index.js",
+    "test": "node --import tsx --test src/tests/*.test.ts",
+    "dev": "node --env-file=.env --import tsx src/index.ts",
+    "db:generate": "node node_modules/drizzle-kit/bin.cjs generate",
+    "db:migrate": "node --env-file=.env node_modules/drizzle-kit/bin.cjs migrate"
   }
 }
