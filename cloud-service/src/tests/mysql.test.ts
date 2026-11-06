@@ -2,6 +2,7 @@
 import {test} from 'node:test';
 import {strict as assert} from 'node:assert';
 import {createDatabasePool} from '../db/mysql';
+import {createDatabaseIfMissing} from '../db/provision';
 import {createDictionaryRepository} from '../repositories/dictionary';
 
 test('缺少数据库配置时明确报错', () => {
@@ -12,7 +13,24 @@ test('缺少数据库配置时明确报错', () => {
     }), /MYSQL_PORT/);
 });
 
-test('题库 ID 参数绑定，更新仅允许指定列且不改变创建时间', async () => {
+test('初始化数据库时转义名称并拒绝无效长度', async () => {
+    const statements: string[] = [];
+    const connection = {
+        async query(sql: string) {
+            statements.push(sql);
+            return [{}, []];
+        },
+    };
+
+    await createDatabaseIfMissing(connection as any, 'sent`leap');
+    assert.deepEqual(statements, [
+        'CREATE DATABASE IF NOT EXISTS `sent``leap` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci',
+    ]);
+    await assert.rejects(createDatabaseIfMissing(connection as any, 'x'.repeat(65)), /1 到 64 个字符/);
+    assert.equal(statements.length, 1);
+});
+
+test('题库 ID 参数绑定，更新上传元数据但不改变 ID 和创建时间', async () => {
     const calls: {sql: string; values: unknown[]}[] = [];
     const pool = {
         /** 模拟执行结果，记录参数化查询用于检查边界。 */
@@ -27,33 +45,50 @@ test('题库 ID 参数绑定，更新仅允许指定列且不改变创建时间'
     await repository.get(id);
     assert.ok(!calls[0].sql.includes(id));
     assert.deepEqual(calls[0].values, [id]);
-    assert.equal(await repository.update('test', {label: '新名称', createdAt: '禁止修改', id: 'other', status: 'archived'}), true);
-    assert.match(calls[1].sql, /update `dictionaries` set `label` = \?, `status` = \? where/);
-    assert.deepEqual(calls[1].values, ['新名称', 'archived', 'test']);
+    assert.equal(await repository.update('test', {
+        label: '新名称',
+        createdAt: '禁止修改',
+        fileID: 'cloud://env/file',
+        sha256: 'a'.repeat(64),
+        cloudPath: 'dictionaries/word/test/new.json',
+        wordCount: 2,
+        kind: 'word',
+        id: 'other',
+        status: 'archived',
+    }), true);
+    assert.match(calls[1].sql, /update `dictionaries` set `label` = \?, `kind` = \?, `wordCount` = \?, `sha256` = \?, `fileID` = \?, `cloudPath` = \?, `status` = \? where/);
+    assert.deepEqual(calls[1].values, [
+        '新名称', 'word', 2, 'a'.repeat(64), 'cloud://env/file',
+        'dictionaries/word/test/new.json', 'archived', 'test',
+    ]);
 });
 
-test('新增题库绑定全部字段，数据库唯一约束错误向上返回', async () => {
+test('新增题库时参数化写入全部上传元数据', async () => {
     let supplied: unknown[] = [];
-    const duplicate = new Error('duplicate');
     const repository = createDictionaryRepository({
-        /** 模拟 MySQL 主键冲突，验证不静默覆盖已有题库。 */
         async query(options: {sql: string}, values: unknown[]) {
-            const sql = options.sql;
-            assert.ok(sql.startsWith('insert into `dictionaries`'));
+            assert.ok(options.sql.startsWith('insert into `dictionaries`'));
             supplied = values;
-            throw duplicate;
+            return [{affectedRows: 1}, []];
         },
     } as any);
     const record = {
-        id: 'CET4_T', label: '四级', kind: 'word', category: '英语',
-        wordCount: 1, sha256: 'a'.repeat(64), fileID: 'cloud://env/file',
-        cloudPath: 'dictionaries/test.json',
-        createdAt: '2026-11-06T00:00:00.000Z', updatedAt: '2026-11-06T00:00:00.000Z',
+        id: 'CET4_T',
+        label: '四级',
+        kind: 'word' as const,
+        category: '英语',
+        wordCount: 1,
+        sha256: 'a'.repeat(64),
+        fileID: 'cloud://env/file',
+        cloudPath: 'dictionaries/word/CET4_T/test.json',
+        status: 'published',
+        createdAt: '2026-11-06T00:00:00.000Z',
+        updatedAt: '2026-11-06T00:00:00.000Z',
     };
-    await assert.rejects(repository.create(record), (error: any) => error === duplicate || error.cause === duplicate);
+    await repository.create(record);
     assert.deepEqual(supplied, [
         record.id, record.label, record.kind, record.category, record.wordCount,
-        record.sha256, record.fileID, record.cloudPath, 'published',
+        record.sha256, record.fileID, record.cloudPath, record.status,
         record.createdAt, record.updatedAt,
     ]);
 });

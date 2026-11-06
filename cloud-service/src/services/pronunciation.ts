@@ -10,7 +10,7 @@ const UPSTREAM = 'https://dict.youdao.com/pronounce/base';
 export async function main(event: { word?: unknown; type?: string } = {}) {
   const word = typeof event.word === 'string' ? event.word.trim() : '';
   const type = event.type;
-  if (!word || word.length > 500 || !/^[a-zA-Z][a-zA-Z\s'’\-.,!?;:()"]*$/.test(word) || !['1', '2'].includes(type)) {
+  if (!word || word.length > 500 || !/^[a-zA-Z][a-zA-Z\s'’\-.,!?;:()"]*$/.test(word) || (type !== '1' && type !== '2')) {
     return { ok: false, error: '发音内容或口音无效' };
   }
   const url = new URL(UPSTREAM);
@@ -25,7 +25,7 @@ export async function main(event: { word?: unknown; type?: string } = {}) {
         if (response.statusCode !== 200 || (!contentType.startsWith('audio/') && contentType !== 'application/octet-stream')) {
           response.resume(); reject(new Error('invalid audio response')); return;
         }
-        const chunks = []; let size = 0;
+        const chunks: Buffer[] = []; let size = 0;
         response.on('data', (chunk) => { size += chunk.length; if (size > MAX_AUDIO_BYTES) response.destroy(new Error('audio too large')); else chunks.push(chunk); });
         response.on('end', () => { if (!size) reject(new Error('empty audio')); else resolve(Buffer.concat(chunks)); });
         response.on('error', reject);
@@ -35,7 +35,11 @@ export async function main(event: { word?: unknown; type?: string } = {}) {
     });
     return { ok: true, audio: audio.toString('base64') };
   } catch (error) {
-    console.warn('pronunciation upstream failed:', error.code || error.message || 'unknown error');
+    const code = error && typeof error === 'object' && 'code' in error && typeof error.code === 'string'
+      ? error.code
+      : undefined;
+    const message = error instanceof Error ? error.message : undefined;
+    console.warn('pronunciation upstream failed:', code || message || 'unknown error');
     return { ok: false, error: '发音服务暂不可用' };
   }
 }

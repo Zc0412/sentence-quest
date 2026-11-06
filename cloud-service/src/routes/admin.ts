@@ -1,92 +1,250 @@
-/** admin 路由：处理对应 HTTP 请求与响应。 */
-import { Hono } from 'hono';
-import type { Services, Dictionary } from '../types/services';
-import { InputError, prepareDictionary, validId, type DictionaryWrite } from '../schemas/dictionary';
-import { publicMetadata } from '../utils/dictionary';
-import { adminAuth } from '../middleware/admin-auth';
-import { bodyLimit } from 'hono/body-limit';
-/** 创建路由并注入后端服务依赖。 */
+/** 管理员题库路由：用 Zod 校验输入并为 Swagger 生成接口文档。 */
+import {createRoute, OpenAPIHono, z} from '@hono/zod-openapi';
+import {bodyLimit} from 'hono/body-limit';
+import type {Services, Dictionary} from '../types/services';
+import {InputError, prepareDictionary, CreateDictionarySchema, UpdateDictionarySchema} from '../schemas/dictionary';
+import type {DictionaryWrite} from '../schemas/dictionary';
+import {DictionaryIdSchema, DictionaryResponseSchema, JsonErrorResponse, ServerErrorResponse, SuccessResponseSchema, zodValidationErrorHandler} from '../schemas/http';
+import {publicMetadata} from '../utils/dictionary';
+import {adminAuth} from '../middleware/admin-auth';
+
+const dictionaryParamsSchema = z.object({
+    id: DictionaryIdSchema,
+});
+
+const createDictionaryRoute = createRoute({
+    method: 'post',
+    path: '/api/admin/dictionaries',
+    tags: ['Admin'],
+    summary: '上传并创建题库',
+    description: '上传题库 JSON 并登记到数据库；此接口暂不鉴权，请勿在公网环境开放。请求体最大 5 MiB。',
+    request: {
+        body: {
+            required: true,
+            content: {'application/json': {schema: CreateDictionarySchema}},
+        },
+    },
+    responses: {
+        400: {...JsonErrorResponse, description: '请求内容无效'},
+        201: {
+            description: '题库已上传并登记',
+            content: {'application/json': {schema: DictionaryResponseSchema}},
+        },
+        409: {...JsonErrorResponse, description: '题库 ID 已存在'},
+        413: {...JsonErrorResponse, description: '请求体超过 5 MiB'},
+        415: {...JsonErrorResponse, description: '请求体必须使用 application/json'},
+        500: ServerErrorResponse,
+    },
+});
+
+const uploadDictionaryFileRoute = createRoute({
+    method: 'post',
+    path: '/api/admin/upload-dictionary',
+    tags: ['Admin'],
+    summary: '通过 JSON 文件上传题库',
+    description: '选择本地 JSON 文件并填写题库资料；此接口暂不鉴权，请勿在公网环境开放。',
+    request: {
+        body: {
+            required: true,
+            content: {
+                'multipart/form-data': {
+                    schema: z.object({
+                        id: z.string().regex(/^[a-zA-Z0-9][a-zA-Z0-9._-]{0,79}$/),
+                        label: z.string().min(1).max(100),
+                        kind: z.enum(['word', 'phrase']),
+                        category: z.string().max(100).optional(),
+                        status: z.enum(['published', 'draft', 'archived']).optional(),
+                        file: z.file().openapi({
+                            type: 'string',
+                            format: 'binary',
+                            description: 'JSON 文件内容为题库条目数组',
+                        }),
+                    }).openapi('UploadDictionaryFileRequest'),
+                },
+            },
+        },
+    },
+    responses: {
+        201: {
+            description: '题库已上传并登记',
+            content: {'application/json': {schema: DictionaryResponseSchema}},
+        },
+        400: {...JsonErrorResponse, description: 'JSON 文件格式或题库内容无效'},
+        409: {...JsonErrorResponse, description: '题库 ID 已存在'},
+        413: {...JsonErrorResponse, description: '请求体超过 5 MiB'},
+        500: ServerErrorResponse,
+    },
+});
+
+const updateDictionaryRoute = createRoute({
+    method: 'put',
+    path: '/api/admin/dictionaries/{id}',
+    tags: ['Admin'],
+    summary: '更新题库资料',
+    description: '只能更新元数据；提交 entries 替换题库 JSON 的操作暂时禁用。题库 ID 和类型不可修改。',
+    security: [{AdminBearerAuth: []}],
+    request: {
+        params: dictionaryParamsSchema,
+        body: {
+            required: true,
+            content: {'application/json': {schema: UpdateDictionarySchema}},
+        },
+    },
+    responses: {
+        200: {
+            description: '题库已更新',
+            content: {'application/json': {schema: DictionaryResponseSchema}},
+        },
+        400: {...JsonErrorResponse, description: '请求内容无效'},
+        401: {...JsonErrorResponse, description: '缺少或提供了无效的管理员令牌'},
+        403: {...JsonErrorResponse, description: '题库 JSON 替换暂时禁用'},
+        404: {...JsonErrorResponse, description: '题库不存在'},
+        413: {...JsonErrorResponse, description: '请求体超过 5 MiB'},
+        415: {...JsonErrorResponse, description: '请求体必须使用 application/json'},
+        500: ServerErrorResponse,
+    },
+});
+
+const archiveDictionaryRoute = createRoute({
+    method: 'delete',
+    path: '/api/admin/dictionaries/{id}',
+    tags: ['Admin'],
+    summary: '下架题库',
+    description: '将题库状态改为 archived，不删除数据库记录或云文件。',
+    security: [{AdminBearerAuth: []}],
+    request: {params: dictionaryParamsSchema},
+    responses: {
+        200: {
+            description: '题库已下架',
+            content: {'application/json': {schema: SuccessResponseSchema}},
+        },
+        400: {...JsonErrorResponse, description: '题库 ID 无效'},
+        401: {...JsonErrorResponse, description: '缺少或提供了无效的管理员令牌'},
+        404: {...JsonErrorResponse, description: '题库不存在'},
+        500: ServerErrorResponse,
+    },
+});
+
+class DictionaryConflictError extends Error {
+}
+
+/** 上传校验后的 JSON 字节并登记题库元数据。 */
+async function saveDictionary(
+    services: Services,
+    input: z.infer<typeof CreateDictionarySchema>,
+): Promise<ReturnType<typeof publicMetadata>> {
+    if (await services.get(input.id)) {
+        throw new DictionaryConflictError('题库 ID 已存在');
+    }
+    const plan = prepareDictionary(input);
+    if (!plan.bytes || !plan.fields.id || !plan.fields.cloudPath) {
+        throw new Error('题库上传数据准备失败');
+    }
+    if (!services.upload || !services.create) {
+        throw new Error('题库上传服务未配置');
+    }
+    const fileID = await services.upload(plan.fields.cloudPath, plan.bytes);
+    const now = new Date().toISOString();
+    const record = {
+        ...plan.fields,
+        fileID,
+        createdAt: now,
+        updatedAt: now,
+    };
+    await services.create(record as DictionaryWrite);
+    return publicMetadata(record as Dictionary);
+}
+
+/** 创建管理员路由；保留鉴权、请求体大小限制及失败诊断。 */
 export function createRoutes(services: Services) {
-    const app = new Hono();
-    app.use('/api/admin/*', adminAuth(services.adminToken));
-    app.use('/api/admin/*', bodyLimit({ maxSize: 5 * 1024 * 1024, onError: (c) => c.json({ error: '请求体超过 5 MiB' }, 413) }));
-    // 新建题库并登记云存储返回的文件 ID。
-    app.post('/api/admin/dictionaries', async (c) => {
-        let input;
+    const app = new OpenAPIHono({defaultHook: zodValidationErrorHandler});
+    app.use('/api/admin/dictionaries/:id', adminAuth(services.adminToken));
+    app.use('/api/admin/*', bodyLimit({
+        maxSize: 5 * 1024 * 1024,
+        onError: (c) => c.json({error: '请求体超过 5 MiB'}, 413),
+    }));
+
+    app.openapi(createDictionaryRoute, async (c) => {
+        const input = c.req.valid('json');
         try {
-            input = await c.req.json();
-        }
-        catch {
-            return c.json({ error: '请求格式无效' }, 400);
-        }
-        try {
-            const plan = prepareDictionary(input);
-            const id = plan.fields.id!;
-            if (await services.get(id))
-                return c.json({ error: '题库已存在' }, 409);
-            const fileID = await services.upload!(plan.fields.cloudPath!, plan.bytes!);
-            const record = { ...plan.fields, fileID, createdAt: plan.fields.updatedAt } as DictionaryWrite;
-            try {
-                await services.create!(record);
-            }
-            catch (error) {
-                console.error('题库登记失败，保留云文件供排查:', fileID);
-                throw error;
-            }
-            return c.json({ dictionary: publicMetadata(record) }, 201);
+            return c.json({dictionary: await saveDictionary(services, input)}, 201);
         }
         catch (error) {
-            if (error instanceof InputError)
-                return c.json({ error: error.message }, 400);
+            if (error instanceof DictionaryConflictError) {
+                return c.json({error: error.message}, 409);
+            }
+            if (error instanceof InputError) {
+                return c.json({error: error.message}, 400);
+            }
             throw error;
         }
     });
-    // 更新资料或替换题目，保留题库 ID 和类型。
-    app.put('/api/admin/dictionaries/:id', async (c) => {
-        const id = c.req.param('id');
-        if (!validId(id))
-            return c.json({ error: '题库 ID 无效' }, 400);
-        let input;
+
+    app.openapi(uploadDictionaryFileRoute, async (c) => {
+        const {file, ...metadata} = c.req.valid('form');
+        let entries: unknown;
         try {
-            input = await c.req.json();
+            entries = JSON.parse(await file.text());
         }
         catch {
-            return c.json({ error: '请求格式无效' }, 400);
+            return c.json({error: 'JSON 文件格式无效'}, 400);
+        }
+        const parsed = CreateDictionarySchema.safeParse({...metadata, entries});
+        if (!parsed.success) {
+            return c.json({
+                error: '题库内容无效',
+                details: parsed.error.issues.map((issue) => `${issue.path.join('.')}: ${issue.message}`),
+            }, 400);
         }
         try {
+            return c.json({dictionary: await saveDictionary(services, parsed.data)}, 201);
+        }
+        catch (error) {
+            if (error instanceof DictionaryConflictError) {
+                return c.json({error: error.message}, 409);
+            }
+            if (error instanceof InputError) {
+                return c.json({error: error.message}, 400);
+            }
+            throw error;
+        }
+    });
+
+    app.openapi(updateDictionaryRoute, async (c) => {
+        const {id} = c.req.valid('param');
+        const input = c.req.valid('json');
+        try {
+            if (input.entries !== undefined) {
+                return c.json({error: '题库 JSON 替换暂时禁用'}, 403);
+            }
             const existing = await services.get(id);
-            if (!existing)
-                return c.json({ error: '题库不存在' }, 404);
+            if (!existing) {
+                return c.json({error: '题库不存在'}, 404);
+            }
             const plan = prepareDictionary(input, existing);
-            if (plan.bytes)
-                plan.fields.fileID = await services.upload!(plan.fields.cloudPath!, plan.bytes);
-            try {
-                if (!await services.update!(id, plan.fields))
-                    return c.json({ error: '题库不存在' }, 404);
+            if (!await services.update!(id, plan.fields)) {
+                return c.json({error: '题库不存在'}, 404);
             }
-            catch (error) {
-                if (plan.bytes)
-                    console.error('题库更新失败，保留云文件供排查:', plan.fields.fileID);
-                throw error;
-            }
-            return c.json({ dictionary: publicMetadata({ ...existing, ...plan.fields } as Dictionary) });
+            return c.json({dictionary: publicMetadata({...existing, ...plan.fields} as Dictionary)}, 200);
         }
         catch (error) {
-            if (error instanceof InputError)
-                return c.json({ error: error.message }, 400);
+            if (error instanceof InputError) {
+                return c.json({error: error.message}, 400);
+            }
             throw error;
         }
     });
-    // 下架题库以保留历史进度和文件；需要时可通过更新接口重新发布。
-    app.delete('/api/admin/dictionaries/:id', async (c) => {
-        const id = c.req.param('id');
-        if (!validId(id))
-            return c.json({ error: '题库 ID 无效' }, 400);
-        if (!await services.get(id))
-            return c.json({ error: '题库不存在' }, 404);
-        if (!await services.update!(id, { status: 'archived', updatedAt: new Date().toISOString() }))
-            return c.json({ error: '题库不存在' }, 404);
-        return c.json({ ok: true });
+
+    app.openapi(archiveDictionaryRoute, async (c) => {
+        const {id} = c.req.valid('param');
+        if (!await services.get(id)) {
+            return c.json({error: '题库不存在'}, 404);
+        }
+        if (!await services.update!(id, {status: 'archived', updatedAt: new Date().toISOString()})) {
+            return c.json({error: '题库不存在'}, 404);
+        }
+        return c.json({ok: true}, 200);
     });
+
     return app;
 }

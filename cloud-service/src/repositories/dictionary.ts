@@ -18,7 +18,7 @@ export function createDictionaryRepository(pool: Pool) {
             const rows = await db.select().from(dictionaries).where(eq(dictionaries.id, id));
             return rows[0];
         },
-        /** 新建题库，重复主键由数据库拒绝。 */
+        /** 新建题库登记，重复 ID 由数据库唯一约束拒绝。 */
         async create(record: DictionaryWrite): Promise<void> {
             await db.insert(dictionaries).values({
                 ...record,

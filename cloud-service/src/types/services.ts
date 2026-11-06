@@ -1,9 +1,10 @@
 /** 题库数据与路由依赖契约。 */
-import type { DictionaryWrite } from '../schemas/dictionary';
+import type {DictionaryWrite} from '../schemas/dictionary';
+
 export interface Dictionary {
     id: string;
     label: string;
-    kind: string;
+    kind: 'word' | 'phrase';
     category: string;
     wordCount: number;
     sha256: string;
@@ -14,8 +15,8 @@ export interface Services {
     list(): Promise<Dictionary[]>;
     get(id: string): Promise<Dictionary | undefined>;
     download(fileID: string): Promise<Buffer>;
+    upload?(cloudPath: string, fileContent: Buffer): Promise<string>;
     adminToken?: string;
-    upload?(cloudPath: string, bytes: Buffer): Promise<string>;
     create?(record: DictionaryWrite): Promise<void>;
     update?(id: string, fields: Partial<DictionaryWrite>): Promise<boolean>;
     pronounce(event: {

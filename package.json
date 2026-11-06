@@ -29,7 +29,6 @@
     "typecheck:miniprogram": "tsc -p miniprogram/tsconfig.json && tsc -p tsconfig.tools.json"
   },
   "devDependencies": {
-    "@cloudbase/node-sdk": "^3.18.7",
     "@types/node": "^22.20.5",
     "miniprogram-api-typings": "^5.2.3",
     "tsx": "^4.23.15",

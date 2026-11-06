@@ -1,14 +1,59 @@
 /** 校验管理员提交的题库信息并生成云存储文件。 */
 import { createHash } from 'node:crypto';
 import type { Dictionary } from '../types/services';
-export type DictionaryInput = {
-    id?: unknown;
-    label?: unknown;
-    kind?: unknown;
-    category?: unknown;
-    status?: unknown;
-    entries?: unknown;
+import {z} from '@hono/zod-openapi';
+import {DictionaryIdSchema} from './http';
+
+const nonEmptyString = z.string().refine((value) => value.trim().length > 0);
+const entryIdPattern = /^[a-zA-Z0-9][a-zA-Z0-9._-]{0,79}$/;
+
+const WordEntrySchema = z.object({
+    name: nonEmptyString,
+    trans: z.array(nonEmptyString).min(1),
+}).passthrough().openapi('WordEntry');
+
+const PhraseEntrySchema = z.object({
+    id: nonEmptyString,
+    zh: nonEmptyString,
+    english: nonEmptyString,
+    words: z.array(nonEmptyString).min(1),
+}).passthrough().openapi('PhraseEntry');
+
+const DictionaryFieldsSchema = {
+    id: z.string().regex(entryIdPattern).openapi({
+        description: '题库 ID，只允许字母、数字、点、下划线和连字符',
+        example: 'cet4',
+    }),
+    label: nonEmptyString.max(100),
+    category: nonEmptyString.max(100).optional(),
+    status: z.enum(['published', 'draft', 'archived']).optional(),
 };
+
+const CreateWordDictionarySchema = z.object({
+    ...DictionaryFieldsSchema,
+    kind: z.literal('word'),
+    entries: z.array(WordEntrySchema).min(1),
+}).strict().openapi('CreateWordDictionaryRequest');
+
+const CreatePhraseDictionarySchema = z.object({
+    ...DictionaryFieldsSchema,
+    kind: z.literal('phrase'),
+    entries: z.array(PhraseEntrySchema).min(1),
+}).strict().openapi('CreatePhraseDictionaryRequest');
+
+export const CreateDictionarySchema = z.discriminatedUnion('kind', [
+    CreateWordDictionarySchema,
+    CreatePhraseDictionarySchema,
+]).openapi('CreateDictionaryRequest');
+
+export const UpdateDictionarySchema = z.object({
+    label: nonEmptyString.max(100).optional(),
+    category: nonEmptyString.max(100).optional(),
+    status: z.enum(['published', 'draft', 'archived']).optional(),
+    entries: z.array(z.union([WordEntrySchema, PhraseEntrySchema])).min(1).optional(),
+}).strict().refine((value) => Object.keys(value).length > 0).openapi('UpdateDictionaryRequest');
+
+export type DictionaryInput = z.infer<typeof CreateDictionarySchema> | z.infer<typeof UpdateDictionarySchema>;
 export type DictionaryWrite = Dictionary & {
     cloudPath: string;
     updatedAt: string;
@@ -18,8 +63,9 @@ export class InputError extends Error {
 }
 /** 校验题库 ID，确保它不会改变云存储路径结构。 */
 export function validId(id: unknown): id is string {
-    return typeof id === 'string' && /^[a-zA-Z0-9][a-zA-Z0-9._-]{0,79}$/.test(id);
+    return DictionaryIdSchema.safeParse(id).success;
 }
+
 /** 校验题库条目并保持提交时的顺序。 */
 export function validateEntries(entries: unknown, kind: string): asserts entries is unknown[] {
     if (!Array.isArray(entries) || !entries.length) {
@@ -66,11 +112,13 @@ export function prepareDictionary(input: DictionaryInput, existing?: Dictionary)
     if (Object.keys(input).some((key) => !allowed.includes(key))) {
         throw new InputError('包含不支持的字段');
     }
-    const id = existing?.id || input.id;
-    if (!validId(id) || (existing && input.id !== undefined && input.id !== id)) {
+    const requestedId = 'id' in input ? input.id : undefined;
+    const requestedKind = 'kind' in input ? input.kind : undefined;
+    const id = existing?.id || requestedId;
+    if (!validId(id) || (existing && requestedId !== undefined && requestedId !== id)) {
         throw new InputError('题库 ID 无效或不能修改');
     }
-    const kind = input.kind ?? existing?.kind;
+    const kind = requestedKind ?? existing?.kind;
     if (!['word', 'phrase'].includes(kind as string) || (existing && kind !== existing.kind)) {
         throw new InputError('题库类型无效或不能修改');
     }
@@ -90,7 +138,7 @@ export function prepareDictionary(input: DictionaryInput, existing?: Dictionary)
     }
     const fields: Partial<DictionaryWrite> = {
         id,
-        kind: kind as string,
+        kind: kind as 'word' | 'phrase',
         label: label.trim(),
         category: category.trim(),
         status: status as string,

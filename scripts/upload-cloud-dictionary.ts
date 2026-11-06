@@ -2,10 +2,10 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import * as crypto from 'node:crypto';
-import * as cloudbase from '@cloudbase/node-sdk';
 import config from '../miniprogram/config';
 import {createDatabasePool} from '../cloud-service/src/db/mysql';
 import {createDictionaryRepository} from '../cloud-service/src/repositories/dictionary';
+import {createCloudStorage} from '../cloud-service/src/services/cloud-storage';
 interface UploadOptions {
     file?: string;
     id?: string;
@@ -32,10 +32,7 @@ interface Plan {
     metadata: DictionaryMetadata;
 }
 interface CloudClient {
-    uploadFile(options: {
-        cloudPath: string;
-        fileContent: Buffer;
-    }): Promise<any>;
+    upload(cloudPath: string, fileContent: Buffer): Promise<string>;
 }
 interface DictionaryStore {
     get(id: string): Promise<unknown>;
@@ -100,24 +97,21 @@ function prepare(options: UploadOptions) {
     const sha256 = crypto.createHash('sha256').update(bytes).digest('hex');
     return { bytes, metadata: { id: options.id, label: options.label, kind: options.kind, category: options.category || (options.kind === 'word' ? '单词练习' : '短语练习'), wordCount: rows.length, sha256, cloudPath: `dictionaries/${options.kind}/${options.id}/${sha256}.json`, envId: options.env || config.cloudEnvId } };
 }
-/** 检查云存储 SDK 的业务错误。 */
-function checkResult(result: any, action: string) {
-    if (result && result.code && result.code !== 0 && result.code !== '0')
-        throw new Error(`${action}失败: ${result.message || result.code}`);
-    if (result && result.error)
-        throw new Error(`${action}失败: ${result.error.message || result.error}`);
-}
 /** 上传 JSON 并登记 MySQL；写库失败时保留文件以便重试。 */
 async function uploadAndRecord(plan: Plan, app: CloudClient, database: DictionaryStore) {
     const { bytes, metadata } = plan;
     const existing = await database.get(metadata.id);
-    const uploaded = await app.uploadFile({ cloudPath: metadata.cloudPath, fileContent: bytes });
-    checkResult(uploaded, '上传文件');
-    if (typeof uploaded.fileID !== 'string' || !uploaded.fileID.startsWith('cloud://'))
-        throw new Error('上传未返回有效文件 ID，无法写入数据库');
+    let fileID: string;
+    try {
+        fileID = await app.upload(metadata.cloudPath, bytes);
+    }
+    catch (error) {
+        const message = error instanceof Error ? error.message : String(error);
+        throw new Error(`上传文件失败: ${message}`);
+    }
     const now = new Date().toISOString();
     const { envId, ...fields } = metadata;
-    const record = { ...fields, fileID: uploaded.fileID, updatedAt: now };
+    const record = { ...fields, fileID, updatedAt: now };
     try {
         if (existing) {
             if (!await database.update(metadata.id, record))
@@ -128,7 +122,7 @@ async function uploadAndRecord(plan: Plan, app: CloudClient, database: Dictionar
         }
     }
     catch (error) {
-        throw new Error(`文件已上传，但数据库写入失败。fileID: ${uploaded.fileID}；可重新运行相同命令重试。原因: ${error.message}`);
+        throw new Error(`文件已上传，但数据库写入失败。fileID: ${fileID}；可重新运行相同命令重试。原因: ${error.message}`);
     }
     return record;
 }
@@ -155,9 +149,10 @@ async function main(args: string[]) {
         console.log('以上为预览，未上传。添加 --upload 后执行上传。');
         return;
     }
-    if (!process.env.CLOUDBASE_APIKEY && !(process.env.TENCENTCLOUD_SECRETID && process.env.TENCENTCLOUD_SECRETKEY))
-        throw new Error('请在本机环境变量配置云开发 API Key 或腾讯云密钥对；不要将密钥写入代码');
-    const app = cloudbase.init({ env: plans[0].metadata.envId });
+    const app = createCloudStorage({
+        ...process.env,
+        WX_CLOUD_ENV_ID: plans[0].metadata.envId,
+    });
     const pool = createDatabasePool();
     const database = createDictionaryRepository(pool);
     try {

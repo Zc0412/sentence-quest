@@ -28,24 +28,24 @@ test('批量预览验证全部 Web 题库', () => {
     assert.ok(plans.some((entry) => entry.id === 'CET4_T'));
     assert.ok(plans.some((entry) => entry.id === 'phrase-sentences'));
 });
-test('默认仅预览，未配置凭据时拒绝上传', () => {
+test('默认仅预览，未配置云托管对象存储桶时拒绝上传', () => {
     const args = ['--import', 'tsx', 'scripts/upload-cloud-dictionary.ts', '--file', source, '--id', 'CET4_T', '--kind', 'word', '--label', 'CET-4', '--env', 'test-env'];
-    const env = { ...process.env, TENCENTCLOUD_SECRETID: '', TENCENTCLOUD_SECRETKEY: '', CLOUDBASE_APIKEY: '' };
+    const env = {...process.env, COS_BUCKET: ''};
     const preview = spawnSync(process.execPath, args, { cwd: root, env, encoding: 'utf8' });
     assert.equal(preview.status, 0, preview.stderr);
     assert.match(preview.stdout, /未上传/);
     const upload = spawnSync(process.execPath, [...args, '--upload'], { cwd: root, env, encoding: 'utf8' });
     assert.notEqual(upload.status, 0);
-    assert.match(upload.stderr, /环境变量/);
+    assert.match(upload.stderr, /COS_BUCKET/);
 });
 test('上传成功后将真实文件 ID 和题库信息写入 MySQL', async () => {
     const plan = prepare(options);
     let uploaded;
     let written;
     const app = {
-        async uploadFile(input) {
-            uploaded = input;
-            return { fileID: 'cloud://test-env/bucket/CET4_T.json' };
+        async upload(cloudPath, content) {
+            uploaded = {cloudPath, fileContent: content};
+            return `cloud://test-env.bucket/${cloudPath}`;
         },
     };
     const database = {
@@ -74,12 +74,12 @@ test('更新保留管理字段；上传或 MySQL 失败时保留失败信息', a
         async update(id, data) { writes++; changed = data; return true; },
         async create() { throw new Error('不应新建'); },
     };
-    const app = { async uploadFile() { return { fileID: 'cloud://test-env/bucket/file.json' }; } };
+    const app = { async upload(cloudPath) { return `cloud://test-env.bucket/${cloudPath}`; } };
     await uploadAndRecord(plan, app, database);
     assert.equal(writes, 1);
     assert.equal('status' in changed, false);
     assert.equal('createdAt' in changed, false);
-    const brokenUpload = { async uploadFile() { return { code: 'FAIL', message: '上传失败' }; } };
+    const brokenUpload = { async upload() { throw new Error('上传失败'); } };
     await assert.rejects(uploadAndRecord(plan, brokenUpload, database), /上传文件失败/);
     assert.equal(writes, 1);
     const brokenDb = { ...database, async update() { throw new Error('写入失败'); } };

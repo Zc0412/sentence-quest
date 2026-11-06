@@ -1,7 +1,7 @@
 /** MySQL 连接池及题库资料读写；文件内容仍保存在云存储。 */
-import { createPool, type Pool, type RowDataPacket, type ResultSetHeader } from 'mysql2/promise';
+import { createPool, type Pool, type PoolOptions } from 'mysql2/promise';
 /** 从服务端环境变量创建连接池，不在源码中保存数据库密码。 */
-export function createDatabasePool(env = process.env): Pool {
+export function getDatabaseOptions(env = process.env): PoolOptions {
     const address = env.MYSQL_ADDRESS?.split(':');
     const host = env.MYSQL_HOST || address?.[0];
     const port = Number(env.MYSQL_PORT || address?.[1] || 3306);
@@ -12,7 +12,7 @@ export function createDatabasePool(env = process.env): Pool {
     if (!Number.isInteger(port) || port < 1 || port > 65535) {
         throw new Error('MYSQL_PORT 无效');
     }
-    return createPool({
+    return {
         host,
         port,
         user,
@@ -24,5 +24,10 @@ export function createDatabasePool(env = process.env): Pool {
         queueLimit: 100,
         connectTimeout: 10000,
         ...(env.MYSQL_SSL_CA ? { ssl: { ca: env.MYSQL_SSL_CA, rejectUnauthorized: true } } : {}),
-    });
+    };
+}
+
+/** 从服务端环境变量创建连接池。 */
+export function createDatabasePool(env = process.env): Pool {
+    return createPool(getDatabaseOptions(env));
 }
