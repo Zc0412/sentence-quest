@@ -14,7 +14,7 @@ const database = createDatabasePool();
 const dictionaries = createDictionaryRepository(database);
 
 const app = createApp({
-    // 管理令牌只从容器环境变量读取，不发送给普通小程序用户。
+    // 保留令牌配置供后续恢复鉴权使用；当前管理员路由不验证令牌。
     adminToken: process.env.DICTIONARY_ADMIN_TOKEN,
     ...createCloudStorage(),
     ...dictionaries,

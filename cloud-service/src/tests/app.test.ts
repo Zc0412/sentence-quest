@@ -33,7 +33,13 @@ test('Swagger UI 与 OpenAPI 文档可访问', async () => {
   );
   assert.ok(document.components.schemas.CreateWordDictionaryRequest.required.includes('entries'));
   assert.ok(document.paths['/api/admin/dictionaries/{id}'].delete);
-  assert.equal(document.components.securitySchemes.AdminBearerAuth.scheme, 'bearer');
+  for (const [path, operations] of Object.entries(document.paths)) {
+    if (path.startsWith('/api/admin/')) {
+      for (const operation of Object.values(operations as Record<string, any>)) {
+        assert.equal(operation.security, undefined);
+      }
+    }
+  }
 });
 
 test('目录不暴露文件 ID 或未发布题库', async () => {
@@ -83,13 +89,11 @@ test('题库详情只返回可见题库公开资料', async () => {
   assert.equal(result.dictionary.fileID, undefined);
 });
 
-test('Swagger 上传题库 JSON 暂不鉴权，元数据更新和下架仍需鉴权', async () => {
-  const token = 'x'.repeat(32);
+test('管理员接口无需令牌即可上传、更新和下架题库', async () => {
   const record: Dictionary = { ...published, id: 'cet4', label: '四级' };
   const records = new Map<string, Dictionary>([[record.id, record]]);
   let uploaded: {path: string; content: Buffer} | undefined;
   const admin = createApp({
-    adminToken: token,
     async list() { return [...records.values()]; },
     async get(id) { return records.get(id); },
     async download() { return Buffer.from('[{"name":"cat","trans":["n. 猫"]}]'); },
@@ -98,7 +102,11 @@ test('Swagger 上传题库 JSON 暂不鉴权，元数据更新和下架仍需鉴
     async update(id, fields) { const row = records.get(id); if (!row) return false; records.set(id, { ...row, ...fields }); return true; },
     async pronounce() { return { ok: false }; },
   });
-  const request = (path: string, method: string, body?: unknown, key = token) => admin.request(path, { method, headers: { authorization: `Bearer ${key}`, 'content-type': 'application/json' }, ...(body === undefined ? {} : { body: JSON.stringify(body) }) });
+  const request = (path: string, method: string, body?: unknown) => admin.request(path, {
+    method,
+    headers: {'content-type': 'application/json'},
+    ...(body === undefined ? {} : {body: JSON.stringify(body)}),
+  });
   const data = { id: 'cet4', label: '四级', kind: 'word', entries: [{ name: 'cat', trans: ['n. 猫'] }] };
   const uploadResponse = await admin.request('/api/admin/dictionaries', {
     method: 'POST',
@@ -135,11 +143,11 @@ test('Swagger 上传题库 JSON 暂不鉴权，元数据更新和下架仍需鉴
   assert.equal((await request('/api/admin/dictionaries/missing', 'DELETE')).status, 404);
 });
 
-test('没有配置管理员令牌时拒绝元数据修改', async () => {
+test('没有配置管理员令牌时仍校验元数据格式', async () => {
   const response = await app.request('/api/admin/dictionaries/test', {
     method: 'PUT',
     headers: {'content-type': 'application/json'},
-    body: JSON.stringify({label: '更名'}),
+    body: JSON.stringify({kind: 'phrase'}),
   });
-  assert.equal(response.status, 401);
+  assert.equal(response.status, 400);
 });

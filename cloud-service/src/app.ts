@@ -26,12 +26,6 @@ const healthRoute = createRoute({
 /** 创建 Hono 应用，业务实现通过依赖注入供路由调用。 */
 export function createApp(services: Services) {
     const app = new OpenAPIHono();
-    app.openAPIRegistry.registerComponent('securitySchemes', 'AdminBearerAuth', {
-        type: 'http',
-        scheme: 'bearer',
-        bearerFormat: 'Admin token',
-        description: '填写云托管环境变量 DICTIONARY_ADMIN_TOKEN 的值，不要在公开环境中分享。',
-    });
     // 返回进程健康状态，供容器探测。
     app.openapi(healthRoute, (c) => c.json({ok: true}, 200));
     app.get('/swagger', swaggerUI({url: '/openapi.json'}));
@@ -45,7 +39,7 @@ export function createApp(services: Services) {
         info: {
             title: 'SentLeap Cloud Service API',
             version: '1.0.0',
-            description: 'SentLeap 发音和云端题库接口。管理员写接口使用 Bearer 管理令牌。',
+            description: 'SentLeap 发音和云端题库接口。管理员接口暂不鉴权。',
         },
         servers: [{url: '/'}],
     });

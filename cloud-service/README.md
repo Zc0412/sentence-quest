@@ -52,7 +52,7 @@ Hono + TypeScript 服务提供发音、云端题库目录和 JSON 内容接口�
 
 ### 管理题库
 
-元数据管理接口需要在云托管服务端环境变量设置 `DICTIONARY_ADMIN_TOKEN`（至少 32 个字符，使用高强度随机值），由可信的管理端通过 `Authorization: Bearer <令牌>` 提供。未配置令牌或令牌错误时，更新和下架接口返回 401。令牌不要放入小程序、仓库或客户端代码；需要在服务端管理环境中保管。
+所有 `/api/admin/*` 接口暂时无需鉴权，包括上传、元数据更新和下架；不需要配置 `DICTIONARY_ADMIN_TOKEN` 或发送 Authorization 请求头。参数校验、请求大小限制和题库 JSON 替换限制仍然生效。
 
 - `POST /api/admin/dictionaries`：上传并创建题库 JSON；Swagger UI 支持直接提交 JSON，**暂不鉴权**。
 - `POST /api/admin/upload-dictionary`：通过 Swagger UI 选择 `.json` 文件上传；填写 `id`、`label`、`kind`，文件内容须为题库条目数组，**暂不鉴权**。
@@ -61,11 +61,10 @@ Hono + TypeScript 服务提供发音、云端题库目录和 JSON 内容接口�
 
 **安全提醒：** 上传接口没有令牌或其他访问控制，若服务可从公网访问，任何人都可能创建题库并消耗云存储/数据库资源。暂时只应在可信网络或关闭公网访问的环境使用；单次请求体上限为 5 MiB。题库 ID 和条目顺序影响旧版进度，上传前请检查内容。
 
-元数据更新示例（管理令牌应由可信管理端安全提供）：
+元数据更新示例：
 
 ```http
 PUT /api/admin/dictionaries/cet4
-Authorization: Bearer <管理员令牌>
 Content-Type: application/json
 
 {"label":"四级词汇"}
@@ -88,7 +87,7 @@ Content-Type: application/json
 - `src/routes/`：发音、题库读取、管理员 HTTP 路由。
 - `src/schemas/`：Zod 请求校验、OpenAPI schema 与题库上传数据准备。
 - `src/types/`：数据结构和服务依赖契约。
-- `src/middleware/`：管理员鉴权。
+- `src/middleware/`：保留的管理员鉴权工具，当前路由未启用。
 - `src/db/`：MySQL 连接池与环境配置。
 - `src/repositories/`：题库 SQL 读写。
 - `src/services/`：有道发音、云存储访问。
@@ -98,7 +97,7 @@ Content-Type: application/json
 
 ## 本地 .env 文件
 
-复制 `.env.example` 为 `.env` 后填写 MySQL 连接信息、云托管环境 ID、COS 桶名和地域，以及元数据管理令牌。临时 COS 凭据由云托管开放接口动态签发，不要在配置中保存固定 COS 密钥。`.env` 已排除 Git 提交及 Docker 构建上下文。
+复制 `.env.example` 为 `.env` 后填写 MySQL 连接信息、云托管环境 ID、COS 桶名和地域。管理员令牌当前无需填写。临时 COS 凭据由云托管开放接口动态签发，不要在配置中保存固定 COS 密钥。`.env` 已排除 Git 提交及 Docker 构建上下文。
 
 使用 Node.js 22（与镜像一致）执行 `npm --prefix cloud-service run dev`；编译后可执行 `npm --prefix cloud-service start`。这两个命令通过 Node 的 `--env-file=.env` 加载配置，系统已设置的环境变量优先。直接执行 `node dist/index.js` 不会加载 `.env`。
 

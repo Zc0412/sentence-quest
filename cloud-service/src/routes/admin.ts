@@ -6,7 +6,6 @@ import {InputError, prepareDictionary, CreateDictionarySchema, UpdateDictionaryS
 import type {DictionaryWrite} from '../schemas/dictionary';
 import {DictionaryIdSchema, DictionaryResponseSchema, JsonErrorResponse, ServerErrorResponse, SuccessResponseSchema, zodValidationErrorHandler} from '../schemas/http';
 import {publicMetadata} from '../utils/dictionary';
-import {adminAuth} from '../middleware/admin-auth';
 
 const dictionaryParamsSchema = z.object({
     id: DictionaryIdSchema,
@@ -82,7 +81,6 @@ const updateDictionaryRoute = createRoute({
     tags: ['Admin'],
     summary: '更新题库资料',
     description: '只能更新元数据；提交 entries 替换题库 JSON 的操作暂时禁用。题库 ID 和类型不可修改。',
-    security: [{AdminBearerAuth: []}],
     request: {
         params: dictionaryParamsSchema,
         body: {
@@ -96,7 +94,6 @@ const updateDictionaryRoute = createRoute({
             content: {'application/json': {schema: DictionaryResponseSchema}},
         },
         400: {...JsonErrorResponse, description: '请求内容无效'},
-        401: {...JsonErrorResponse, description: '缺少或提供了无效的管理员令牌'},
         403: {...JsonErrorResponse, description: '题库 JSON 替换暂时禁用'},
         404: {...JsonErrorResponse, description: '题库不存在'},
         413: {...JsonErrorResponse, description: '请求体超过 5 MiB'},
@@ -111,7 +108,6 @@ const archiveDictionaryRoute = createRoute({
     tags: ['Admin'],
     summary: '下架题库',
     description: '将题库状态改为 archived，不删除数据库记录或云文件。',
-    security: [{AdminBearerAuth: []}],
     request: {params: dictionaryParamsSchema},
     responses: {
         200: {
@@ -119,7 +115,6 @@ const archiveDictionaryRoute = createRoute({
             content: {'application/json': {schema: SuccessResponseSchema}},
         },
         400: {...JsonErrorResponse, description: '题库 ID 无效'},
-        401: {...JsonErrorResponse, description: '缺少或提供了无效的管理员令牌'},
         404: {...JsonErrorResponse, description: '题库不存在'},
         500: ServerErrorResponse,
     },
@@ -155,10 +150,9 @@ async function saveDictionary(
     return publicMetadata(record as Dictionary);
 }
 
-/** 创建管理员路由；保留鉴权、请求体大小限制及失败诊断。 */
+/** 创建管理员路由；暂不鉴权，保留请求体大小限制及失败诊断。 */
 export function createRoutes(services: Services) {
     const app = new OpenAPIHono({defaultHook: zodValidationErrorHandler});
-    app.use('/api/admin/dictionaries/:id', adminAuth(services.adminToken));
     app.use('/api/admin/*', bodyLimit({
         maxSize: 5 * 1024 * 1024,
         onError: (c) => c.json({error: '请求体超过 5 MiB'}, 413),
