@@ -7,6 +7,9 @@ import {createDatabasePool} from './db/mysql';
 import {createDictionaryRepository} from './repositories/dictionary';
 import {main as pronounce} from './services/pronunciation';
 
+// 标识当前存储实现，便于部署后区分旧 TCB 版本；不代表数据库已连通。
+console.log('[SentLeap] 部署标识：mysql-cos-20261107；题库元数据：MySQL；题库文件：COS');
+
 const database = createDatabasePool();
 const dictionaries = createDictionaryRepository(database);
 
