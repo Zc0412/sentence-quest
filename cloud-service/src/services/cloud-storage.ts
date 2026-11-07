@@ -126,8 +126,12 @@ export function createCloudStorage(
             }
             return result.Body;
         },
-        /** 将题库 JSON 上传至云托管 COS，并返回小程序可识别的 cloudID。 */
-        async upload(cloudPath: string, fileContent: Buffer): Promise<string> {
+        /** 上传文件并返回 cloudID；默认保持题库 JSON 类型，图片由路由传入校验后的类型。 */
+        async upload(
+            cloudPath: string,
+            fileContent: Buffer,
+            contentType = 'application/json; charset=utf-8',
+        ): Promise<string> {
             const fileMetadata = await getFileMetadata(cloudPath);
             const cos = await createClient();
             const result = await cos.putObject({
@@ -137,7 +141,7 @@ export function createCloudStorage(
                 StorageClass: 'STANDARD',
                 Body: fileContent,
                 ContentLength: fileContent.length,
-                ContentType: 'application/json; charset=utf-8',
+                ContentType: contentType,
                 Headers: {'x-cos-meta-fileid': fileMetadata},
             });
             if (result.statusCode !== 200) {

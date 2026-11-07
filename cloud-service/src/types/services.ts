@@ -15,7 +15,7 @@ export interface Services {
     list(): Promise<Dictionary[]>;
     get(id: string): Promise<Dictionary | undefined>;
     download(fileID: string): Promise<Buffer>;
-    upload?(cloudPath: string, fileContent: Buffer): Promise<string>;
+    upload?(cloudPath: string, fileContent: Buffer, contentType?: string): Promise<string>;
     adminToken?: string;
     create?(record: DictionaryWrite): Promise<void>;
     update?(id: string, fields: Partial<DictionaryWrite>): Promise<boolean>;

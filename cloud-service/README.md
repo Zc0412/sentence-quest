@@ -33,6 +33,14 @@ Hono + TypeScript 服务提供发音、云端题库目录和 JSON 内容接口�
 
 本机上传脚本使用云托管开放接口获取短期 COS 凭据，不需要固定云存储密钥；需安装根目录与 `cloud-service/` 的依赖，并配置上述云托管环境、COS 桶及 MySQL。若电脑无法连接数据库内网，应在能访问 MySQL 的受控环境运行脚本；不要为此直接开放数据库公网访问。
 
+## 图片上传测试
+
+`POST /api/admin/upload-image` 接收 `multipart/form-data` 的 `file` 字段，支持 PNG、JPEG 文件签名，整个请求（含表单边界）最大 5 MiB。此接口无需鉴权或管理员令牌。部署后可在 `/swagger` 直接选择图片执行接口。
+
+图片保存到 COS 的 `images/test/<随机ID>.png` 或 `.jpg`，不写入 MySQL 题库。成功返回 HTTP 201 和 `{fileID, contentType, size}`；`fileID` 为云文件标识，不是公开图片 URL。测试文件会保留在存储桶中，可在测试后通过控制台清理。只校验文件签名，不进行完整图片解码。
+
+接口复用云托管临时凭据和文件元数据接口，需要云端配置 `WX_CLOUD_ENV_ID`、`COS_BUCKET`、`COS_REGION` 以及开放接口权限。
+
 ## 接口
 
 - `GET /swagger`：Swagger UI 交互式 API 文档；`GET /openapi.json`：由路由 Zod schema 生成的 OpenAPI 3.0 描述。请求参数与管理员 JSON 请求体使用 Zod 校验，修改接口字段时请同步更新 schema。

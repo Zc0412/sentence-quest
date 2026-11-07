@@ -74,6 +74,7 @@ test('上传通过 COS 写入对象元数据并生成云托管 cloudID', async (
     assert.equal(putOptions?.Region, 'ap-shanghai');
     assert.equal(putOptions?.Key, 'dictionaries/word/cet4/hash.json');
     assert.equal(putOptions?.Body, bytes);
+    assert.equal(putOptions?.ContentType, 'application/json; charset=utf-8');
     assert.equal(putOptions?.Headers?.['x-cos-meta-fileid'], 'signed-file-metadata');
     assert.ok(cosOptions?.getAuthorization);
     assert.ok(authorization && typeof authorization !== 'string');
@@ -82,6 +83,8 @@ test('上传通过 COS 写入对象元数据并生成云托管 cloudID', async (
     assert.equal(authorization.SecurityToken, 'temporary-token');
     assert.ok(Number.isInteger(authorization.StartTime));
     assert.ok(Number.isInteger(authorization.ExpiredTime));
+    await storage.upload('images/test/example.png', Buffer.from('image'), 'image/png');
+    assert.equal(putOptions?.ContentType, 'image/png');
 });
 
 test('只从当前云托管对象存储下载数据库登记的 cloudID', async () => {

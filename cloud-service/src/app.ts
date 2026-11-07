@@ -5,6 +5,7 @@ import type {Services} from './types/services';
 import {createRoutes as pronunciationRoutes} from './routes/pronunciation';
 import {createRoutes as dictionaryRoutes} from './routes/dictionaries';
 import {createRoutes as adminRoutes} from './routes/admin';
+import {createRoutes as imageRoutes} from './routes/images';
 import {swaggerUI} from '@hono/swagger-ui';
 import {HealthResponseSchema, ServerErrorResponse} from './schemas/http';
 
@@ -37,6 +38,7 @@ export function createApp(services: Services) {
     app.route('/', pronunciationRoutes(services));
     app.route('/', dictionaryRoutes(services));
     app.route('/', adminRoutes(services));
+    app.route('/', imageRoutes(services));
     // 根据已注册路由和请求 Zod schema 生成 OpenAPI 文档。
     app.doc('/openapi.json', {
         openapi: '3.0.0',
