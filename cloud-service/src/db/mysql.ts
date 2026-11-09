@@ -1,5 +1,6 @@
 /** MySQL 连接池及题库资料读写；文件内容仍保存在云存储。 */
 import { createPool, type Pool, type PoolOptions } from 'mysql2/promise';
+
 /** 从服务端环境变量创建连接池，不在源码中保存数据库密码。 */
 export function getDatabaseOptions(env = process.env): PoolOptions {
     const address = env.MYSQL_ADDRESS?.split(':');
@@ -19,6 +20,7 @@ export function getDatabaseOptions(env = process.env): PoolOptions {
         password: env.MYSQL_PASSWORD,
         database: env.MYSQL_DATABASE,
         charset: 'utf8mb4',
+        timezone: 'Z',
         waitForConnections: true,
         connectionLimit: 5,
         queueLimit: 100,

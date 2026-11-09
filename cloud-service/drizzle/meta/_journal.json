@@ -8,6 +8,13 @@
       "when": 1793952487182,
       "tag": "0000_mixed_preak",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "5",
+      "when": 1794208439778,
+      "tag": "0001_flaky_jack_power",
+      "breakpoints": true
     }
   ]
 }

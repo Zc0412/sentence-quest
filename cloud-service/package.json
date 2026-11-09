@@ -25,6 +25,9 @@
     "dev": "node --env-file=.env --import tsx src/index.ts",
     "db:generate": "node node_modules/drizzle-kit/bin.cjs generate",
     "db:migrate": "node --env-file=.env node_modules/drizzle-kit/bin.cjs migrate",
-    "db:setup": "node --env-file=.env --import tsx scripts/create-database.ts && npm run db:migrate"
+    "db:setup": "node --env-file=.env --import tsx scripts/create-database.ts && npm run db:migrate",
+    "admin:init": "node --env-file=.env --import tsx scripts/admin-account.ts init",
+    "admin:reset-password": "node --env-file=.env --import tsx scripts/admin-account.ts reset-password",
+    "admin:cleanup": "node --env-file=.env --import tsx scripts/admin-account.ts cleanup"
   }
 }
