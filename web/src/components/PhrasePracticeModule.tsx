@@ -1,3 +1,4 @@
+/** 短语练习：展示题库提示与拼写进度，进入题目时朗读完整短句。 */
 'use client';
 
 import { useKeyboardPlatform } from '@/hooks/useKeyboardPlatform';
@@ -5,7 +6,8 @@ import { ShortcutHint } from './ShortcutHint';
 
 import { usePracticeSettings } from './PracticeSettingsProvider';
 
-import { useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
+import { speakWord, stopSpeech } from '@/utils/speech';
 import { Lightbulb, SkipForward, Volume2 } from 'lucide-react';
 import { PracticeNavigation } from './PracticeNavigation';
 import { TypingStatistics } from './TypingStatistics';
@@ -30,6 +32,15 @@ export function PhrasePracticeModule({ game, sentenceList, typingStats, onChange
     return sentenceList.map((sentence) => ({ id: sentence.id, text: sentence.english, meaning: sentence.zh, completed: completed.has(sentence.id) }));
   }, [sentenceList, game.progress.completedIds]);
   const sentence = game.sentence;
+  // 每次进入短语题先朗读整句，输入和切词不会重新触发；离题时取消延迟播放。
+  useEffect(() => {
+    if (!game.ready) return;
+    const timer = setTimeout(() => speakWord(sentence.english), 0);
+    return () => {
+      clearTimeout(timer);
+      stopSpeech();
+    };
+  }, [game.ready, sentence.id, sentence.english]);
   const previousSentence = sentenceList[game.courseIndex - 1];
   const nextSentence = sentenceList[game.courseIndex + 1];
 

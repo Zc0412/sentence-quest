@@ -123,9 +123,20 @@
 .word-completion-card .success-detail { margin-top:14px; }
 .word-definitions { margin:12px 16px 16px; padding:14px 16px; border-radius:24px; }
 .word-definitions.word-definitions-inline { margin:8px 0 0; padding:0; border-radius:0; }
-.word-definitions-inline .word-definition-row { gap:8px; margin-top:6px; padding:0; border-top:0; }
+.word-definitions-inline .word-definition-row {
+  justify-content:center;
+  gap:8px;
+  margin-top:6px;
+  padding:0;
+  border-top:0;
+}
 .word-definitions-inline .word-definition-pos { min-width:30px; padding:1px 0; border-radius:8px; font-size:12px; }
-.word-definitions-inline .word-definition-text { font-size:14px; line-height:1.45; text-align:left; }
+.word-definitions-inline .word-definition-text {
+  flex:0 1 auto;
+  font-size:14px;
+  line-height:1.45;
+  text-align:center;
+}
 .word-definitions-inline .definition-clamped { display:-webkit-box; -webkit-box-orient:vertical; -webkit-line-clamp:2; overflow:hidden; }
 .word-definitions.word-definitions-inline .word-definitions-toggle { width:auto; margin:8px auto 0; padding:0; border:0; font-size:12px; gap:2px; }
 .word-definitions-inline .word-definitions-toggle image { width:14px; height:14px; }

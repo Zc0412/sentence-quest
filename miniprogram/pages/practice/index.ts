@@ -1,3 +1,4 @@
+/** 练习与错题复习页：使用题库内容和本地进度，提供拼写反馈、XP 与云端发音。 */
 import * as catalog from '../../utils/catalog';
 import keySound from '../../utils/keySound';
 import * as storage from '../../utils/storage';
@@ -44,6 +45,8 @@ Page({
     if (entryList?.kind === 'word') {
       this.preloadWords();
       if (!this.hidden && preferences().autoSpeak) this.speak(true);
+    } else if (entryList?.kind === 'phrase' && !this.hidden && preferences().autoSpeak) {
+      this.speak(true, true);
     }
   },
   render() {
@@ -55,7 +58,7 @@ Page({
     const currentWord = state.item.words[state.wordIndex] || '';
     const extraKeys = [...new Set(Array.from(normalizeWord(currentWord) as string).filter((character) => !/[a-z\s']/i.test(character)))];
     const phonetic = storage.read().settings.accent === '2' ? annotation.usphone || annotation.phonetic : annotation.phonetic;
-    this.setData({ extraKeys, mastered, masteryPercent: Math.round(mastered / this.entries.length * 100), previousLabel: this.index > 0 ? this.entries[this.index - 1].item.english : '', inputCount: this.typing.input, correctCount: this.typing.correct, accuracy: accuracy(this.typing), progress: Math.round((this.index + (state.done ? 1 : 0)) / this.entries.length * 100), xp: storage.read().xp, done: state.done, typed: state.typed, error: state.error, wordNumber: state.wordIndex + 1, wordTotal: state.item.words.length, phonetic: phonetic || '',
+    this.setData({ extraKeys, mastered, masteryPercent: Math.round(mastered / this.entries.length * 100), previousLabel: this.data.isWord && this.index > 0 ? this.entries[this.index - 1].item.english : '', inputCount: this.typing.input, correctCount: this.typing.correct, accuracy: accuracy(this.typing), progress: Math.round((this.index + (state.done ? 1 : 0)) / this.entries.length * 100), xp: storage.read().xp, done: state.done, typed: state.typed, error: state.error, wordNumber: state.wordIndex + 1, wordTotal: state.item.words.length, phonetic: phonetic || '',
       completionClean: !state.dirty,
       completionSize,
       completedWords: state.done ? state.item.words.map((text, index) => {
@@ -148,9 +151,12 @@ Page({
     this.preloadAudio(this.entry.item.english, accent).catch(() => {});
     if (next && catalog.lists.find((list) => list.id === next.listId)?.kind === 'word') this.preloadAudio(next.item.english, accent).catch(() => {});
   },
-  speak(automatic = false) {
+  /** 开题可朗读整句；其他操作沿用当前词或完成后的整句，自动播放遵循静默失败规则。 */
+  speak(automatic = false, wholeSentence = false) {
     if (!this.state) return;
-    const word = this.state.done ? this.state.item.english : this.state.item.words[this.state.wordIndex];
+    const word = wholeSentence || this.state.done
+      ? this.state.item.english
+      : this.state.item.words[this.state.wordIndex];
     const isAutomatic = automatic === true;
     const accent = storage.read().settings.accent;
     const token = this.playbackToken = (this.playbackToken || 0) + 1;

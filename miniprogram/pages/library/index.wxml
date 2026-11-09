@@ -1,3 +1,4 @@
+<!-- 全部题库页：展示题库列表、学习进度与分类搜索入口。 -->
 <import src="../../templates/glass.wxml" />
 <view class="glass-page library-all">
   <template is="ambient" />
@@ -10,7 +11,7 @@
     </view>
     <view class="all-body">
       <scroll-view scroll-y class="filter-scroll glass-surface"><view class="filter-content"><block wx:for="{{filters}}" wx:key="id"><view wx:if="{{index === 3}}" class="filter-divider"></view><button class="filter-button {{filter === item.id ? 'active' : ''}}" data-filter="{{item.id}}" bindtap="chooseFilter">{{item.label}}</button></block></view></scroll-view>
-      <view class="results"><view class="results-heading"><text>{{filterLabel}}</text><text>共 {{lists.length}} 个</text></view><scroll-view scroll-y class="results-scroll"><view class="results-list"><button wx:for="{{lists}}" wx:key="id" class="result-card glass-surface" data-id="{{item.id}}" bindtap="open"><view class="result-icon color-{{item.colorIndex}}"></view><view class="result-copy"><view class="result-row"><view class="result-name">{{item.label}}</view><text class="result-status {{item.started ? 'started' : ''}}">{{item.completed === item.wordCount ? '已掌握' : item.started ? '进行中' : '未开始'}}</text></view><view class="result-meta">{{item.wordCount}} {{item.kind === 'word' ? '词' : '句'}} · {{item.started ? '已掌握 ' + item.completed : '尚未开始'}} · {{item.bundled ? '离线' : '联网'}}</view><view class="result-track"><view style="width:{{item.percent}}%;"></view></view></view></button><view wx:if="{{!lists.length}}" class="no-results">{{query ? '没有找到相关题库' : filter === 'recent' ? '暂无最近练习' : filter === 'progress' ? '暂无进行中的题库' : '暂无题库'}}</view></view></scroll-view></view>
+      <view class="results"><view class="results-heading"><text>{{filterLabel}}</text><text>共 {{lists.length}} 个</text></view><scroll-view scroll-y class="results-scroll"><view class="results-list"><button wx:for="{{lists}}" wx:key="id" class="result-card glass-surface" data-id="{{item.id}}" bindtap="open"><view class="result-icon color-{{item.colorIndex}}"></view><view class="result-copy"><view class="result-row"><view class="result-name">{{item.label}}</view><text class="result-status {{item.started ? 'started' : ''}}">{{item.completed === item.wordCount ? '已掌握' : item.started ? '进行中' : '未开始'}}</text></view><view class="result-meta">{{item.wordCount}} {{item.kind === 'word' ? '词' : '句'}} · {{item.started ? '已掌握 ' + item.completed : '尚未开始'}}</view><view class="result-track"><view style="width:{{item.percent}}%;"></view></view></view></button><view wx:if="{{!lists.length}}" class="no-results">{{query ? '没有找到相关题库' : filter === 'recent' ? '暂无最近练习' : filter === 'progress' ? '暂无进行中的题库' : '暂无题库'}}</view></view></scroll-view></view>
     </view>
   </view>
 </view>

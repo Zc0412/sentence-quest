@@ -1,3 +1,4 @@
+/** 单词练习：根据词库与本地进度提供拼写、复习及开题发音。 */
 'use client';
 
 import { useKeyboardPlatform } from '@/hooks/useKeyboardPlatform';
@@ -16,7 +17,7 @@ import { PracticeSpellingBoard } from './PracticeSpellingBoard';
 import { isCorrectPrefix, isCorrectWord, nextHintLength, fillWordSpaces } from '../utils/validator';
 import { Button } from './ui/button';
 import { countTypingAttempt } from '../utils/typingStats';
-import { loadPronunciationAudio } from '../utils/speech';
+import { loadPronunciationAudio, stopSpeech } from '../utils/speech';
 import { usePracticeShortcuts } from '../hooks/usePracticeShortcuts';
 
 interface Props {
@@ -64,6 +65,21 @@ export function VocabularyModule({ words, listLabel, progress, pronunciationType
   const knownWords = useMemo(() => new Set(progress.knownWords), [progress.knownWords]);
   const allKnown = words.length > 0 && words.every((word) => knownWords.has(word.name));
   const showMastery = reviewOrder === null && allKnown && !summaryDismissed;
+  const onSpeakRef = useRef(onSpeak);
+  useEffect(() => {
+    onSpeakRef.current = onSpeak;
+  }, [onSpeak]);
+
+  // 开题朗读一次；延迟到 effect 完成，避免 Strict Mode 重复播放，离题时取消音频。
+  useEffect(() => {
+    if (showMastery || reviewFinished) return;
+    const timer = setTimeout(() => onSpeakRef.current(currentWord.name), 0);
+    return () => {
+      clearTimeout(timer);
+      stopSpeech();
+    };
+  }, [currentIndex, currentWord.name, showMastery, reviewFinished]);
+
   const progressItems = useMemo(() => words.map((word) => ({ id: word.name, text: word.name, meaning: word.trans.join('；'), completed: knownWords.has(word.name) })), [words, knownWords]);
   useEffect(() => {
     const shuffled = words.map((_, index) => index);
@@ -133,7 +149,6 @@ export function VocabularyModule({ words, listLabel, progress, pronunciationType
       // Save immediately, but keep the completed word visible before advancing.
       const attempt = attempts.current[currentIndex];
       onCorrect(currentWord.name, currentIndex, { perfect: !attempt?.mistake && !attempt?.hint, review: reviewOrder !== null });
-      onSpeak(currentWord.name);
       const advanceIndex = remainingReviews ? remainingReviews[0] : nextIndex;
       if (advanceIndex !== undefined) {
         advanceTimer.current = setTimeout(() => {

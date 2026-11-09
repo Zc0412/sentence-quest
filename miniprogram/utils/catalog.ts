@@ -6,7 +6,20 @@ import vocabularyDevTest from '../data/vocabulary-dev-test';
 import {cloudGet} from './cloud-api';
 
 const bundled = {'home-phrases': homePhrases, sentences, 'vocabulary-dev-test': vocabularyDevTest};
-const lists: any[] = initialLists.slice();
+/** 仅开发版显示测试题库，环境信息不可用时按正式版处理。 */
+function isDevelopment() {
+    try {
+        return wx.getAccountInfoSync().miniProgram.envVersion === 'develop';
+    } catch (_) {
+        return false;
+    }
+}
+
+const development = isDevelopment();
+const visibleBundledLists = initialLists.filter((list) =>
+    development || !['sentences', 'vocabulary-dev-test'].includes(list.id)
+);
+const lists: any[] = visibleBundledLists.slice();
 const memory: Record<string, any[]> = {};
 const CATALOG_KEY = 'sentleap:cloud-catalog:v1';
 
@@ -23,7 +36,7 @@ function normalize(list, rows) {
 function applyCatalog(rows) {
     if (!Array.isArray(rows)) throw new Error('题库目录格式错误');
     const selected = rows.filter((row) => row && typeof row.id === 'string' && /^[a-zA-Z0-9][a-zA-Z0-9._-]{0,79}$/.test(row.id) && typeof row.label === 'string' && typeof row.category === 'string' && ['word', 'phrase'].includes(row.kind) && Number.isInteger(row.wordCount) && row.wordCount > 0 && typeof row.sha256 === 'string' && /^[a-f0-9]{64}$/.test(row.sha256) && !bundled[row.id]);
-    lists.splice(initialLists.length, lists.length, ...selected.map((row) => ({...row, bundled: false})));
+    lists.splice(visibleBundledLists.length, lists.length, ...selected.map((row) => ({...row, bundled: false})));
 }
 
 /** 恢复上次获取的目录，网络不可用时仍能显示已缓存题库。 */
@@ -105,7 +118,7 @@ async function load(listId) {
 /** 返回已加载的题目，用于首页预览。 */
 function cached(listId) {
     const list = lists.find((item) => item.id === listId);
-    return bundled[listId] || (list && memory[`sentleap:dictionary:${listId}:${list.sha256}`]) || null;
+    return (list && (bundled[listId] || memory[`sentleap:dictionary:${listId}:${list.sha256}`])) || null;
 }
 
 export {lists, bundled, load, normalize, cached, refreshCloud};

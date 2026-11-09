@@ -65,6 +65,7 @@ assert.ok(packageBytes < 2 * 1024 * 1024, '内置包超过 2 MiB 预算');
 let saved; let failWrite = false; let failRead = false; const toasts = [];
 const playedAudio = [];
 const wx: any = (global as any).wx = {
+  getAccountInfoSync() { return { miniProgram: { envVersion: 'develop' } }; },
   getStorageSync(key) { if (failRead) throw new Error('read failure'); if (key === 'keySoundOn') return soundSetting; return saved && JSON.parse(JSON.stringify(saved)); },
   setStorageSync(key, value) { if (failWrite) throw new Error('quota'); if (key === 'keySoundOn') { soundSetting = value; return; } saved = JSON.parse(JSON.stringify(value)); },
   showToast(value) { toasts.push(value); }, hideKeyboard() {}, setNavigationBarTitle() {},
@@ -103,6 +104,25 @@ broken.cursor('bad', 4); assert.equal(saved.cursors.one, 8, '读取故障不能�
 delete require.cache[storagePath];
 
 (async () => {
+  // 体验版、正式版与环境读取异常都不得暴露开发题库。
+  const catalogPath = require.resolve('../miniprogram/utils/catalog');
+  const originalModule = require.cache[catalogPath];
+  const accountInfo = wx.getAccountInfoSync;
+  for (const environment of ['trial', 'release', undefined]) {
+    wx.getAccountInfoSync = () => {
+      if (!environment) throw new Error('环境不可用');
+      return { miniProgram: { envVersion: environment } };
+    };
+    delete require.cache[catalogPath];
+    const visibleCatalog = require(catalogPath);
+    assert.deepEqual(visibleCatalog.lists.map((list) => list.id), ['home-phrases']);
+    for (const id of ['sentences', 'vocabulary-dev-test']) {
+      assert.equal(visibleCatalog.cached(id), null);
+      await assert.rejects(visibleCatalog.load(id), /不存在/);
+    }
+  }
+  wx.getAccountInfoSync = accountInfo;
+  require.cache[catalogPath] = originalModule;
   assert.deepEqual(catalog.lists.map((list) => list.id), ['home-phrases', 'sentences', 'vocabulary-dev-test']);
   wx.request = () => { throw new Error('离线题库不应请求网络'); };
   for (const list of catalog.lists) {
@@ -175,7 +195,7 @@ delete require.cache[storagePath];
   assert.equal(sentencePage.data.completedWords[0].role, '主语');
   sentencePage.retryCurrent(); assert.equal(sentencePage.data.done, false);
   assert.equal(sentencePage.data.completedWords.length, 0);
-  sentencePage.next(); assert.equal(sentencePage.index, 1); assert.equal(sentencePage.data.previousLabel, sentencePage.entries[0].item.english);
+  sentencePage.next(); assert.equal(sentencePage.index, 1); assert.equal(sentencePage.data.previousLabel, '', '短语练习上一句不显示英文');
   const sentenceReview = Object.assign({}, definition, { data: { ...definition.data }, options: {}, review: true, setData(value) { Object.assign(this.data, value); } });
   await sentenceReview.load();
   sentenceReview.index = sentenceReview.entries.findIndex((entry) => entry.listId === 'sentences');
@@ -491,6 +511,28 @@ delete require.cache[storagePath];
   await Promise.resolve(); await Promise.resolve();
   assert.equal(plays, playsBeforeWord + 1, '离开页面后不能播放延迟完成的预加载音频');
   wordAudio.onUnload(); assert.ok(deletedAudio.includes(writtenAudio[1].filePath));
+  pendingAudio.length = 0;
+  const phraseAudio = Object.assign({}, definition, {
+    options: { list: 'home-phrases' },
+    data: { ...definition.data },
+    setData(value) { Object.assign(this.data, value); },
+  });
+  await phraseAudio.load();
+  assert.equal(pendingAudio.length, 1, '短语开题只请求一次整句发音');
+  assert.equal(pendingAudio[0].data.word, phraseAudio.state.item.english);
+  const playsBeforePhrase = plays;
+  pendingAudio[0].success({ data: { ok: true, audio: 'YXVkaW8=' } });
+  await Promise.resolve();
+  await Promise.resolve();
+  assert.equal(plays, playsBeforePhrase + 1, '短语开题自动朗读整句');
+  phraseAudio.next();
+  assert.equal(pendingAudio[1].data.word, phraseAudio.state.item.english, '下一题同样朗读整句');
+  phraseAudio.onHide();
+  pendingAudio[1].success({ data: { ok: true, audio: 'YXVkaW8=' } });
+  await Promise.resolve();
+  await Promise.resolve();
+  assert.equal(plays, playsBeforePhrase + 1, '离开短语页面后不播放延迟音频');
+  phraseAudio.onUnload();
   const pronunciationFunction = require('../cloud-service/src/services/pronunciation.ts');
   const https = require('node:https'); const { EventEmitter } = require('node:events');
   const originalGet = https.get; let requestedUrl;
