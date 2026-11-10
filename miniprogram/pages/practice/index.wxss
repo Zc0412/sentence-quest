@@ -152,3 +152,56 @@
 .modern-practice .exercise-actions { margin-top:12px; }
 .modern-practice .exercise-actions .glass-action { height:34px; padding:0 3px; border:0; border-radius:10px; background:transparent; color:#64748b; font-size:12px; font-weight:600; gap:4px; }
 .modern-practice .exercise-actions .action-icon { width:15px; height:15px; }
+
+/* 等原生页面切换结束后，再按页面从上到下依次呈现练习内容。 */
+.practice-entering .glass-nav {
+  animation: practice-nav-in 220ms cubic-bezier(.22, .8, .2, 1) both;
+}
+.practice-entering .practice-tools {
+  animation: practice-card-in 280ms 80ms cubic-bezier(.22, .8, .2, 1) both;
+}
+.practice-entering .mastery {
+  animation: practice-card-in 280ms 150ms cubic-bezier(.22, .8, .2, 1) both;
+}
+.practice-entering .exercise-card,
+.practice-entering .state-card {
+  animation: practice-card-in 320ms 220ms cubic-bezier(.22, .8, .2, 1) both;
+}
+.practice-entering .typing-stats {
+  animation: practice-card-in 300ms 300ms cubic-bezier(.22, .8, .2, 1) both;
+}
+.practice-entering .mastery-track > view {
+  transform-origin: left center;
+  animation: practice-progress-in 320ms 180ms ease both;
+}
+.practice-entering .glass-keyboard {
+  animation: practice-keyboard-in 360ms 400ms cubic-bezier(.22, .8, .2, 1) both;
+}
+@keyframes practice-nav-in {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes practice-card-in {
+  from { opacity: 0; transform: translateY(14px) scale(.96); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+@keyframes practice-keyboard-in {
+  from { opacity: 0; transform: translateY(60px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes practice-progress-in {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .practice-entering .glass-nav,
+  .practice-entering .exercise-card,
+  .practice-entering .state-card,
+  .practice-entering .practice-tools,
+  .practice-entering .mastery,
+  .practice-entering .typing-stats,
+  .practice-entering .mastery-track > view,
+  .practice-entering .glass-keyboard {
+    animation: none;
+  }
+}

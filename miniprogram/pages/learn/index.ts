@@ -1,8 +1,10 @@
+/** 题库首页：读取本地进度与题库，提供首次练习、继续练习及单次卡片过渡。 */
+import { createPracticeTransition } from '../../utils/practice-transition';
 import { lists, bundled, cached } from '../../utils/catalog';
 import * as storage from '../../utils/storage';
 import { libraryItems, recentIds } from '../../utils/library-list';
 Page({
-  data: { scrolled: false, hasProgress: false, sampleWords: [], firstLabel: '精选短语', firstTotal: 0, firstSentence: '', lists: [], lastLabel: '', lastSentence: '', lastCompleted: 0, lastTotal: 0, statusBarHeight: 24, navigationHeight: 44 },
+  data: { practiceMotion: '', motionExpanded: false, motionBounds: '', scrolled: false, hasProgress: false, sampleWords: [], firstLabel: '精选短语', firstTotal: 0, firstSentence: '', lists: [], lastLabel: '', lastSentence: '', lastCompleted: 0, lastTotal: 0, statusBarHeight: 24, navigationHeight: 44 },
   onLoad() {
     const info = wx.getWindowInfo ? wx.getWindowInfo() : wx.getSystemInfoSync();
     const capsule = wx.getMenuButtonBoundingClientRect();
@@ -10,7 +12,14 @@ Page({
     this.setData({ statusBarHeight, navigationHeight: capsule.height && capsule.top >= statusBarHeight ? (capsule.top - statusBarHeight) * 2 + capsule.height : 44 });
   },
   onPageScroll(event) { const scrolled = event.scrollTop > 0; if (scrolled !== this.data.scrolled) this.setData({ scrolled }); },
+  onHide() {
+    if (this.practiceTransition) this.practiceTransition.cancel();
+  },
+  onUnload() {
+    if (this.practiceTransition) this.practiceTransition.cancel();
+  },
   onShow() {
+    if (this.practiceTransition) this.practiceTransition.cancel();
     const tabBar = this.getTabBar && this.getTabBar();
     if (tabBar) tabBar.syncSelected('learn');
     this.refresh();
@@ -49,8 +58,38 @@ Page({
       })),
     });
   },
-  showAll() { wx.navigateTo({ url: '/pages/library/index' }); },
-  startFirst() { wx.navigateTo({ url: '/pages/practice/index?list=home-phrases' }); },
-  open(event) { wx.navigateTo({ url: `/pages/practice/index?list=${encodeURIComponent(event.currentTarget.dataset.id)}` }); },
-  resume() { wx.navigateTo({ url: `/pages/practice/index?list=${encodeURIComponent((lists.find((list) => list.id === storage.read().lastList) || lists[0]).id)}` }); },
+  showAll() {
+    if (this.practiceTransition?.isActive()) return;
+    wx.navigateTo({ url: '/pages/library/index' });
+  },
+  startFirst() {
+    this.enterPractice('home-phrases', 'start');
+  },
+  open(event) {
+    if (this.practiceTransition?.isActive()) return;
+    wx.navigateTo({ url: `/pages/practice/index?list=${encodeURIComponent(event.currentTarget.dataset.id)}` });
+  },
+  resume() {
+    const list = lists.find((item) => item.id === storage.read().lastList) || lists[0];
+    this.enterPractice(list.id, 'continue');
+  },
+  /** 按当前视口测量卡片，兼容滚动位置和不同屏宽。 */
+  enterPractice(listId, motion) {
+    if (!this.practiceTransition) {
+      this.practiceTransition = createPracticeTransition({
+        measure: (selector, done) => {
+          if (!wx.createSelectorQuery) return done();
+          wx.createSelectorQuery().in(this).select(selector).boundingClientRect((bounds) => {
+            done(bounds as WechatMiniprogram.BoundingClientRectCallbackResult);
+          }).exec();
+        },
+        render: (values) => this.setData(values),
+        navigate: (url, fail) => wx.navigateTo({ url, fail }),
+        failed: () => wx.showToast({ title: '暂时无法打开练习，请重试', icon: 'none' }),
+      });
+    }
+    this.practiceTransition.start(listId, motion);
+  },
+  /** 过渡期间拦截触摸，避免连点或滚动移动卡片。 */
+  stopMotionTouch() {},
 });

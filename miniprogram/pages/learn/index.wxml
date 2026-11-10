@@ -1,4 +1,5 @@
-<view class="library-page">
+<!-- 题库首页：展示真实题库与学习进度，点击首次或继续练习后播放单次过渡。 -->
+<view class="library-page {{practiceMotion ? 'motion-running' : ''}}">
   <view class="ambient" aria-hidden="true"><view class="orb orb-blue"></view><view class="orb orb-purple"></view><view class="orb orb-mint"></view><view class="orb orb-teal"></view><view class="orb orb-peach"></view></view>
   <view class="library-shell">
     <view class="persistent-header {{scrolled ? 'is-scrolled' : ''}}"><view style="height:{{statusBarHeight}}px;"></view>
@@ -14,14 +15,14 @@
           <view class="example-board"><view wx:for="{{sampleWords}}" wx:key="index" wx:for-item="word" class="example-word {{word.active ? 'example-active' : word.passed ? 'example-passed' : 'example-pending'}}"><view class="example-phonetic">{{word.phonetic}}</view><view class="example-letters"><view wx:for="{{word.letters}}" wx:key="position" wx:for-item="letter" class="example-letter"><text wx:if="{{letter.value}}">{{letter.value}}</text><view wx:else class="example-dot"></view></view></view><view class="example-underline"></view></view></view>
         </view>
         <view class="welcome-steps"><view class="welcome-step"><view class="step-icon"><image src="/assets/welcome-eye.svg" /></view><text>看中文释义</text></view><image class="step-chevron" src="/assets/welcome-chevron.svg" /><view class="welcome-step"><view class="step-icon"><image src="/assets/welcome-keyboard.svg" /></view><text>逐词拼写</text></view><image class="step-chevron" src="/assets/welcome-chevron.svg" /><view class="welcome-step"><view class="step-icon"><image src="/assets/welcome-next.svg" /></view><text>自动下一词</text></view></view>
-        <button class="first-button" bindtap="startFirst">开始第一句 <image src="/assets/completion-next.svg" /></button>
+        <button class="first-button motion-button" hover-class="none" aria-disabled="{{!!practiceMotion}}" bindtap="startFirst"><view class="motion-sweep"></view><text>开始第一句</text><image class="motion-arrow" src="/assets/completion-next.svg" /></button>
         <view class="welcome-caption">{{firstLabel}} · 共 {{firstTotal}} 句 · 已掌握 0 句</view>
       </view>
       <view wx:else class="resume-card">
         <view class="resume-caption">继续上次练习</view>
         <view class="resume-sentence {{lastIsWord ? 'resume-word-meaning' : ''}}">{{lastSentence}}</view>
         <view class="resume-description">{{lastLabel}} · 已掌握 {{lastCompleted}} / {{lastTotal}}</view>
-        <button class="resume-button" bindtap="resume">继续练习</button>
+        <button class="resume-button motion-button" hover-class="none" aria-disabled="{{!!practiceMotion}}" bindtap="resume"><view class="motion-sweep"></view><text>继续练习</text><image class="motion-arrow" src="/assets/library-all-arrow.svg" /></button>
       </view>
       <view class="library-section"><view class="library-title">{{hasProgress ? '最近练习' : '练习题库'}}</view><button class="all-libraries" bindtap="showAll"><text>全部</text><image src="/assets/library-all-arrow.svg" /></button></view>
       <view wx:if="{{hasProgress && !recentLists.length}}" class="no-recent">暂无最近练习，去全部题库选择吧。</view>
@@ -31,5 +32,18 @@
         <view wx:if="{{hasProgress}}" class="chevron" aria-hidden="true"></view><view wx:elif="{{item.id === 'home-phrases'}}" class="start-pill">开始</view><view wx:else class="not-started">未开始</view>
       </button>
     </view>
+  </view>
+</view>
+
+<!-- 过渡覆盖层仅呈现背景；题目与键盘由真实练习页加载。 -->
+<view wx:if="{{practiceMotion}}" class="practice-motion-shield" catchtap="stopMotionTouch" catchtouchmove="stopMotionTouch" aria-hidden="true">
+  <view class="practice-motion-card motion-{{practiceMotion}} {{motionExpanded ? 'is-expanded' : ''}}" style="{{motionBounds}}">
+    <view class="motion-destination-background">
+      <view class="orb orb-blue"></view>
+      <view class="orb orb-purple"></view>
+      <view class="orb orb-mint"></view>
+      <view class="orb orb-teal"></view>
+    </view>
+    <view class="motion-source-background"></view>
   </view>
 </view>

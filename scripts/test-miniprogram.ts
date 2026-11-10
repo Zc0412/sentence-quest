@@ -6,6 +6,82 @@ import * as cp from 'node:child_process';
 import * as ts from 'typescript';
 const compileTs = (source) => ts.transpileModule(source, { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2020, esModuleInterop: true } }).outputText;
 const root = path.resolve(__dirname, '../miniprogram');
+/** 用虚拟时钟验证过渡行为，避免测试依赖实际动画耗时。 */
+function testPracticeTransition() {
+  const output = { exports: {} as any };
+  const queue = new Map<number, { at: number; run: () => void }>();
+  let now = 0;
+  let nextId = 0;
+  vm.runInNewContext(compileTs(fs.readFileSync(path.join(root, 'utils/practice-transition.ts'), 'utf8')), {
+    exports: output.exports,
+    setTimeout(run, delay) {
+      const id = ++nextId;
+      queue.set(id, { at: now + delay, run });
+      return id;
+    },
+    clearTimeout(id) { queue.delete(id); },
+  });
+  const advance = (duration: number) => {
+    const end = now + duration;
+    while (true) {
+      const next = [...queue.entries()].filter(([, timer]) => timer.at <= end).sort((a, b) => a[1].at - b[1].at)[0];
+      if (!next) break;
+      queue.delete(next[0]);
+      now = next[1].at;
+      next[1].run();
+    }
+    now = end;
+  };
+  const values: any = {};
+  const routes: string[] = [];
+  let measured;
+  let failed;
+  let failures = 0;
+  const transition = output.exports.createPracticeTransition({
+    measure(selector, done) { measured = done; },
+    render(update) { Object.assign(values, update); },
+    navigate(url, onFail) { routes.push(url); failed = onFail; },
+    failed() { failures++; },
+  });
+  transition.start('test list', 'continue');
+  measured({ left: 12, top: -20, width: 296, height: 180 });
+  transition.start('duplicate', 'start');
+  assert.equal(values.practiceMotion, 'continue');
+  assert.match(values.motionBounds, /top:-20px;width:296px/);
+  advance(320);
+  assert.equal(values.motionExpanded, true);
+  assert.equal(routes.length, 0);
+  advance(480);
+  assert.deepEqual(routes, ['/pages/practice/index?list=test%20list&entryMotion=continue']);
+  failed();
+  assert.equal(failures, 1);
+  assert.equal(values.practiceMotion, '');
+  assert.equal(transition.isActive(), false);
+
+  transition.start('home-phrases', 'start');
+  measured({ left: 16, top: 110, width: 358, height: 330 });
+  assert.match(values.motionBounds, /border-radius:28px/);
+  transition.cancel();
+  advance(1000);
+  assert.equal(routes.length, 1, '离开首页后不能延迟跳转');
+
+  transition.start('home-phrases', 'start');
+  const staleMeasurement = measured;
+  transition.cancel();
+  staleMeasurement({ left: 16, top: 110, width: 358, height: 330 });
+  advance(1000);
+  assert.equal(routes.length, 1, '离页后的测量结果应被丢弃');
+
+  transition.start('fallback', 'start');
+  advance(160);
+  assert.equal(routes[1], '/pages/practice/index?list=fallback', '测量超时回退普通导航');
+  measured({ left: 16, top: 110, width: 358, height: 330 });
+  advance(1000);
+  assert.equal(routes.length, 2, '超时后迟到的测量不能重复导航');
+  transition.cancel();
+}
+testPracticeTransition();
+
 const appSource = compileTs(fs.readFileSync(path.join(root, 'app.ts'), 'utf8'));
 function launchApp(cloudEnvId, cloud) {
   let app;

@@ -17,3 +17,114 @@ page { background:#e4edff; }
 .library-section .all-libraries { display:flex; align-items:center; justify-content:center; gap:2px; width:auto; min-width:0; margin:0; padding:6px 0 6px 12px; background:transparent; color:#2f6fed; font-size:14px; font-weight:700; line-height:20px; white-space:nowrap; }.all-libraries text { display:block; line-height:20px; }.all-libraries image { display:block; flex-shrink:0; width:16px; height:16px; }.no-recent { text-align:center; padding:20px 12px; font-size:12px; color:#475569; }
 
 @media (max-width:350px) { .welcome-steps { gap:1px; }.welcome-step { gap:3px; }.step-icon { width:24px; height:24px; }.step-icon image { width:14px; height:14px; }.welcome-step text { font-size:10px; }.step-chevron { width:10px; height:10px; } }
+
+/* 按钮反馈后展开卡片，再进入真实练习页。 */
+.motion-button {
+  position: relative;
+  overflow: hidden;
+}
+.motion-button text,
+.motion-button .motion-arrow {
+  position: relative;
+  z-index: 1;
+}
+.resume-card .resume-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.resume-button .motion-arrow {
+  width: 18px;
+  height: 18px;
+}
+.motion-sweep {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(105deg, transparent, rgba(255, 255, 255, .6), transparent);
+  transform: translateX(-101%);
+  opacity: 0;
+}
+.motion-running .motion-button {
+  animation: practice-press 220ms cubic-bezier(.22, .8, .2, 1) both;
+}
+.motion-running .motion-sweep {
+  animation: practice-sweep 320ms ease-in-out both;
+}
+.motion-running .motion-arrow {
+  animation: practice-arrow 320ms cubic-bezier(.22, .8, .2, 1) both;
+}
+@keyframes practice-press {
+  0%, 100% { transform: scale(1); }
+  40% { transform: scale(.94); }
+}
+@keyframes practice-sweep {
+  0% { transform: translateX(-101%); opacity: 0; }
+  15% { opacity: .95; }
+  85% { transform: translateX(0); opacity: .95; }
+  100% { transform: translateX(0); opacity: 0; }
+}
+@keyframes practice-arrow {
+  0%, 100% { transform: translateX(0); }
+  55% { transform: translateX(7px); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .motion-running .motion-button,
+  .motion-running .motion-sweep,
+  .motion-running .motion-arrow {
+    animation: none;
+  }
+}
+
+/* 使用实测卡片位置展开到当前视口，不固定设备宽高。 */
+.practice-motion-shield {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+}
+.practice-motion-card {
+  position: absolute;
+  overflow: hidden;
+  opacity: 0;
+  box-shadow: 0 10px 40px rgba(50, 80, 160, .25);
+  transition: left 460ms cubic-bezier(.65, 0, .25, 1), top 460ms cubic-bezier(.65, 0, .25, 1), width 460ms cubic-bezier(.65, 0, .25, 1), height 460ms cubic-bezier(.65, 0, .25, 1), border-radius 460ms ease;
+}
+.practice-motion-card.is-expanded {
+  left: 0 !important;
+  top: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  border-radius: 0 !important;
+  opacity: 1;
+}
+.motion-destination-background,
+.motion-source-background {
+  position: absolute;
+  inset: 0;
+}
+.motion-destination-background {
+  background: linear-gradient(160deg, #e4edff, #eaf8f6);
+}
+.motion-start .motion-source-background {
+  background: rgba(255, 255, 255, .45);
+}
+.motion-continue .motion-source-background {
+  background: linear-gradient(135deg, #3f7af0, #6e5af0);
+}
+.is-expanded .motion-source-background {
+  animation: practice-source-fade 420ms ease both;
+}
+@keyframes practice-source-fade {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .is-expanded .motion-source-background {
+    animation: none;
+  }
+  .practice-motion-card {
+    transition: none;
+  }
+  .practice-motion-shield {
+    opacity: 0;
+  }
+}

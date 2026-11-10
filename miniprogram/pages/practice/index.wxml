@@ -8,7 +8,7 @@
 <button wx:if="{{wordDefinitions.length > 2 || (embedded && hasLongDefinition)}}" class="word-definitions-toggle" bindtap="toggleDefinitions" aria-expanded="{{definitionsExpanded}}">{{definitionsExpanded ? '收起' : embedded ? (wordDefinitions.length > 2 ? '还有 ' + (wordDefinitions.length - 2) + ' 项 · 查看全部' : '查看全部') : '展开其余 ' + (wordDefinitions.length - 2) + ' 项'}}<image class="{{definitionsExpanded ? 'expanded' : ''}}" src="/assets/definition-chevron.svg" /></button>
 </view>
 </template>
-<view class="glass-page practice modern-practice {{done && isWord && !finished ? 'word-complete' : ''}} {{done && !finished ? 'practice-complete' : ''}}">
+<view class="glass-page practice modern-practice {{entryMotion && !loading && !loadError ? 'practice-entering' : ''}} {{done && isWord && !finished ? 'word-complete' : ''}} {{done && !finished ? 'practice-complete' : ''}}">
   <template is="ambient" />
   <view class="practice-shell">
     <view class="status-space" style="height:{{statusBarHeight}}px;"></view>

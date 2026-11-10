@@ -10,8 +10,30 @@ import { preferences } from '../../utils/preferences';
 import { createAudioStore } from '../../utils/pronunciation';
 import { wordDefinitions } from '../../utils/word-definitions';
 Page({
-  data: { loading: true, loadError: '', done: false, finished: false, typed: '', slots: [], hints: true, earned: 0, xp: 0, grammarIndex: 0, statusBarHeight: 24, navigationHeight: 44, accent: '1', shift: false, pressedKey: '', keyRows: ['qwertyuiop'.split(''), 'asdfghjkl'.split(''), 'zxcvbnm'.split('')], inputCount: 0, correctCount: 0, accuracy: '—' },
-  onLoad(options) { this.setData(navigationMetrics()); this.options = options; this.review = options.review === '1'; this.load(); },
+  data: { entryMotion: false, loading: true, loadError: '', done: false, finished: false, typed: '', slots: [], hints: true, earned: 0, xp: 0, grammarIndex: 0, statusBarHeight: 24, navigationHeight: 44, accent: '1', shift: false, pressedKey: '', keyRows: ['qwertyuiop'.split(''), 'asdfghjkl'.split(''), 'zxcvbnm'.split('')], inputCount: 0, correctCount: 0, accuracy: '—' },
+  onLoad(options) {
+    this.setData(navigationMetrics());
+    this.entryMotionRequested = options.entryMotion === 'start' || options.entryMotion === 'continue';
+    this.options = options;
+    this.review = options.review === '1';
+    this.load();
+  },
+  /** 数据就绪后只播放一次，切题或键盘再次出现时不重播。 */
+  playEntryMotion() {
+    if (!this.entryMotionRequested || this.hidden || this.unloaded) return;
+    this.entryMotionRequested = false;
+    this.setData({ entryMotion: true }, () => {
+      if (this.hidden || this.unloaded) return;
+      this.entryMotionTimer = setTimeout(() => {
+        this.setData({ entryMotion: false });
+      }, 560);
+    });
+  },
+  stopEntryMotion() {
+    clearTimeout(this.entryMotionTimer);
+    this.entryMotionRequested = false;
+    this.setData({ entryMotion: false });
+  },
   async load() {
     this.typing = this.typing || { input: 0, correct: 0 };
     this.setData({ loading: true, loadError: '' });
@@ -29,6 +51,7 @@ Page({
       const list = catalog.lists.find((item) => item.id === (this.options.list || 'home-phrases'));
       wx.setNavigationBarTitle({ title: this.review ? '错题复习' : list.label });
       this.setData({ loading: false, xp: storage.read().xp, accent: storage.read().settings.accent, reviewMode: this.review, listLabel: this.review ? '巩固练习' : list.label, hints: storage.read().settings.hints }); this.begin();
+      this.playEntryMotion();
     } catch (error) { if (!this.unloaded) this.setData({ loading: false, loadError: error.message }); }
   },
   begin() {
@@ -175,6 +198,18 @@ Page({
     this.preloadAudio(word, accent).then(play).catch(() => { if (!isAutomatic && !this.unloaded && token === this.playbackToken) wx.showToast({ title: '发音失败，请检查云开发配置', icon: 'none' }); });
   },
   onShow() { this.hidden = false; },
-  onHide() { this.hidden = true; this.playbackToken = (this.playbackToken || 0) + 1; this.releaseKey(); if (this.audio) this.audio.stop(); },
-  onUnload() { this.unloaded = true; this.playbackToken = (this.playbackToken || 0) + 1; if (this.audio) this.audio.destroy(); if (this.audioStore) this.audioStore.dispose(); },
+  onHide() {
+    this.stopEntryMotion();
+    this.hidden = true;
+    this.playbackToken = (this.playbackToken || 0) + 1;
+    this.releaseKey();
+    if (this.audio) this.audio.stop();
+  },
+  onUnload() {
+    clearTimeout(this.entryMotionTimer);
+    this.unloaded = true;
+    this.playbackToken = (this.playbackToken || 0) + 1;
+    if (this.audio) this.audio.destroy();
+    if (this.audioStore) this.audioStore.dispose();
+  },
 });
