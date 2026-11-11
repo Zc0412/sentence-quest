@@ -1,3 +1,4 @@
+// 分享海报页面：根据本地学习进度生成海报，并支持分享或保存到系统相册。
 import * as storage from '../../utils/storage';
 import { navigationMetrics } from '../../utils/navigation';
 import { posterData, renderPoster } from '../../utils/poster';
@@ -32,14 +33,47 @@ Page({
   save() {
     if (!this.data.imagePath || this.data.saving) return;
     this.setData({ saving: true });
-    wx.saveImageToPhotosAlbum({ filePath: this.data.imagePath,
+    const showPermissionModal = () => {
+      if (this.unloaded) return;
+      this.setData({
+        saving: false,
+        modal: { title: '无法保存到相册', content: '请在微信设置中允许保存图片到相册，然后重试。', confirmText: '打开设置', showCancel: true },
+      });
+    };
+    const saveImage = () => wx.saveImageToPhotosAlbum({
+      filePath: this.data.imagePath,
       success: () => { if (!this.unloaded) { this.setData({ saving: false }); wx.showToast({ title: '已保存到相册', icon: 'success' }); } },
       fail: (error) => {
         if (this.unloaded) return;
         this.setData({ saving: false });
         if (/auth|deny|permission/i.test((error && error.errMsg) || '')) {
-          this.setData({ modal: { title: '无法保存到相册', content: '请在微信设置中允许保存图片到相册，然后重试。', confirmText: '打开设置', showCancel: true } });
-        } else wx.showToast({ title: '保存失败，请重试', icon: 'none' });
+          showPermissionModal();
+        } else {
+          console.warn('保存海报到相册失败:', error && error.errMsg);
+          wx.showToast({ title: '保存失败，请检查相册权限后重试', icon: 'none' });
+        }
+      },
+    });
+    wx.getSetting({
+      success: ({ authSetting }) => {
+        const permission = authSetting['scope.writePhotosAlbum'];
+        if (permission === true) {
+          saveImage();
+        } else if (permission === false) {
+          showPermissionModal();
+        } else {
+          wx.authorize({
+            scope: 'scope.writePhotosAlbum',
+            success: saveImage,
+            fail: showPermissionModal,
+          });
+        }
+      },
+      fail: (error) => {
+        if (this.unloaded) return;
+        this.setData({ saving: false });
+        console.warn('读取相册权限失败:', error && error.errMsg);
+        wx.showToast({ title: '无法读取相册权限，请重试', icon: 'none' });
       },
     });
   },
