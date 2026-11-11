@@ -86,9 +86,11 @@ const appSource = compileTs(fs.readFileSync(path.join(root, 'app.ts'), 'utf8'));
 function launchApp(cloudEnvId, cloud) {
   let app;
   let soundInitialized = false;
-  vm.runInNewContext(appSource, { exports: {}, require: (name) => name === './config' ? { cloudEnvId } : { init() { soundInitialized = true; }, stop() {} }, App: (value) => { app = value; }, wx: { cloud }, console: { warn() {} } });
+  let audioOption;
+  vm.runInNewContext(appSource, { exports: {}, require: (name) => name === './config' ? { cloudEnvId } : { init() { soundInitialized = true; }, stop() {} }, App: (value) => { app = value; }, wx: { cloud, setInnerAudioOption(option) { audioOption = option; } }, console: { warn() {} } });
   app.onLaunch();
   assert.equal(soundInitialized, true, '音效初始化不依赖云开发配置');
+  assert.equal(audioOption.obeyMuteSwitch, false, '全局音频设置应忽略静音开关');
 }
 let initializedEnv;
 launchApp('', { init: ({ env }) => { initializedEnv = env; } }); assert.equal(initializedEnv, undefined);
@@ -116,7 +118,7 @@ for (let index = 0; index < 5; index += 1) keySound.play();
 assert.deepEqual(soundContexts.slice(0, 4).map((ctx) => ctx.plays), [2, 1, 1, 1]);
 keySound.play('del'); assert.equal(soundContexts[4].plays, 1);
 assert.equal(soundContexts[4].src, '/sounds/key_ios_delete.wav');
-assert.ok(soundContexts.every((ctx) => ctx.volume === 0.1 && ctx.obeyMuteSwitch));
+assert.ok(soundContexts.every((ctx) => ctx.volume === 0.1));
 keySound.setEnabled(false); keySound.play(); keySound.play('del');
 assert.equal(soundContexts.reduce((sum, ctx) => sum + ctx.plays, 0), 6, '关闭后停止发声');
 assert.equal(loadKeySound().isEnabled(), false, '重启后保留关闭状态');

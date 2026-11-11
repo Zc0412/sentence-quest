@@ -19,7 +19,6 @@ function init() {
         const ctx = wx.createInnerAudioContext();
         pool.push(ctx);
         ctx.onError(() => {});
-        ctx.obeyMuteSwitch = true;
         ctx.volume = 0.1;
         ctx.src = SOUNDS[name];
       }
