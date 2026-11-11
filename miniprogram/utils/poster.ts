@@ -72,7 +72,7 @@ function renderPoster(ctx, data, width) {
   text(ctx, `${data.xp} XP`, 82, 404, 21, '#b45309', 'center'); text(ctx, `${data.streak} 天`, 195, 404, 21, ink, 'center'); text(ctx, `${data.percent}%`, 308, 404, 21, blue, 'center');
   text(ctx, '经验值', 82, 428, 12, muted, 'center'); text(ctx, '连续练习', 195, 428, 12, muted, 'center'); text(ctx, '精选短语进度', 308, 428, 12, muted, 'center');
   roundRect(ctx, 26, 555, 338, 108, 24, 'rgba(255,255,255,.65)', 'rgba(255,255,255,.9)');
-  roundRect(ctx, 40, 570, 78, 78, 14, 'rgba(255,255,255,.85)');
-  ctx.drawImage('/assets/library-logo.png', 46, 596, 66, 24); text(ctx, '一起练习', 136, 599, 17, ink); text(ctx, '拼写英文短语，一句一跃', 136, 625, 12, muted);
+  ctx.drawImage('/assets/share-miniprogram-code.jpg', 40, 570, 78, 78);
+  text(ctx, '扫码进入小程序', 136, 599, 17, ink); text(ctx, '拼写英文短语，一句一跃', 136, 625, 12, muted);
 }
 export { posterData, renderPoster, lines };
