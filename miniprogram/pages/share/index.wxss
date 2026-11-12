@@ -1,3 +1,218 @@
-@import '../../styles/glass.wxss';
-.share-page { position:fixed; inset:0; min-height:0; overflow:hidden; }.share-shell { position:relative; display:flex; flex-direction:column; height:100%; }.status-space { flex-shrink:0; }.share-nav { padding-left:10px; font-size:16px; font-weight:700; }.share-nav .back-button { flex:0 0 30px; width:30px; height:36px; background:transparent; color:#0f172a; font-size:32px; font-weight:400; line-height:32px; }.poster-scroll { flex:1; min-height:0; height:0; }.poster-wrapper { position:relative; margin:14px auto 20px; overflow:hidden; border-radius:22px; box-shadow:0 18px 44px rgba(40,70,150,.3); background:#e4edff; }.poster-canvas { display:block; }.poster-status { position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:12px; background:rgba(228,237,255,.92); color:#475569; font-size:14px; }.poster-status button { width:auto; padding:10px 16px; color:#2f6fed; background:#fff; border-radius:18px; }.share-actions { flex-shrink:0; padding:20px 20px calc(18px + env(safe-area-inset-bottom)); border-radius:28px 28px 0 0; border-bottom:0; background:rgba(255,255,255,.5); }.action-row { display:flex; gap:12px; }.action-row .share-friend,.action-row .save-image { flex:1 1 0%; width:0; height:50px; padding:0 4px; display:flex; align-items:center; justify-content:center; gap:6px; border-radius:25px; font-size:15px; font-weight:800; white-space:nowrap; }.action-row .share-friend { background:linear-gradient(135deg,#4f86f7,#2f6fed); border:1px solid rgba(255,255,255,.7); box-shadow:0 8px 20px rgba(47,111,237,.35); color:#fff; }.action-row .save-image { background:rgba(255,255,255,.6); border:1px solid rgba(255,255,255,.85); color:#2f6fed; }.action-row button[disabled] { opacity:.5; }.action-row image { width:18px; height:18px; flex-shrink:0; }.share-note { text-align:center; font-size:12px; color:#475569; margin-top:12px; }
-@media (max-width:350px) { .share-actions { padding-left:14px; padding-right:14px; }.action-row { gap:8px; }.action-row .share-friend,.action-row .save-image { font-size:13px; } }
+@import "../../styles/glass.wxss";
+
+.share-page {
+  position: fixed;
+  inset: 0;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.share-shell {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.status-space {
+  flex-shrink: 0;
+}
+
+.share-nav {
+  padding-left: 12px;
+}
+
+/* 固定图标盒与文字行高，避免字符箭头的字体基线造成上下偏移。 */
+.share-nav .nav-back {
+  height: 44px;
+  gap: 2px;
+  align-items: center;
+}
+
+.share-back-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 34px;
+  height: 34px;
+}
+
+.share-back-icon image {
+  display: block;
+  width: 22px;
+  height: 22px;
+}
+
+.share-nav .glass-nav-title {
+  line-height: 22px;
+}
+
+.poster-scroll {
+  flex: 1;
+  min-height: 0;
+  height: 0;
+}
+
+.poster-stage {
+  position: relative;
+  margin-top: 8px;
+  overflow: hidden;
+}
+
+.poster-wrapper {
+  position: relative;
+  margin: 0 auto;
+  overflow: hidden;
+  border-radius: 22px;
+  box-shadow: 0 18px 44px rgba(40, 70, 150, 0.3);
+  background: #e4edff;
+}
+
+.poster-side {
+  position: absolute;
+  top: 10%;
+  overflow: hidden;
+  border-radius: 22px;
+  opacity: 0.55;
+  box-shadow: 0 8px 24px rgba(40, 70, 150, 0.15);
+}
+
+.poster-left {
+  right: 82.5%;
+}
+
+.poster-right {
+  left: 82.5%;
+}
+
+.poster-canvas {
+  display: block;
+}
+
+.poster-status {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  background: rgba(228, 237, 255, 0.92);
+  color: #475569;
+  font-size: 14px;
+}
+
+.poster-status button {
+  padding: 10px 16px;
+  color: #2f6fed;
+  background: #fff;
+  border-radius: 18px;
+}
+
+.theme-row {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 8px 24px;
+}
+
+.theme-row .theme-button {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  height: 32px;
+  padding: 0 14px;
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.4);
+  -webkit-backdrop-filter: blur(14px) saturate(170%);
+  backdrop-filter: blur(14px) saturate(170%);
+  box-shadow: 0 8px 28px rgba(50, 80, 160, 0.14);
+  color: #475569;
+  font-size: 13px;
+}
+
+.theme-row .theme-active {
+  background: #fff;
+  box-shadow: 0 1px 6px rgba(50, 80, 160, 0.22);
+  color: #0f172a;
+  font-weight: 800;
+}
+
+.theme-dot {
+  flex: none;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+.share-actions {
+  flex-shrink: 0;
+  padding: 20px 20px calc(18px + env(safe-area-inset-bottom));
+  border-radius: 28px 28px 0 0;
+  border-bottom: 0;
+  background: rgba(255, 255, 255, 0.5);
+}
+.action-row {
+  display: flex;
+  gap: 12px;
+}
+.action-row .share-friend,
+.action-row .save-image {
+  flex: 1 1 0%;
+  width: 0;
+  height: 50px;
+  padding: 0 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border-radius: 25px;
+  font-size: 15px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+.action-row .share-friend {
+  background: linear-gradient(135deg, #4f86f7, #2f6fed);
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  box-shadow: 0 8px 20px rgba(47, 111, 237, 0.35);
+  color: #fff;
+}
+.action-row .save-image {
+  background: rgba(255, 255, 255, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.85);
+  color: #2f6fed;
+}
+.action-row button[disabled] {
+  opacity: 0.5;
+}
+.action-row image {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+}
+.share-note {
+  text-align: center;
+  font-size: 12px;
+  color: #475569;
+  margin-top: 12px;
+}
+@media (max-width: 350px) {
+  .share-actions {
+    padding-left: 14px;
+    padding-right: 14px;
+  }
+  .action-row {
+    gap: 8px;
+  }
+  .action-row .share-friend,
+  .action-row .save-image {
+    font-size: 13px;
+  }
+}
+
+@media (max-width: 350px) {
+  .theme-row .theme-button {
+    padding: 0 10px;
+  }
+}

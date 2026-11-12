@@ -1,33 +1,107 @@
-/** 全部题库页面：展示离线和云端题库，并提供分类、搜索与练习入口。 */
-import { refreshCloud } from '../../utils/catalog';
-import * as storage from '../../utils/storage';
-import { navigationMetrics } from '../../utils/navigation';
+/** 全部题库页面：线上展示 API 题库及其缓存，开发版额外展示内置题库，并提供分类、搜索与练习入口。 */
+import { isDevelopment, refreshCloud } from '../../utils/catalog';
 import { libraryItems, recentIds } from '../../utils/library-list';
+import { navigationMetrics } from '../../utils/navigation';
+import * as storage from '../../utils/storage';
 Page({
-  data: { statusBarHeight: 24, navigationHeight: 44, kind: 'word', filter: 'all', query: '', lists: [], filters: [], phraseCount: 0, wordCount: 0, filterLabel: '全部' },
-  onLoad() { this.setData(navigationMetrics()); },
-  // 先显示本地目录，再刷新云端题库。
-  onShow() { this.refresh(); refreshCloud().then(() => this.refresh()).catch(() => {}); },
+  data: {
+    statusBarHeight: 24,
+    navigationHeight: 44,
+    kind: 'word',
+    filter: 'all',
+    query: '',
+    lists: [],
+    filters: [],
+    phraseCount: 0,
+    wordCount: 0,
+    filterLabel: '全部',
+  },
+  onLoad() {
+    this.setData(navigationMetrics());
+  },
+  // 先恢复接口目录缓存，再刷新；线上不以本地内置题库填充列表。
+  onShow() {
+    this.refresh();
+    refreshCloud()
+      .then(() => this.refresh())
+      .catch(() => {});
+  },
   refresh() {
-    const state = storage.read(); const all = libraryItems(state); const recent = recentIds(state);
+    const state = storage.read();
+    const all = libraryItems(state, !isDevelopment());
+    const recent = recentIds(state);
     const selected = all.filter((item) => item.kind === this.data.kind);
-    const categories = [...new Set<string>(selected.map((item) => String(item.category)))];
-    const filters = [{ id: 'all', label: '全部' }, { id: 'recent', label: '最近练习' }, { id: 'progress', label: '进行中' }]
-      .concat(categories.map((category) => ({ id: category, label: category, category: true })));
-    const filter = filters.some((item) => item.id === this.data.filter) ? this.data.filter : 'all';
+    const categories = [
+      ...new Set<string>(selected.map((item) => String(item.category))),
+    ];
+    const filters = [
+      { id: 'all', label: '全部' },
+      { id: 'recent', label: '最近练习' },
+      { id: 'progress', label: '进行中' },
+    ].concat(
+      categories.map((category) => ({
+        id: category,
+        label: category,
+        category: true,
+      }))
+    );
+    const filter = filters.some((item) => item.id === this.data.filter)
+      ? this.data.filter
+      : 'all';
     const query = this.data.query.trim().toLowerCase();
     const filtered = selected.filter((item) => {
-      const matchesFilter = filter === 'all' || (filter === 'recent' ? recent.includes(item.id) : filter === 'progress' ? item.inProgress : item.category === filter);
-      return matchesFilter && `${item.label} ${item.category}`.toLowerCase().includes(query);
+      const matchesFilter =
+        filter === 'all' ||
+        (filter === 'recent'
+          ? recent.includes(item.id)
+          : filter === 'progress'
+          ? item.inProgress
+          : item.category === filter);
+      return (
+        matchesFilter &&
+        `${item.label} ${item.category}`.toLowerCase().includes(query)
+      );
     });
-    if (filter === 'recent') filtered.sort((a, b) => recent.indexOf(a.id) - recent.indexOf(b.id));
-    this.setData({ filters, filter, filterLabel: filters.find((item) => item.id === filter).label, lists: filtered,
-      phraseCount: all.filter((item) => item.kind === 'phrase').length, wordCount: all.filter((item) => item.kind === 'word').length });
+    if (filter === 'recent')
+      filtered.sort((a, b) => recent.indexOf(a.id) - recent.indexOf(b.id));
+    this.setData({
+      filters,
+      filter,
+      filterLabel: filters.find((item) => item.id === filter).label,
+      lists: filtered,
+      phraseCount: all.filter((item) => item.kind === 'phrase').length,
+      wordCount: all.filter((item) => item.kind === 'word').length,
+    });
   },
-  chooseKind(event) { const kind = event.currentTarget.dataset.kind; if (!['phrase', 'word'].includes(kind)) return; this.setData({ kind, filter: 'all' }); this.refresh(); },
-  chooseFilter(event) { this.setData({ filter: event.currentTarget.dataset.filter }); this.refresh(); },
-  search(event) { this.setData({ query: event.detail.value }); this.refresh(); },
-  clearSearch() { this.setData({ query: '' }); this.refresh(); },
-  open(event) { const id = event.currentTarget.dataset.id; if (this.data.lists.some((list) => list.id === id)) wx.navigateTo({ url: `/pages/practice/index?list=${encodeURIComponent(id)}` }); },
-  back() { wx.navigateBack({ delta: 1, fail: () => wx.switchTab({ url: '/pages/learn/index' }) }); },
+  chooseKind(event) {
+    const kind = event.currentTarget.dataset.kind;
+    if (!['phrase', 'word'].includes(kind)) return;
+    this.setData({ kind, filter: 'all' });
+    this.refresh();
+  },
+  chooseFilter(event) {
+    this.setData({ filter: event.currentTarget.dataset.filter });
+    this.refresh();
+  },
+  search(event) {
+    this.setData({ query: event.detail.value });
+    this.refresh();
+  },
+  clearSearch() {
+    this.setData({ query: '' });
+    this.refresh();
+  },
+  open(event) {
+    const id = event.currentTarget.dataset.id;
+    if (this.data.lists.some((list) => list.id === id))
+      wx.navigateTo({
+        url: `/pages/practice/index?list=${encodeURIComponent(id)}`,
+      });
+  },
+  back() {
+    wx.navigateBack({
+      delta: 1,
+      fail: () => wx.switchTab({ url: '/pages/learn/index' }),
+    });
+  },
 });

@@ -121,4 +121,4 @@ function cached(listId) {
     return (list && (bundled[listId] || memory[`sentleap:dictionary:${listId}:${list.sha256}`])) || null;
 }
 
-export {lists, bundled, load, normalize, cached, refreshCloud};
+export {lists, bundled, load, normalize, cached, refreshCloud, isDevelopment};

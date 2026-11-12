@@ -378,6 +378,28 @@ delete require.cache[storagePath];
   assert.equal(library.data.filter, 'all'); assert.equal(library.data.lists[0].id, 'vocabulary-dev-test');
   library.open({ currentTarget: { dataset: { id: 'vocabulary-dev-test' } } });
   assert.equal(destination, '/pages/practice/index?list=vocabulary-dev-test');
+  // 线上全部题库只显示接口来源，分类计数与搜索不能泄露内置库。
+  const cloudList = { id: 'cloud-library-test', label: '接口题库', category: '云端分类', kind: 'word', wordCount: 2, bundled: false };
+  catalog.lists.push(cloudList);
+  for (const environment of ['release', 'trial', undefined]) {
+    wx.getAccountInfoSync = () => {
+      if (!environment) throw new Error('环境不可用');
+      return { miniProgram: { envVersion: environment } };
+    };
+    library.refresh();
+    assert.deepEqual(library.data.lists.map((item) => item.id), [cloudList.id]);
+    assert.equal(library.data.wordCount, 1);
+    assert.equal(library.data.phraseCount, 0);
+    library.chooseKind({ currentTarget: { dataset: { kind: 'phrase' } } });
+    assert.deepEqual(library.data.lists, []);
+    library.chooseKind({ currentTarget: { dataset: { kind: 'word' } } });
+  }
+  catalog.lists.pop();
+  library.refresh();
+  assert.deepEqual(library.data.lists, [], '无接口题库时不得回退显示内置题库');
+  wx.getAccountInfoSync = accountInfo;
+  library.refresh();
+  assert.equal(library.data.lists[0].id, 'vocabulary-dev-test');
   library.search({ detail: { value: '不存在' } }); destination = undefined;
   library.open({ currentTarget: { dataset: { id: 'vocabulary-dev-test' } } }); assert.equal(destination, undefined);
   replaceProgress(savedProgress); persisted.save();
@@ -476,8 +498,9 @@ delete require.cache[storagePath];
   const share = Object.assign({}, definition, { data: { ...definition.data }, setData(value) { Object.assign(this.data, value); } });
   const gradient = { addColorStop() {} };
   const drawn = []; const posterImages = [];
-  wx.createCanvasContext = () => ({ scale() {}, createLinearGradient: () => gradient, createCircularGradient: () => gradient,
-    setFillStyle() {}, fillRect() {}, beginPath() {}, moveTo() {}, lineTo() {}, quadraticCurveTo() {}, closePath() {}, fill() {}, setStrokeStyle() {}, setLineWidth() {}, stroke() {}, setTextAlign() {}, setFontSize() {}, drawImage(path) { posterImages.push(path); }, fillText(value) { drawn.push(String(value)); }, measureText(value) { return { width: value.length * 9 }; }, draw(_, done) { done(); } });
+  const outlined = [];
+  wx.createCanvasContext = () => ({ save() {}, clip() {}, restore() {}, scale() {}, createLinearGradient: () => gradient, createCircularGradient: () => gradient,
+    setFillStyle() {}, fillRect() {}, beginPath() {}, moveTo() {}, lineTo() {}, quadraticCurveTo() {}, closePath() {}, fill() {}, setStrokeStyle() {}, setLineWidth() {}, stroke() {}, setTextAlign() {}, setFontSize() {}, drawImage(path) { posterImages.push(path); }, fillText(value) { drawn.push(String(value)); }, strokeText(value) { outlined.push(String(value)); }, measureText(value) { return { width: value.length * 9 }; }, draw(_, done) { done(); } });
   let exportSize;
   wx.canvasToTempFilePath = (options) => { exportSize = options; options.success({ tempFilePath: '/tmp/share-poster.png' }); };
   share.onLoad(); share.onReady();
@@ -485,7 +508,20 @@ delete require.cache[storagePath];
   assert.equal(share.onShareAppMessage().imageUrl, '/tmp/share-poster.png');
   assert.equal(share.onShareAppMessage().path, '/pages/learn/index');
   assert.ok(drawn.includes('今日打卡')); assert.ok(drawn.includes('扫码进入小程序'));
-  assert.deepEqual(posterImages, ['/assets/library-logo.png', '/assets/share-miniprogram-code.jpg']);
+  assert.ok(outlined.includes('次练习已完成'), '完成文案应直接绘制加粗笔画');
+  assert.ok(outlined.includes('扫码进入小程序'), '底部引导应直接绘制加粗笔画');
+  assert.ok(outlined.includes(`${currentPoster.xp} XP`), '统计数字应直接绘制加粗笔画');
+  assert.ok(!outlined.includes('经验值'), '辅助标签保持正常字重');
+  assert.deepEqual(posterImages, Array(3).fill(['/assets/library-logo.png', '/assets/share-miniprogram-code.jpg']).flat());
+  share.selectTheme({ currentTarget: { dataset: { id: 'warm' } } });
+  assert.equal(share.data.themeId, 'warm');
+  assert.equal(share.data.imagePath, '/tmp/share-poster.png');
+  share.selectTheme({ currentTarget: { dataset: { id: 'invalid' } } });
+  assert.equal(share.data.themeId, 'warm', '无效主题不得改变当前海报');
+  share.data.generating = true;
+  share.selectTheme({ currentTarget: { dataset: { id: 'green' } } });
+  assert.equal(share.data.themeId, 'warm', '生成中不能切换主题');
+  share.data.generating = false;
   let photoPermission;
   wx.getSetting = ({ success }) => success({ authSetting: { 'scope.writePhotosAlbum': photoPermission } });
   wx.authorize = ({ success, fail }) => photoPermission === false ? fail({ errMsg: 'authorize:fail auth deny' }) : success();
