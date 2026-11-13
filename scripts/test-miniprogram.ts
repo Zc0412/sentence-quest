@@ -1,4 +1,6 @@
 import assert from 'node:assert/strict';
+import { testKeyboardTimers } from './test-miniprogram-keyboard';
+testKeyboardTimers();
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import * as vm from 'node:vm';
@@ -6,6 +8,14 @@ import * as cp from 'node:child_process';
 import * as ts from 'typescript';
 const compileTs = (source) => ts.transpileModule(source, { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2020, esModuleInterop: true } }).outputText;
 const root = path.resolve(__dirname, '../miniprogram');
+/** 模拟 setData 的数组路径更新，验证局部渲染后的实际可见数据。 */
+function applyPagePatch(data, patch) {
+  for (const [key, value] of Object.entries(patch)) {
+    const slot = /^slots\[(\d+)\]$/.exec(key);
+    if (slot) data.slots[Number(slot[1])] = value;
+    else data[key] = value;
+  }
+}
 /** 用虚拟时钟验证过渡行为，避免测试依赖实际动画耗时。 */
 function testPracticeTransition() {
   const output = { exports: {} as any };
@@ -212,7 +222,7 @@ delete require.cache[storagePath];
 
   let definition; global.Page = (value) => { definition = value; };
   require('../miniprogram/pages/practice/index.ts');
-  const page = Object.assign({}, definition, { data: { ...definition.data }, setData(value) { Object.assign(this.data, value); } });
+  const page = Object.assign({}, definition, { data: { ...definition.data }, setData(value) { applyPagePatch(this.data, value); } });
   page.options = { list: 'home-phrases' }; page.review = false;
   await page.load(); assert.equal(page.data.loading, false); assert.ok(page.entry);
   assert.equal(page.data.slots[0].phonetic, page.entry.item.annotations[0].phonetic);
@@ -254,12 +264,12 @@ delete require.cache[storagePath];
   page.skip(); assert.equal(page.index, initialIndex + 2);
   assert.equal(require(storagePath).read().mistakes[storage.key(hintedEntry.listId, hintedEntry.item)].reason, 'skip');
   const persisted = require(storagePath);
-  const review = Object.assign({}, definition, { data: { ...definition.data }, options: {}, review: true, setData(value) { Object.assign(this.data, value); } });
+  const review = Object.assign({}, definition, { data: { ...definition.data }, options: {}, review: true, setData(value) { applyPagePatch(this.data, value); } });
   await review.load(); assert.ok(review.entries.every((entry) => catalog.lists.some((list) => list.id === entry.listId))); const count = Object.keys(persisted.read().mistakes).length;
   for (const word of review.entry.item.words) review.input({ detail: { value: word } });
   assert.equal(Object.keys(persisted.read().mistakes).length, count - 1);
   review.index = review.entries.length; review.begin(); assert.ok(review.data.finished);
-  const sentencePage = Object.assign({}, definition, { data: { ...definition.data }, options: { list: 'sentences' }, review: false, setData(value) { Object.assign(this.data, value); } });
+  const sentencePage = Object.assign({}, definition, { data: { ...definition.data }, options: { list: 'sentences' }, review: false, setData(value) { applyPagePatch(this.data, value); } });
   await sentencePage.load(); sentencePage.index = 0; sentencePage.begin();
   assert.equal(sentencePage.data.isPhrase, false);
   sentencePage.hint();
@@ -274,7 +284,7 @@ delete require.cache[storagePath];
   sentencePage.retryCurrent(); assert.equal(sentencePage.data.done, false);
   assert.equal(sentencePage.data.completedWords.length, 0);
   sentencePage.next(); assert.equal(sentencePage.index, 1); assert.equal(sentencePage.data.previousLabel, '', '短语练习上一句不显示英文');
-  const sentenceReview = Object.assign({}, definition, { data: { ...definition.data }, options: {}, review: true, setData(value) { Object.assign(this.data, value); } });
+  const sentenceReview = Object.assign({}, definition, { data: { ...definition.data }, options: {}, review: true, setData(value) { applyPagePatch(this.data, value); } });
   await sentenceReview.load();
   sentenceReview.index = sentenceReview.entries.findIndex((entry) => entry.listId === 'sentences');
   assert.ok(sentenceReview.index >= 0); sentenceReview.begin();
@@ -283,13 +293,13 @@ delete require.cache[storagePath];
   assert.equal(sentenceReview.data.grammarIndex, -1);
   assert.equal(sentenceReview.data.completedWords.length, sentenceReview.entry.item.words.length);
   assert.equal(sentenceReview.data.completionClean, true);
-  const wordPage = Object.assign({}, definition, { data: { ...definition.data }, options: { list: 'vocabulary-dev-test' }, review: false, setData(value) { Object.assign(this.data, value); } });
+  const wordPage = Object.assign({}, definition, { data: { ...definition.data }, options: { list: 'vocabulary-dev-test' }, review: false, setData(value) { applyPagePatch(this.data, value); } });
   await wordPage.load();
   assert.equal(wordPage.data.isWord, true);
   assert.equal(wordPage.data.total, 3);
   assert.deepEqual(wordPage.entries.map((entry) => entry.item.english), ['cat', 'dog', 'sun']);
   assert.equal(wordPage.entry.item.zh, '猫');
-  const definitionsPage = Object.assign({}, definition, { data: { ...definition.data }, review: true, index: 0, mastered: 0, typing: { input: 0, correct: 0 }, setData(value) { Object.assign(this.data, value); } });
+  const definitionsPage = Object.assign({}, definition, { data: { ...definition.data }, review: true, index: 0, mastered: 0, typing: { input: 0, correct: 0 }, setData(value) { applyPagePatch(this.data, value); } });
   definitionsPage.entries = [{ listId: 'vocabulary-dev-test', item: { ...wordPage.entry.item, definitions: ['n. ' + '释义'.repeat(20), 'v. 测试', 'adj. 更多'] } }, wordPage.entries[1]];
   definitionsPage.begin();
   assert.equal(definitionsPage.data.wordDefinitions.length, 3);
@@ -305,9 +315,9 @@ delete require.cache[storagePath];
   assert.equal(wordPage.data.done, true);
   assert.equal(wordPage.data.completedWords[0].text, 'cat');
   assert.equal(wordPage.data.completedWords[0].meaning, '猫');
-  const resumedWordPage = Object.assign({}, definition, { data: { ...definition.data }, options: { list: 'vocabulary-dev-test' }, review: false, setData(value) { Object.assign(this.data, value); } });
+  const resumedWordPage = Object.assign({}, definition, { data: { ...definition.data }, options: { list: 'vocabulary-dev-test' }, review: false, setData(value) { applyPagePatch(this.data, value); } });
   await resumedWordPage.load(); assert.equal(resumedWordPage.entry.item.english, 'dog');
-  const wordReview = Object.assign({}, definition, { data: { ...definition.data }, options: {}, review: true, setData(value) { Object.assign(this.data, value); } });
+  const wordReview = Object.assign({}, definition, { data: { ...definition.data }, options: {}, review: true, setData(value) { applyPagePatch(this.data, value); } });
   await wordReview.load(); wordReview.index = wordReview.entries.findIndex((entry) => entry.listId === 'vocabulary-dev-test');
   assert.ok(wordReview.index >= 0); wordReview.begin(); assert.equal(wordReview.data.isWord, true);
   wordReview.input({ detail: { value: 'cat' } });
@@ -317,7 +327,7 @@ delete require.cache[storagePath];
   for (const word of ['dog', 'sun']) { wordPage.input({ detail: { value: word } }); assert.equal(wordPage.data.done, true); wordPage.next(); }
   assert.equal(wordPage.data.finished, true);
   require('../miniprogram/pages/learn/index.ts');
-  const learn = Object.assign({}, definition, { data: { ...definition.data }, setData(value) { Object.assign(this.data, value); } });
+  const learn = Object.assign({}, definition, { data: { ...definition.data }, setData(value) { applyPagePatch(this.data, value); } });
   persisted.cursor('removed-old-list', 3);
   let destination; wx.navigateTo = ({ url }) => { destination = url; };
   assert.equal(config.tabBar.custom, true);
@@ -358,7 +368,7 @@ delete require.cache[storagePath];
   persisted.cursor('sentences', 0); persisted.recordTyping({ input: 1, correct: 1 }, 'sentences');
   persisted.cursor('home-phrases', 0);
   require('../miniprogram/pages/library/index.ts');
-  const library = Object.assign({}, definition, { data: { ...definition.data }, setData(value) { Object.assign(this.data, value); } });
+  const library = Object.assign({}, definition, { data: { ...definition.data }, setData(value) { applyPagePatch(this.data, value); } });
   learn.refresh(); assert.deepEqual(learn.data.recentLists.map((item) => item.id), ['home-phrases', 'sentences']);
   library.onLoad(); library.onShow();
   assert.equal(library.data.kind, 'word');
@@ -414,7 +424,7 @@ delete require.cache[storagePath];
   wx.switchTab = ({ url }) => { destination = url; };
   let tabDefinition; global.Component = (value) => { tabDefinition = value; };
   require('../miniprogram/custom-tab-bar/index.ts');
-  const tabBar = Object.assign({}, tabDefinition.methods, { data: { ...tabDefinition.data }, setData(value) { Object.assign(this.data, value); } });
+  const tabBar = Object.assign({}, tabDefinition.methods, { data: { ...tabDefinition.data }, setData(value) { applyPagePatch(this.data, value); } });
   global.getCurrentPages = () => [{ route: 'pages/stats/index' }];
   tabDefinition.lifetimes.attached.call(tabBar);
   assert.equal(tabBar.data.selected, 'stats');
@@ -423,7 +433,7 @@ delete require.cache[storagePath];
   global.getCurrentPages = () => [{ route: 'pages/profile/index' }];
   tabDefinition.pageLifetimes.show.call(tabBar);
   assert.equal(tabBar.data.selected, 'profile');
-  const cachedLearnBar = Object.assign({}, tabDefinition.methods, { data: { ...tabDefinition.data }, setData(value) { Object.assign(this.data, value); } });
+  const cachedLearnBar = Object.assign({}, tabDefinition.methods, { data: { ...tabDefinition.data }, setData(value) { applyPagePatch(this.data, value); } });
   global.getCurrentPages = () => [{ route: 'pages/learn/index' }];
   tabDefinition.pageLifetimes.show.call(cachedLearnBar);
   assert.equal(cachedLearnBar.data.selected, 'learn');
@@ -461,17 +471,44 @@ delete require.cache[storagePath];
   page.hint();
   assert.ok(page.data.slots[1].letters[0].hinted);
   assert.deepEqual(persisted.typingStats(), { input: beforeTyping.input + 2, correct: beforeTyping.correct + 1 });
-  const typingAfter = { ...persisted.typingStats() };
-  page.pressKey({ currentTarget: { dataset: { key: 'n' } } });
-  assert.equal(page.data.pressedKey, 'n');
-  page.releaseKey(); assert.equal(page.data.pressedKey, '');
+
+  const keyEvent = (key) => ({ currentTarget: { dataset: { key } } });
+  const updates = [];
+  const originalSetData = page.setData;
+  page.setData = function (patch) {
+    updates.push(patch);
+    originalSetData.call(this, patch);
+  };
+  page.touchKey(keyEvent('l'));
+  assert.equal(updates.length, 1, '普通按键只下发一次页面更新');
+  assert.ok(Object.prototype.hasOwnProperty.call(updates[0], 'slots[1]'), '仅更新当前词');
+  assert.ok(!Object.prototype.hasOwnProperty.call(updates[0], 'slots'), '不重传整句字母格');
+  assert.ok(!Object.prototype.hasOwnProperty.call(updates[0], 'xp'), '不重传静态进度');
+  const afterTouch = page.state.typed;
+  page.releaseKey();
+  page.tapKey(keyEvent('l'));
+  assert.equal(page.state.typed, afterTouch, '触摸后的 tap 不应重复输入');
+  page.touchKey(keyEvent('delete'));
+  page.releaseKey();
+  assert.equal(page.state.typed, '', '删除按下立即执行，松开后停止');
+  page.setData = originalSetData;
+  page.state.typed = 'wrong';
+  page.touchKey(keyEvent('delete'));
+  const repeat = page.keyRepeat;
+  let stopped = false;
+  const originalStop = repeat.stop;
+  repeat.stop = () => { stopped = true; originalStop(); };
+  page.onHide();
+  assert.ok(stopped, '切后台必须取消长按删除');
+  page.onShow();
   const contractionPage = { key: page.key, state: session.start({ words: ["I'm"] }), data: { shift: false }, input({ detail }) { this.state = session.input(this.state, detail.value); } };
   for (const key of ['i', "'", 'm']) contractionPage.key({ currentTarget: { dataset: { key } } });
   assert.equal(contractionPage.state.done, true, 'The apostrophe key must support contractions');
+  const typingAfter = { ...persisted.typingStats() };
   delete require.cache[storagePath];
   assert.deepEqual(require(storagePath).typingStats(), typingAfter, '输入统计需在重启后保留');
   require('../miniprogram/pages/stats/index.ts');
-  const stats = Object.assign({}, definition, { data: { ...definition.data }, setData(value) { Object.assign(this.data, value); } });
+  const stats = Object.assign({}, definition, { data: { ...definition.data }, setData(value) { applyPagePatch(this.data, value); } });
   stats.onLoad(); stats.onShow();
   assert.equal(stats.data.total, catalog.lists.reduce((sum, list) => sum + list.wordCount, 0));
   assert.equal(stats.data.completed, Object.keys(persisted.read().completed).filter((key) => /^(home-phrases|sentences|vocabulary-dev-test)::/.test(key)).length);
@@ -495,16 +532,29 @@ delete require.cache[storagePath];
   assert.deepEqual(posterSource.lastCompleted && Object.keys(posterSource.lastCompleted).sort(), ['date', 'english', 'itemId', 'listId', 'zh']);
   assert.equal(lines({ measureText: (value) => ({ width: value.length }) }, 'abcdefghijk', 4, 2).join('|'), 'abcd|efg…');
   require('../miniprogram/pages/share/index.ts');
-  const share = Object.assign({}, definition, { data: { ...definition.data }, setData(value) { Object.assign(this.data, value); } });
+  const share = Object.assign({}, definition, { data: { ...definition.data }, setData(value) { applyPagePatch(this.data, value); } });
   const gradient = { addColorStop() {} };
   const drawn = []; const posterImages = [];
   const outlined = [];
-  wx.createCanvasContext = () => ({ save() {}, clip() {}, restore() {}, scale() {}, createLinearGradient: () => gradient, createCircularGradient: () => gradient,
-    setFillStyle() {}, fillRect() {}, beginPath() {}, moveTo() {}, lineTo() {}, quadraticCurveTo() {}, closePath() {}, fill() {}, setStrokeStyle() {}, setLineWidth() {}, stroke() {}, setTextAlign() {}, setFontSize() {}, drawImage(path) { posterImages.push(path); }, fillText(value) { drawn.push(String(value)); }, strokeText(value) { outlined.push(String(value)); }, measureText(value) { return { width: value.length * 9 }; }, draw(_, done) { done(); } });
+  const canvasEvents: string[] = [];
+  wx.createCanvasContext = () => ({
+    clearRect() { canvasEvents.push('clear'); },
+    save() { canvasEvents.push('save'); },
+    clip() { canvasEvents.push('clip'); },
+    restore() { canvasEvents.push('restore'); },
+    scale() { canvasEvents.push('scale'); }, createLinearGradient: () => gradient, createCircularGradient: () => gradient,
+    setFillStyle() {}, fillRect() { canvasEvents.push('fillRect'); }, beginPath() {}, moveTo() {}, lineTo() {}, quadraticCurveTo() {}, closePath() {}, fill() {}, setStrokeStyle() {}, setLineWidth() {}, stroke() {}, setTextAlign() {}, setFontSize() {}, drawImage(path) { posterImages.push(path); }, fillText(value) { drawn.push(String(value)); }, strokeText(value) { outlined.push(String(value)); }, measureText(value) { return { width: value.length * 9 }; }, draw(_, done) { done(); } });
   let exportSize;
   wx.canvasToTempFilePath = (options) => { exportSize = options; options.success({ tempFilePath: '/tmp/share-poster.png' }); };
   share.onLoad(); share.onReady();
   assert.equal(share.data.imagePath, '/tmp/share-poster.png'); assert.equal(exportSize.destWidth, 780);
+  assert.equal(exportSize.fileType, 'png', '导出 PNG 保留圆角透明区域');
+  assert.equal(canvasEvents.filter((event) => event === 'clip').length, 6, '三张预览均裁剪外圆角和小程序码');
+  assert.equal(canvasEvents.filter((event) => event === 'save').length, 6);
+  assert.equal(canvasEvents.filter((event) => event === 'restore').length, 6, '恢复裁剪和缩放状态，避免再次绘制累积');
+  for (const events of canvasEvents.join(',').split('clear,').slice(1)) {
+    assert.ok(events.startsWith('save,scale,clip,fillRect'), '必须先裁剪再绘制背景');
+  }
   assert.equal(share.onShareAppMessage().imageUrl, '/tmp/share-poster.png');
   assert.equal(share.onShareAppMessage().path, '/pages/learn/index');
   assert.ok(drawn.includes('今日打卡')); assert.ok(drawn.includes('扫码进入小程序'));
@@ -549,7 +599,7 @@ delete require.cache[storagePath];
   assert.equal(streak({ '2026-10-27': 2, '2026-10-26': 1 }, new Date(2026, 9, 28)), 2);
   assert.equal(streak({ '2026-10-26': 1 }, new Date(2026, 9, 28)), 0);
   require('../miniprogram/pages/profile/index.ts');
-  const profile = Object.assign({}, definition, { data: { ...definition.data }, setData(value) { Object.assign(this.data, value); } });
+  const profile = Object.assign({}, definition, { data: { ...definition.data }, setData(value) { applyPagePatch(this.data, value); } });
   require(storagePath).read().localUserId = 'OLDALPHANUMERIC1';
   require(storagePath).save();
   profile.onLoad(); profile.onShow();
@@ -579,7 +629,7 @@ delete require.cache[storagePath];
   wx.navigateTo = ({ url }) => { destination = url; };
   profile.openXp(); assert.equal(destination, '/pages/xp/index');
   require('../miniprogram/pages/xp/index.ts');
-  const xpPage = Object.assign({}, definition, { data: { ...definition.data }, setData(value) { Object.assign(this.data, value); } });
+  const xpPage = Object.assign({}, definition, { data: { ...definition.data }, setData(value) { applyPagePatch(this.data, value); } });
   xpPage.onLoad(); xpPage.onShow();
   assert.equal(xpPage.data.xp, require(storagePath).read().xp);
   assert.equal(xpPage.data.todayXp, require(storagePath).read().xpDaily[storage.dateKey()]);
@@ -587,7 +637,7 @@ delete require.cache[storagePath];
   xpPage.switchTab({ currentTarget: { dataset: { tab: 'rules' } } }); assert.equal(xpPage.data.tab, 'rules');
   profile.openMastered(); assert.equal(destination, '/pages/mastered/index');
   require('../miniprogram/pages/mastered/index.ts');
-  const masteredPage = Object.assign({}, definition, { data: { ...definition.data }, setData(value) { Object.assign(this.data, value); } });
+  const masteredPage = Object.assign({}, definition, { data: { ...definition.data }, setData(value) { applyPagePatch(this.data, value); } });
   masteredPage.onLoad(); await masteredPage.refresh();
   assert.ok(masteredPage.data.items.some((entry) => entry.english === 'cat'), '已完成单词应出现在已掌握列表');
   masteredPage.search({ detail: { value: 'cat' } }); assert.ok(masteredPage.data.items.every((entry) => entry.english.toLowerCase().includes('cat') || entry.zh.includes('cat')));
@@ -602,7 +652,7 @@ delete require.cache[storagePath];
   assert.equal(destination, '/pages/review/index');
   const audioConfig = require('../miniprogram/config').default; audioConfig.cloudEnvId = 'test-cloud-env';
   delete require.cache[require.resolve('../miniprogram/pages/practice/index.ts')]; require('../miniprogram/pages/practice/index.ts');
-  const audioPage = Object.assign({}, definition, { options: { list: 'home-phrases' }, data: { ...definition.data }, setData(value) { Object.assign(this.data, value); } });
+  const audioPage = Object.assign({}, definition, { options: { list: 'home-phrases' }, data: { ...definition.data }, setData(value) { applyPagePatch(this.data, value); } });
   let plays = 0; const audio: any = { onError() {}, stop() {}, play() { plays += 1; }, destroy() {} };
   wx.createInnerAudioContext = () => audio;
   const pendingAudio = []; const writtenAudio = []; const deletedAudio = [];
@@ -620,7 +670,7 @@ delete require.cache[storagePath];
   assert.equal(audio.src, writtenAudio[0].filePath);
   pendingAudio.length = 0;
   require(storagePath).cursor('vocabulary-dev-test', 0);
-  const wordAudio = Object.assign({}, definition, { options: { list: 'vocabulary-dev-test' }, data: { ...definition.data }, setData(value) { Object.assign(this.data, value); } });
+  const wordAudio = Object.assign({}, definition, { options: { list: 'vocabulary-dev-test' }, data: { ...definition.data }, setData(value) { applyPagePatch(this.data, value); } });
   const playsBeforeWord = plays;
   await wordAudio.load();
   assert.equal(pendingAudio.length, 2, '单词练习需预加载当前词和下一词');
@@ -639,7 +689,7 @@ delete require.cache[storagePath];
   const phraseAudio = Object.assign({}, definition, {
     options: { list: 'home-phrases' },
     data: { ...definition.data },
-    setData(value) { Object.assign(this.data, value); },
+    setData(value) { applyPagePatch(this.data, value); },
   });
   await phraseAudio.load();
   assert.equal(pendingAudio.length, 1, '短语开题只请求一次整句发音');

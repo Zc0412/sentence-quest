@@ -34,7 +34,8 @@ function posterData(state, now = new Date()) {
   };
 }
 
-function roundRect(ctx, x, y, w, h, r, fill, stroke?) {
+/** 只建立圆角路径，供卡片填充和整张海报裁剪共用。 */
+function roundRectPath(ctx, x, y, w, h, r) {
   ctx.beginPath();
   ctx.moveTo(x + r, y);
   ctx.lineTo(x + w - r, y);
@@ -46,6 +47,10 @@ function roundRect(ctx, x, y, w, h, r, fill, stroke?) {
   ctx.lineTo(x, y + r);
   ctx.quadraticCurveTo(x, y, x + r, y);
   ctx.closePath();
+}
+
+function roundRect(ctx, x, y, w, h, r, fill, stroke?) {
+  roundRectPath(ctx, x, y, w, h, r);
   ctx.setFillStyle(fill);
   ctx.fill();
   if (stroke) {
@@ -134,10 +139,17 @@ const posterThemes = [
   },
 ];
 
+/** 直接裁剪画布四角，避免真机原生 canvas 不遵循外层容器圆角。 */
 function renderPoster(ctx, data, width, themeId = 'blue') {
   const theme =
     posterThemes.find((item) => item.id === themeId) || posterThemes[0];
+  ctx.clearRect(0, 0, width, Math.ceil((width * 693) / 390));
+  ctx.save();
   ctx.scale(width / 390, width / 390);
+  // 与预览容器的 22px 圆角对齐；PNG 导出保留四角透明区域。
+  const radius = Math.min((22 * 390) / width, 195);
+  roundRectPath(ctx, 0, 0, 390, 693, radius);
+  ctx.clip();
   const bg = ctx.createLinearGradient(0, 0, 390, 693);
   bg.addColorStop(0, theme.background[0]);
   bg.addColorStop(1, theme.background[1]);
@@ -224,5 +236,6 @@ function renderPoster(ctx, data, width, themeId = 'blue') {
   ctx.restore();
   text(ctx, '扫码进入小程序', 136, 599, 17, ink);
   text(ctx, '拼写英文短语，一句一跃', 136, 625, 12, muted);
+  ctx.restore();
 }
 export { posterData, renderPoster, lines, posterThemes };

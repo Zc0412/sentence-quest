@@ -1,4 +1,4 @@
-// 分享海报页面：根据本地学习进度生成海报，并支持分享或保存到系统相册。
+// 分享海报页面：根据本地学习进度生成圆角海报，并支持分享或保存到系统相册。
 import { navigationMetrics } from '../../utils/navigation';
 import { posterData, posterThemes, renderPoster } from '../../utils/poster';
 import * as storage from '../../utils/storage';
@@ -74,6 +74,7 @@ Page({
         wx.canvasToTempFilePath(
           {
             canvasId: 'share-poster',
+            fileType: 'png',
             width: this.data.canvasWidth,
             height: this.data.canvasHeight,
             destWidth: 780,

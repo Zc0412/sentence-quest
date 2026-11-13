@@ -2,6 +2,8 @@ import { practiceXp } from './practice-xp';
 const KEY = 'sentleap:miniprogram:v1';
 let cached;
 let failed = false;
+let typingSaveTimer: ReturnType<typeof setTimeout> | undefined;
+let typingPending = false;
 const empty = () => ({ version: 1, xp: 0, completed: {}, mistakes: {}, cursors: {}, activity: {}, settings: { accent: '1', hints: true }, lastList: 'home-phrases' });
 function read() {
   if (cached) return cached;
@@ -17,10 +19,18 @@ function read() {
   return cached;
 }
 function save() {
-  // Do not overwrite an unreadable existing record.
+  clearTimeout(typingSaveTimer);
+  typingSaveTimer = undefined;
+  // 读取失败时保留原记录；写入失败时保留待保存标记，离页可再次尝试。
   if (failed) return false;
-  try { wx.setStorageSync(KEY, read()); return true; }
-  catch (_) { wx.showToast({ title: '保存失败，请检查设备空间', icon: 'none' }); return false; }
+  try {
+    wx.setStorageSync(KEY, read());
+    typingPending = false;
+    return true;
+  } catch (_) {
+    wx.showToast({ title: '保存失败，请检查设备空间', icon: 'none' });
+    return false;
+  }
 }
 function dateKey(date = new Date()) {
   return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
@@ -72,7 +82,8 @@ function typingStats() {
   const value = read().typing;
   return value && Number.isSafeInteger(value.input) && Number.isSafeInteger(value.correct) && value.input >= 0 && value.correct >= 0 && value.correct <= value.input ? value : { input: 0, correct: 0 };
 }
-function recordTyping(delta, listId) {
+/** 练习输入可合并保存；其他调用默认立即持久化，保持现有调用契约。 */
+function recordTyping(delta, listId, deferred = false) {
   if (!delta.input) return;
   const value = typingStats();
   const state = read();
@@ -81,7 +92,19 @@ function recordTyping(delta, listId) {
     if (!state.startedLists || typeof state.startedLists !== 'object' || Array.isArray(state.startedLists)) state.startedLists = {};
     state.startedLists[listId] = true;
   }
-  save();
+  if (!deferred) {
+    save();
+    return;
+  }
+  typingPending = true;
+  // 固定时间窗而非无限推迟：持续输入时也最多每 500ms 保存一次。
+  if (!typingSaveTimer && !failed) {
+    typingSaveTimer = setTimeout(() => save(), 500);
+  }
+}
+/** 切后台或离开练习时补存最后一批输入；没有待保存数据时不写盘。 */
+function flushTyping() {
+  if (typingPending) save();
 }
 function settings(value) { Object.assign(read().settings, value); save(); }
 function localUserId() {
@@ -95,4 +118,4 @@ function localUserId() {
   else state.localUserId = previous;
   return '';
 }
-export { read, save, key, mistake, complete, cursor, settings, dateKey, typingStats, recordTyping, localUserId };
+export { read, save, key, mistake, complete, cursor, settings, dateKey, typingStats, recordTyping, flushTyping, localUserId };

@@ -78,14 +78,51 @@
       </block>
     </scroll-view>
     <view wx:if="{{!loading && !loadError && !finished && !done}}" class="glass-keyboard glass-surface">
-      <view wx:if="{{extraKeys.length}}" class="keyboard-row extra-keys"><button wx:for="{{extraKeys}}" wx:key="*this" class="keyboard-key symbol-key" data-key="{{item}}" bindtap="key" aria-label="{{item}}" hover-class="key-pressed">{{item}}</button></view>
+      <view wx:if="{{extraKeys.length}}" class="keyboard-row extra-keys">
+        <button wx:for="{{extraKeys}}" wx:key="*this" class="keyboard-key symbol-key" data-key="{{item}}"
+          bindtouchstart="touchKey"
+          bindtouchend="releaseKey"
+          bindtouchcancel="releaseKey"
+          bindtouchmove="releaseKey"
+          bindtap="tapKey"
+          aria-label="{{item}}"
+          hover-class="key-pressed"
+          hover-start-time="0"
+          hover-stay-time="50">{{item}}</button>
+      </view>
       <view wx:for="{{keyRows}}" wx:key="index" wx:for-item="row" wx:for-index="rowIndex" class="keyboard-row keyboard-row-{{rowIndex}}">
-        <button wx:if="{{rowIndex === 2}}" class="keyboard-key special" data-key="'" bindtap="key" aria-label="撇号" hover-class="key-pressed">’</button>
+        <button wx:if="{{rowIndex === 2}}" class="keyboard-key special {{shift ? 'shift-active' : ''}}" data-key="shift"
+          bindtouchstart="touchKey"
+          bindtouchend="releaseKey"
+          bindtouchcancel="releaseKey"
+          bindtouchmove="releaseKey"
+          bindtap="tapKey"
+          aria-label="切换大小写"
+          hover-class="key-pressed"
+          hover-start-time="0"
+          hover-stay-time="50">⇧</button>
         <view wx:for="{{row}}" wx:key="*this" wx:for-item="keyValue" class="key-wrap">
-          <button class="keyboard-key {{shift ? 'uppercase' : ''}} {{pressedKey === keyValue ? 'key-pressed' : ''}}" data-key="{{keyValue}}" bindtap="key" bindtouchstart="pressKey" bindtouchend="releaseKey" bindtouchcancel="releaseKey" aria-label="{{keyValue}}" hover-class="key-pressed">{{keyValue}}</button>
-          <view wx:if="{{pressedKey === keyValue}}" class="key-preview" aria-hidden="true">{{keyValue}}</view>
+          <button class="keyboard-key {{shift ? 'uppercase' : ''}}" data-key="{{keyValue}}"
+            bindtouchstart="touchKey"
+            bindtouchend="releaseKey"
+            bindtouchcancel="releaseKey"
+            bindtouchmove="releaseKey"
+            bindtap="tapKey"
+            aria-label="{{keyValue}}"
+            hover-class="key-pressed"
+            hover-start-time="0"
+            hover-stay-time="50">{{keyValue}}</button>
         </view>
-        <button wx:if="{{rowIndex === 2}}" class="keyboard-key special" data-key="delete" bindtap="key" aria-label="删除字母" hover-class="key-pressed"><image class="delete-icon" src="/assets/keyboard-delete.svg" /></button>
+        <button wx:if="{{rowIndex === 2}}" class="keyboard-key special" data-key="delete"
+          bindtouchstart="touchKey"
+          bindtouchend="releaseKey"
+          bindtouchcancel="releaseKey"
+          bindtouchmove="releaseKey"
+          bindtap="tapKey"
+          aria-label="删除字母"
+          hover-class="key-pressed"
+          hover-start-time="0"
+          hover-stay-time="50"><image class="delete-icon" src="/assets/keyboard-delete.svg" /></button>
       </view>
     </view>
     <view wx:if="{{done && !loading && !loadError && !finished}}" class="completion-footer glass-surface">

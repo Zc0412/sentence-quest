@@ -41,9 +41,6 @@
 .modern-practice .keyboard-key { display:flex; align-items:center; justify-content:center; height:46px; border-radius:10px; background:linear-gradient(180deg,rgba(255,255,255,.92),rgba(255,255,255,.66)); box-shadow:0 2px 0 rgba(110,130,175,.38),0 4px 8px rgba(50,80,160,.1); font-size:20px; font-weight:500; line-height:46px; }
 .modern-practice .keyboard-row .special { flex:0 0 50px; width:50px; background:rgba(255,255,255,.34); box-shadow:0 2px 0 rgba(110,130,175,.28); color:#475569; }
 .modern-practice .keyboard-row .key-pressed { background:linear-gradient(180deg,#5c93f8,#2f6fed); box-shadow:0 2px 0 #1f55c4; color:#fff; font-weight:600; }
-.modern-practice .key-preview { position:absolute; left:50%; bottom:38px; transform:translateX(-50%); width:54px; height:62px; border-radius:14px; background:rgba(255,255,255,.96); box-shadow:0 8px 20px rgba(40,70,150,.3); display:flex; align-items:center; justify-content:center; font-size:30px; font-weight:600; color:#2f6fed; z-index:5; pointer-events:none; }
-.modern-practice .keyboard-row-0 .key-wrap:first-child .key-preview { left:0; transform:none; }
-.modern-practice .keyboard-row-0 .key-wrap:last-child .key-preview { left:auto; right:0; transform:none; }
 .delete-icon { width:22px; height:22px; }
 
 /* Shared completion layout based on CompleteGlass.dc.html. */
@@ -204,4 +201,19 @@
   .practice-entering .glass-keyboard {
     animation: none;
   }
+}
+
+/* 高频输入区域采用实色渐变，避免每次按键重新合成大面积背景模糊。 */
+.modern-practice .glass-keyboard {
+  background: linear-gradient(180deg, #edf3ff, #e3ebfb);
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+.modern-practice .keyboard-row .special {
+  flex-basis: 36px;
+  width: 36px;
+}
+.modern-practice .keyboard-row .shift-active {
+  background: #dbeafe;
+  color: #2f6fed;
 }

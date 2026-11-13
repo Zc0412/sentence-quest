@@ -1,3 +1,4 @@
+import { flushTyping } from './utils/storage';
 import config from './config';
 import keySound from './utils/keySound';
 
@@ -15,5 +16,8 @@ App({
     }
     wx.cloud.init({ env: config.cloudEnvId });
   },
-  onHide() { keySound.stop(); },
+  onHide() {
+    flushTyping();
+    keySound.stop();
+  },
 });

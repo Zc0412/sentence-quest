@@ -1,4 +1,5 @@
 /** 练习与错题复习页：使用题库内容和本地进度，提供拼写反馈、XP 与云端发音。 */
+import { createKeyRepeat } from '../../utils/key-repeat';
 import * as catalog from '../../utils/catalog';
 import keySound from '../../utils/keySound';
 import * as storage from '../../utils/storage';
@@ -10,7 +11,27 @@ import { preferences } from '../../utils/preferences';
 import { createAudioStore } from '../../utils/pronunciation';
 import { wordDefinitions } from '../../utils/word-definitions';
 Page({
-  data: { entryMotion: false, loading: true, loadError: '', done: false, finished: false, typed: '', slots: [], hints: true, earned: 0, xp: 0, grammarIndex: 0, statusBarHeight: 24, navigationHeight: 44, accent: '1', shift: false, pressedKey: '', keyRows: ['qwertyuiop'.split(''), 'asdfghjkl'.split(''), 'zxcvbnm'.split('')], inputCount: 0, correctCount: 0, accuracy: '—' },
+  data: {
+    entryMotion: false,
+    loading: true,
+    loadError: '',
+    done: false,
+    finished: false,
+    typed: '',
+    slots: [],
+    hints: true,
+    earned: 0,
+    xp: 0,
+    grammarIndex: 0,
+    statusBarHeight: 24,
+    navigationHeight: 44,
+    accent: '1',
+    shift: false,
+    keyRows: ['qwertyuiop'.split(''), 'asdfghjkl'.split(''), 'zxcvbnm'.split('')],
+    inputCount: 0,
+    correctCount: 0,
+    accuracy: '—',
+  },
   onLoad(options) {
     this.setData(navigationMetrics());
     this.entryMotionRequested = options.entryMotion === 'start' || options.entryMotion === 'continue';
@@ -55,6 +76,8 @@ Page({
     } catch (error) { if (!this.unloaded) this.setData({ loading: false, loadError: error.message }); }
   },
   begin() {
+    this.stopKeyRepeat();
+    storage.flushTyping();
     this.playbackToken = (this.playbackToken || 0) + 1;
     if (this.index >= this.entries.length) {
       this.setData({ finished: true }); wx.hideKeyboard(); return;
@@ -72,14 +95,69 @@ Page({
       this.speak(true, true);
     }
   },
+  /** 生成单个词的字母格；输入时不遍历整句及静态注释。 */
+  wordSlot(index) {
+    const state = this.state;
+    const text = state.item.words[index];
+    const details = (state.item.annotations || [])[index] || {};
+    const active = !state.done && index === state.wordIndex;
+    const passed = state.done || index < state.wordIndex;
+    const shown = active ? state.typed + text.slice(state.typed.length, Math.max(state.typed.length, state.revealed)) : '';
+    return {
+      index,
+      active,
+      passed,
+      letters: Array.from({ length: Math.max(text.length, shown.length) }, (_, position) => ({
+        position,
+        value: passed ? text[position] : shown[position] || '',
+        current: active && position === state.typed.length,
+        hinted: active && position >= state.typed.length && position < state.revealed,
+        wrong: active && !!shown[position] && shown[position].toLowerCase() !== (text[position] || '').toLowerCase(),
+      })),
+      incorrect: active && !!state.error,
+      text: passed ? text : shown + '_'.repeat(Math.max(0, text.length - shown.length)),
+      phonetic: this.data.accent === '2' ? details.usphone || details.phonetic || '' : details.phonetic || '',
+      meaning: details.meaning || '',
+      pos: details.pos || '',
+      color: this.entry.listId === 'home-phrases' ? '#3b82f6' : details.color || '#3b82f6',
+    };
+  },
+  /** 输入只同步发生变化的词；开题、切换口音及完成解析才整体更新。 */
+  renderInput(previousWordIndex) {
+    const state = this.state;
+    if (state.done) {
+      this.render();
+      return;
+    }
+    const patch: Record<string, unknown> = {
+      typed: state.typed,
+      error: state.error,
+      inputCount: this.typing.input,
+      correctCount: this.typing.correct,
+      accuracy: accuracy(this.typing),
+      [`slots[${state.wordIndex}]`]: this.wordSlot(state.wordIndex),
+    };
+    if (previousWordIndex !== state.wordIndex) {
+      patch[`slots[${previousWordIndex}]`] = this.wordSlot(previousWordIndex);
+      patch.wordNumber = state.wordIndex + 1;
+      const annotation = (state.item.annotations || [])[state.wordIndex] || {};
+      patch.phonetic = (this.data.accent === '2' ? annotation.usphone || annotation.phonetic : annotation.phonetic) || '';
+      patch.extraKeys = this.extraKeys();
+    }
+    this.setData(patch);
+  },
+  /** 特殊字符仅在当前词需要时显示，避免固定占用字母键盘空间。 */
+  extraKeys() {
+    const word = this.state.item.words[this.state.wordIndex] || '';
+    return [...new Set(Array.from(normalizeWord(word) as string).filter((character) => !/[a-z\s]/i.test(character)))];
+  },
   render() {
     const state = this.state;
     const characterCount = state.item.words.join('').length;
     const completionSize = state.item.words.length > 7 || characterCount > 40 ? 'dense' : state.item.words.length > 4 || characterCount > 22 ? 'compact' : 'regular';
     const annotation = (state.item.annotations || [])[state.wordIndex] || {};
     const mastered = this.mastered;
-    const currentWord = state.item.words[state.wordIndex] || '';
-    const extraKeys = [...new Set(Array.from(normalizeWord(currentWord) as string).filter((character) => !/[a-z\s']/i.test(character)))];
+    const extraKeys = this.extraKeys();
     const phonetic = storage.read().settings.accent === '2' ? annotation.usphone || annotation.phonetic : annotation.phonetic;
     this.setData({ extraKeys, mastered, masteryPercent: Math.round(mastered / this.entries.length * 100), previousLabel: this.data.isWord && this.index > 0 ? this.entries[this.index - 1].item.english : '', inputCount: this.typing.input, correctCount: this.typing.correct, accuracy: accuracy(this.typing), progress: Math.round((this.index + (state.done ? 1 : 0)) / this.entries.length * 100), xp: storage.read().xp, done: state.done, typed: state.typed, error: state.error, wordNumber: state.wordIndex + 1, wordTotal: state.item.words.length, phonetic: phonetic || '',
       completionClean: !state.dirty,
@@ -92,23 +170,16 @@ Page({
           meaning: details.meaning || '', pos: details.pos || '', color: details.color || '#3b82f6',
           role: group?.role || '', roleColor: group?.color || '#2f6fed' };
       }) : [],
-      slots: state.item.words.map((text, index) => {
-        const details = (state.item.annotations || [])[index] || {};
-        const active = !state.done && index === state.wordIndex;
-        const passed = state.done || index < state.wordIndex;
-        const shown = active ? state.typed + text.slice(state.typed.length, Math.max(state.typed.length, state.revealed)) : '';
-        return { index, active, passed, letters: Array.from({ length: Math.max(text.length, shown.length) }, (_, position) => ({ position, value: passed ? text[position] : shown[position] || '', current: active && position === state.typed.length, hinted: active && position >= state.typed.length && position < state.revealed, wrong: active && !!shown[position] && shown[position].toLowerCase() !== (text[position] || '').toLowerCase() })), incorrect: active && !!state.error,
-          text: passed ? text : shown + '_'.repeat(Math.max(0, text.length - shown.length)),
-          phonetic: storage.read().settings.accent === '2' ? details.usphone || details.phonetic || '' : details.phonetic || '',
-          meaning: details.meaning || '', pos: details.pos || '', color: this.entry.listId === 'home-phrases' ? '#3b82f6' : details.color || '#3b82f6' };
-      }),
+      slots: state.item.words.map((_, index) => this.wordSlot(index)),
     });
   },
   input(event) {
     if (!this.state || this.state.done) return '';
     const delta = inputDelta(this.state.typed, event.detail.value, this.state.item.words[this.state.wordIndex]);
     this.typing = this.typing || { input: 0, correct: 0 };
-    this.typing.input += delta.input; this.typing.correct += delta.correct; storage.recordTyping(delta, this.entry.listId);
+    this.typing.input += delta.input;
+    this.typing.correct += delta.correct;
+    storage.recordTyping(delta, this.entry.listId, true);
     const previousWordIndex = this.state.wordIndex;
     const wasDirty = this.state.dirty;
     this.state = session.input(this.state, event.detail.value);
@@ -118,29 +189,60 @@ Page({
       const earned = storage.complete(this.entry.listId, this.entry.item, !this.state.dirty, this.review);
       if (!wasCompleted) this.mastered += 1;
       if (!this.review) { const nextIndex = Math.min(this.index + 1, this.entries.length - 1); storage.cursor(this.entry.listId, nextIndex, this.entries[nextIndex].item); }
-      this.setData({ earned, pressedKey: '', grammarIndex: -1, grammarExplanation: this.entry.item.note || (this.entry.item.grammar || []).map((group) => group.explanation).filter(Boolean).join(' ') }); wx.hideKeyboard();
+      this.setData({ earned, grammarIndex: -1, grammarExplanation: this.entry.item.note || (this.entry.item.grammar || []).map((group) => group.explanation).filter(Boolean).join(' ') }); wx.hideKeyboard();
     }
-    this.render();
+    this.renderInput(previousWordIndex);
     if (!this.state.done && this.state.wordIndex !== previousWordIndex && preferences().autoSpeak) this.speak(true);
     return this.state.typed;
   },
   hint() {
     if (!this.state || this.state.done || !this.data.hints) return;
-    this.state = session.hint(this.state); storage.mistake(this.entry.listId, this.entry.item, 'hint'); this.render();
+    this.state = session.hint(this.state);
+    storage.mistake(this.entry.listId, this.entry.item, 'hint');
+    this.renderInput(this.state.wordIndex);
   },
   skip() {
     if (!this.state || this.state.done) return;
     storage.mistake(this.entry.listId, this.entry.item, 'skip'); this.next();
   },
-  pressKey(event) { this.setData({ pressedKey: event.currentTarget.dataset.key }); },
-  releaseKey() { this.setData({ pressedKey: '' }); },
+  /** 触摸开始即输入；点击事件只为辅助操作兜底，避免一次触摸输入两遍。 */
+  touchKey(event) {
+    this.lastKeyTouch = Date.now();
+    this.stopKeyRepeat();
+    if (event.currentTarget.dataset.key === 'delete') {
+      this.keyRepeat = createKeyRepeat(() => {
+        if (!this.state || !this.state.typed || this.state.done || this.hidden || this.unloaded || this.data.modal) return false;
+        this.key(event);
+        return !!this.state.typed;
+      });
+      this.keyRepeat.start();
+    } else {
+      this.key(event);
+    }
+  },
+  tapKey(event) {
+    if (this.lastKeyTouch !== undefined && Date.now() - this.lastKeyTouch < 500) return;
+    this.key(event);
+  },
+  releaseKey() {
+    this.lastKeyTouch = Date.now();
+    this.stopKeyRepeat();
+  },
+  stopKeyRepeat() {
+    if (this.keyRepeat) this.keyRepeat.stop();
+    this.keyRepeat = undefined;
+  },
   key(event) {
-    if (!this.state || this.state.done) return;
+    if (!this.state || this.state.done || this.hidden || this.unloaded || this.data.modal) return;
     const key = event.currentTarget.dataset.key;
-    keySound.play(key === 'delete' ? 'del' : 'key');
-    if (key === 'shift') { this.setData({ shift: !this.data.shift }); return; }
+    if (key === 'delete' && !this.state.typed) return;
+    if (key === 'shift') {
+      this.setData({ shift: !this.data.shift });
+      return;
+    }
     const value = key === 'delete' ? this.state.typed.slice(0, -1) : this.state.typed + (this.data.shift ? key.toUpperCase() : key);
     this.input({ detail: { value } });
+    keySound.play(key === 'delete' ? 'del' : 'key');
   },
   accent(event) { const accent = event.currentTarget.dataset.value; this.playbackToken = (this.playbackToken || 0) + 1; if (this.audio) this.audio.stop(); storage.settings({ accent }); this.setData({ accent }); if (this.state) this.render(); if (this.data.isWord) this.preloadWords(); },
   previous() { if (this.index > 0) { if (this.audio) this.audio.stop(); this.index -= 1; this.begin(); } },
@@ -158,7 +260,10 @@ Page({
     const group = (this.entry.item.grammar || [])[index];
     if (group) this.setData({ grammarIndex: index, grammarExplanation: group.explanation });
   },
-  instructions() { this.setData({ modal: { title: '玩法说明', help: true, confirmText: '开始练习' } }); },
+  instructions() {
+    this.stopKeyRepeat();
+    this.setData({ modal: { title: '玩法说明', help: true, confirmText: '开始练习' } });
+  },
   swallowModal() {},
   closeModal() { this.setData({ modal: null }); },
   confirmModal() { this.closeModal(); },
@@ -202,10 +307,13 @@ Page({
     this.stopEntryMotion();
     this.hidden = true;
     this.playbackToken = (this.playbackToken || 0) + 1;
-    this.releaseKey();
+    this.stopKeyRepeat();
+    storage.flushTyping();
     if (this.audio) this.audio.stop();
   },
   onUnload() {
+    this.stopKeyRepeat();
+    storage.flushTyping();
     clearTimeout(this.entryMotionTimer);
     this.unloaded = true;
     this.playbackToken = (this.playbackToken || 0) + 1;
