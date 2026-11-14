@@ -4,11 +4,11 @@ Hono + TypeScript 服务提供发音、云端题库目录和 JSON 内容接口�
 
 ## 部署
 
-1. 在微信云托管开通 MySQL 服务，并为本地命令配置数据库服务器可达的 MySQL 环境变量。首次初始化时可在 `cloud-service/` 运行 `npm run db:setup`：该命令先创建 `.env` 指定的数据库（若不存在），再应用 Drizzle 迁移。初始化账号必须有 `CREATE DATABASE` 权限；服务运行账号不需要此权限。已有数据库仅需运行 `npm run db:migrate`。后续修改 schema 后运行 `npm run db:generate` 生成迁移，检查生成的 SQL 后提交，再在目标环境运行 `npm run db:migrate`。不要对已有题库数据的数据库直接运行尚未核对的迁移。
+1. 在微信云托管开通 MySQL 服务，并为本地命令配置数据库服务器可达的 MySQL 环境变量。首次初始化时可在 `cloud-service/service/` 运行 `npm run db:setup`：该命令先创建 `.env` 指定的数据库（若不存在），再应用 Drizzle 迁移。初始化账号必须有 `CREATE DATABASE` 权限；服务运行账号不需要此权限。已有数据库仅需运行 `npm run db:migrate`。后续修改 schema 后运行 `npm run db:generate` 生成迁移，检查生成的 SQL 后提交，再在目标环境运行 `npm run db:migrate`。不要对已有题库数据的数据库直接运行尚未核对的迁移。
 2. 在云托管控制台将仓库的 `cloud-service` 目录作为构建目录，用其中的 Dockerfile 创建服务；服务名需与小程序配置一致，当前为 `sentleap-service`。将云托管服务配置中的容器端口设置为 `8080`，并确保 `PORT` 环境变量与容器端口一致。服务监听 `PORT`，未设置时默认使用 8080；健康检查路径为 `/health`。镜像以普通用户运行，请勿将端口设置为 80。
 3. 在云托管控制台开启「开放接口服务」的对象存储能力，为服务配置 `/_/cos/getauth` 与 `/_/cos/metaid/encode` 接口并创建新服务版本；服务需要 MySQL 读写权限。配置 `WX_CLOUD_ENV_ID`、`COS_BUCKET`、`COS_REGION`（云托管控制台「对象存储-存储配置」可查）。服务通过开放接口获取短期 COS 凭据和小程序访问所需的文件元数据，再使用 COS SDK 上传、下载。请将对象存储读权限配置为小程序用户可访问，避免文件权限阻止题库读取。
-4. 在 `miniprogram/config.ts` 填写关联环境 ID 和实际服务名，部署成功后在开发者工具及真机检查发音和题库。如果只有小程序调用，建议关闭云托管公网访问。
-5. 根目录上传脚本与 Swagger 上传都写入云托管对象存储和 MySQL；在本机运行脚本时需在 `cloud-service/.env` 配置同一云托管环境、存储桶、地域及数据库连接。直接在控制台上传 JSON 不会自动登记数据库。
+4. 在 `miniprogram/config.ts` 填写关联环境 ID 和实际服务名，部署成功后在开发者工具及真机检查发音和题库。如果只有小程序调用，可以关闭云托管公网访问；浏览器后台需要 HTTPS 可访问入口，并配置实际的 ADMIN_ALLOWED_ORIGINS。
+5. 根目录上传脚本与 Swagger 上传都写入云托管对象存储和 MySQL；在本机运行脚本时需在 `cloud-service/service/.env` 配置同一云托管环境、存储桶、地域及数据库连接。直接在控制台上传 JSON 不会自动登记数据库。
 
 上传脚本保留既有数据的条目顺序和题库 ID；修改题库时应注意旧进度按 ID 与顺序对应。文件上传和数据库写入不是一个事务，失败处理参见上传工具说明。
 
@@ -77,46 +77,46 @@ Authorization: Bearer <登录返回的 token>
 
 ## 本地验证
 
-在本目录运行 `npm ci`、`npm run build` 和 `npm test`。实际MySQL 数据库、云存储、云托管网关和有道发音需要部署后用真实环境验证。
+在 `service/` 目录运行 `npm ci`、`npm run build` 和 `npm test`。实际MySQL 数据库、云存储、云托管网关和有道发音需要部署后用真实环境验证。
 
 服务监听成功后会打印实际监听 IP、端口以及非回环 IPv4 网卡地址。云托管日志中的容器 IP 用于排查，不等同于公网访问地址。
 
 ## 源码目录
 
-- `src/index.ts`：启动服务、组装依赖和输出监听地址。
-- `src/app.ts`：组合路由、健康检查和统一错误处理。
-- `src/routes/`：发音、题库读取、管理员 HTTP 路由。
-- `src/schemas/`：Zod 请求校验、OpenAPI schema 与题库上传数据准备。
-- `src/types/`：数据结构和服务依赖契约。
-- `src/middleware/`：全局后台会话鉴权及浏览器请求来源校验。
-- `src/auth/`：密码哈希、随机令牌、账号类型与配置。
-- `src/db/`：MySQL 连接池与环境配置。
-- `src/repositories/`：题库 SQL 读写。
-- `src/services/`：有道发音、云存储访问。
-- `src/utils/`：公开字段与发布状态筛选。
-- `src/tests/`：接口和数据库访问测试。
-- `sql/`：数据库建表脚本。
+- `service/src/index.ts`：启动服务、组装依赖和输出监听地址。
+- `service/src/app.ts`：组合路由、健康检查和统一错误处理。
+- `service/src/routes/`：发音、题库读取、管理员 HTTP 路由。
+- `service/src/schemas/`：Zod 请求校验、OpenAPI schema 与题库上传数据准备。
+- `service/src/types/`：数据结构和服务依赖契约。
+- `service/src/middleware/`：全局后台会话鉴权及浏览器请求来源校验。
+- `service/src/auth/`：密码哈希、随机令牌、账号类型与配置。
+- `service/src/db/`：MySQL 连接池与环境配置。
+- `service/src/repositories/`：题库 SQL 读写。
+- `service/src/services/`：有道发音、云存储访问。
+- `service/src/utils/`：公开字段与发布状态筛选。
+- `service/src/tests/`：接口和数据库访问测试。
+- `service/sql/`：数据库建表脚本。
 
 ## 本地 .env 文件
 
-复制 `.env.example` 为 `.env` 后填写 MySQL 连接信息、云托管环境 ID、COS 桶名和地域。`ADMIN_SESSION_DAYS` 默认为 7（允许 1–30），`ADMIN_ALLOWED_ORIGINS` 配置浏览器后台及 Swagger 的完整来源，多个来源逗号分隔且不带尾斜杠。示例仅允许本机 localhost / 127.0.0.1 的 8080 端口；通过局域网 IP 或生产域名访问时需要加入实际来源。临时 COS 凭据由云托管开放接口动态签发，不要在配置中保存固定 COS 密钥。`.env` 已排除 Git 提交及 Docker 构建上下文。
+在 `service/` 中复制 `.env.example` 为 `.env` 后填写 MySQL 连接信息、云托管环境 ID、COS 桶名和地域。`ADMIN_SESSION_DAYS` 默认为 7（允许 1–30），`ADMIN_ALLOWED_ORIGINS` 配置浏览器后台及 Swagger 的完整来源，多个来源逗号分隔且不带尾斜杠。示例允许本机 localhost / 127.0.0.1 的 8080 和 5173 端口；通过局域网 IP 或生产域名访问时需要加入实际来源。临时 COS 凭据由云托管开放接口动态签发，不要在配置中保存固定 COS 密钥。`.env` 已排除 Git 提交及 Docker 构建上下文。
 
-使用 Node.js 22（与镜像一致）执行 `npm --prefix cloud-service run dev`；编译后可执行 `npm --prefix cloud-service start`。这两个命令通过 Node 的 `--env-file=.env` 加载配置，系统已设置的环境变量优先。直接执行 `node dist/index.js` 不会加载 `.env`。
+使用 Node.js 22（与镜像一致）执行 `npm --prefix cloud-service/service run dev`；编译后可执行 `npm --prefix cloud-service/service start`。这两个命令加载开发默认值、可选 `.env` 及 `.env.development.local`，系统已设置的环境变量优先；生产使用 `start:prod` 或 Docker，见文末环境配置。直接执行 `node dist/index.js` 不会加载 `.env`。
 
-云托管容器继续由控制台注入环境变量，Docker 启动命令不依赖本地 `.env`。根目录上传脚本也不会自动读取该文件；若在本机上传，可从仓库根目录使用 `node --env-file=cloud-service/.env --import tsx scripts/upload-cloud-dictionary.ts` 加上相应参数。
+云托管容器继续由控制台注入环境变量，Docker 启动命令不依赖本地 `.env`。根目录上传脚本也不会自动读取该文件；若在本机上传，可从仓库根目录使用 `node --env-file=cloud-service/service/.env --import tsx scripts/upload-cloud-dictionary.ts` 加上相应参数。
 
 
 ## 后台账号注册与登录
 
-后台账号与 Web、小程序本地学习进度相互独立，不提供学习账号同步。本阶段提供 API 和 Swagger，尚未增加独立后台登录页面。
+后台账号与 Web、小程序本地学习进度相互独立，不提供学习账号同步。后台页面位于 `/admin/`，同时保留 API 和 Swagger。
 
 ### 初始化
 
 新增 Drizzle 迁移 `0001_flaky_jack_power.sql` 只创建 `admin_users`、`admin_sessions`、`admin_invites` 和 `admin_auth_limits`，不修改现有题库表。先审查目标环境迁移记录，再在受控机器执行：
 
 ```sh
-npm --prefix cloud-service run db:migrate
-npm --prefix cloud-service run admin:init -- administrator
+npm --prefix cloud-service/service run db:migrate
+npm --prefix cloud-service/service run admin:init -- administrator
 ```
 
 初始化命令交互输入两次密码，不回显、不接受密码命令行参数。用户名为 3–32 位英文、数字或下划线，统一小写；密码为 6–128 字符。命令只允许在没有超级管理员时创建首个 `super_admin`，重复执行拒绝覆盖。命令使用 `.env` 指向的数据库；服务启动不会自动迁移或创建账号。生产 Docker 镜像只包含服务运行文件，管理命令应在安装完整依赖的受控 checkout 中运行。
@@ -154,10 +154,79 @@ npm --prefix cloud-service run admin:init -- administrator
 忘记密码和定期清理通过受控命令处理：
 
 ```sh
-npm --prefix cloud-service run admin:reset-password -- administrator
-npm --prefix cloud-service run admin:cleanup
+npm --prefix cloud-service/service run admin:reset-password -- administrator
+npm --prefix cloud-service/service run admin:cleanup
 ```
 
 重置密码撤销该账号全部会话，不改变账号状态。清理删除过期会话和限流记录，不删除用户、邀请码或学习数据；可由受控运维任务定期执行。当前不提供短信、邮件验证、邮件找回或在线角色变更。
 
 账号接口测试使用内存仓储，SQL 仓储测试模拟驱动；真实 MySQL 的迁移、事务并发及网关 Cookie/HTTPS 行为仍需在部署环境验收。
+
+## 后台 Web 与目录结构
+
+```text
+cloud-service/
+├── service/        # Hono 服务、MySQL/COS、迁移、服务端脚本与 .env
+├── admin-web/      # React + Vite + Ant Design，独立 npm 依赖
+├── Dockerfile      # 两端构建后同一个容器提供服务
+└── README.md
+```
+
+原服务文件整体迁移到 `service/`，现有数据库结构无需因目录变更迁移；旧 checkout 的本地 `.env` 需移动到 `service/.env`。依赖分别安装，不是 npm workspace。要求 Node.js >=22.12（生产镜像 Node 22）。
+
+从仓库根目录执行：
+
+```sh
+npm --prefix cloud-service/service ci
+npm --prefix cloud-service/admin-web ci
+# 两个终端分别启动
+npm --prefix cloud-service/service run dev
+npm --prefix cloud-service/admin-web run dev
+```
+
+开发页面为 `http://localhost:5173/admin/`，Vite 将 `/api` 代理至 `http://127.0.0.1:8080`，不会改写 Origin。请在 `service/.env` 的 `ADMIN_ALLOWED_ORIGINS` 加入实际使用的来源，例如 `http://localhost:5173`；已有 `.env` 不会被脚本自动更改。初始化超级管理员仍使用上文的 `admin:init`，后台不提供无邀请注册。
+
+生产构建和本地验证：
+
+```sh
+npm --prefix cloud-service/admin-web run build
+npm --prefix cloud-service/admin-web test
+npm --prefix cloud-service/service run build
+npm --prefix cloud-service/service test
+npm --prefix cloud-service/service start
+```
+
+构建后服务同时提供 `/admin/` 和 `/api/admin/*`。生产 Docker 构建目录仍是 `cloud-service/`，不要改成 `service/`；Dockerfile 会分别构建两个目录并复制前端产物。服务器使用 HttpOnly、SameSite=Lax Cookie，生产 Cookie 带 Secure，需通过 HTTPS 访问。不要将登录返回的 token 存到 localStorage。后台页面可公开加载，但所有管理数据和操作均由服务端鉴权。
+
+后台包含：登录、邀请注册、题库搜索/筛选/分页、JSON 上传预检和草稿创建、详情与分页内容预览、资料编辑、发布/归档/重新发布、修改密码、管理员禁用/恢复、邀请生成/查看/撤销。普通管理员可管理题库，只有超级管理员可管理账号及邀请。改密后需重新登录。邀请列表最多展示最近 100 条，不返回明文邀请码或哈希；明文只在生成时显示一次。
+
+后台上传默认保存草稿，再由管理员在详情页发布。请求总大小（含 multipart）上限 5 MiB；前端为元数据预留空间。上传不改写条目顺序、不替换已有题库内容。上传存储与数据库仍非同一个事务，失败时检查服务端日志，不自动删除云文件。学习进度仍在设备本地，不提供跨端用户运营统计。
+
+新增只读接口（均需会话）：
+
+- `GET /api/admin/dictionaries?page=1&pageSize=20&q=&kind=&status=&category=`：全状态题库分页，返回 `dictionaries`、`total`、`page`、`pageSize`；可选参数无值时省略。
+- `GET /api/admin/dictionaries/:id`：含发布状态和时间的管理资料，不返回云存储路径。
+- `GET /api/admin/dictionaries/:id/content?offset=0&limit=20&version=<sha256>`：草稿、发布和归档内容预览，`next=null` 表示结束；版本不符返回 409。
+- `GET /api/admin/invites`：超级管理员查看最近邀请。
+
+验收需覆盖：Cookie 登录刷新、过期跳转、普通管理员访问限制、草稿上传后不出现在公开目录、发布后可见、归档后可恢复、题目预览顺序、错误 JSON 和重复 ID 提示、改密退出、邀请一次性消费，以及 HTTPS 网关下的真实 MySQL/COS 连通性。本地测试使用模拟依赖，不会写入真实云数据。
+
+后台前端按职责拆分：`admin-web/src/pages/` 每个路由页独立文件，`layouts/` 放后台导航布局，`auth/` 放会话和角色守卫，`routes.tsx` 集中声明路由，`App.tsx` 只组合入口。登录和注册共用 `components/AuthForm.tsx`，接口请求统一通过 `api.ts`。
+
+## 开发与生产环境变量
+
+前端默认文件：`admin-web/.env.development`、`.env.production`。`npm run dev` 使用 development，`npm run build` 使用 production。开发配置可复制 `.env.local.example` 为 `.env.development.local` 覆盖：
+
+- `ADMIN_DEV_HOST`：开发服务器监听地址，默认 127.0.0.1。
+- `ADMIN_DEV_PORT`：开发端口，默认 5173。
+- `ADMIN_API_PROXY`：开发 API 代理目标，默认 http://127.0.0.1:8080。
+
+这些变量只供 Vite 配置使用，不通过 `VITE_` 注入浏览器。线上维持 `/admin/` 与 `/api/admin` 同源，不需要设置前端 API 域名。更换开发页面端口或访问域名时，需同步更新服务端 `ADMIN_ALLOWED_ORIGINS`。
+
+若开发请求返回 `403 请求来源不允许`，在 `service/.env.development.local` 设置 `ADMIN_ALLOWED_ORIGINS` 为浏览器地址栏的实际来源（协议、主机、端口，不含 `/admin/`），然后重启 service。例如本机开发使用 `http://localhost:5173,http://127.0.0.1:5173`；局域网访问再追加 `http://你的局域网IP:5173`。该变量覆盖整个列表，需保留仍在使用的其他来源。`ADMIN_DEV_HOST=0.0.0.0` 是监听所有网卡，不应将 `0.0.0.0` 填入白名单；`ADMIN_API_PROXY` 是后端目标，也不能替代浏览器来源。Vite 代理保留 Origin，不能靠改写或删除它绕过校验。
+
+服务端 `dev`、`start` 及本机管理命令依次加载 `.env.development` → 可选旧 `.env` → 可选 `.env.development.local`；后加载文件覆盖前者，进程环境变量优先级最高。旧 `.env` 可继续使用，也可参照 `.env.development.local.example` 配置独立开发连接。
+
+非容器生产运行使用 `npm --prefix cloud-service/service run start:prod`，仅加载 `.env.production` 和可选 `.env.production.local`，不会读取开发 `.env`。生产配置参照 `.env.production.local.example`，填写实际数据库、COS 和 HTTPS 后台来源。不要在生产配置中覆盖 `NODE_ENV=production`，它控制 Secure Cookie。
+
+云托管 Docker 启动仍直接执行 `node dist/index.js`，由平台注入环境变量；镜像已设置 `NODE_ENV=production` 和 `PORT=8080`。镜像不包含任何 `.env` 文件，数据库与 COS 凭据不作为构建参数。以上环境文件切换不自动执行数据库迁移或创建管理员。

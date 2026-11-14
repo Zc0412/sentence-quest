@@ -3,9 +3,9 @@ import * as fs from 'node:fs';
 import * as path from 'node:path';
 import * as crypto from 'node:crypto';
 import config from '../miniprogram/config';
-import {createDatabasePool} from '../cloud-service/src/db/mysql';
-import {createDictionaryRepository} from '../cloud-service/src/repositories/dictionary';
-import {createCloudStorage} from '../cloud-service/src/services/cloud-storage';
+import {createDatabasePool} from '../cloud-service/service/src/db/mysql';
+import {createDictionaryRepository} from '../cloud-service/service/src/repositories/dictionary';
+import {createCloudStorage} from '../cloud-service/service/src/services/cloud-storage';
 interface UploadOptions {
     file?: string;
     id?: string;

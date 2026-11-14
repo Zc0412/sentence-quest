@@ -7,6 +7,7 @@ import { createRoutes as dictionaryRoutes } from './routes/dictionaries';
 import { createRoutes as adminRoutes } from './routes/admin';
 import { createRoutes as imageRoutes } from './routes/images';
 import { createRoutes as authRoutes } from './routes/auth';
+import { createRoutes as adminReadRoutes } from './routes/admin-read';
 import { adminAuth } from './middleware/admin-auth';
 import { AuthError, readAuthConfig } from './auth/types';
 import { swaggerUI } from '@hono/swagger-ui';
@@ -43,6 +44,7 @@ export function createApp(services: Services) {
     app.route('/', pronunciationRoutes(services));
     app.route('/', dictionaryRoutes(services));
     app.route('/', adminRoutes(services));
+    app.route('/', adminReadRoutes(services));
     app.route('/', imageRoutes(services));
     // 根据已注册路由和请求 Zod schema 生成 OpenAPI 文档。
     app.doc('/openapi.json', {

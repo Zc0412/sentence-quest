@@ -38,7 +38,7 @@
 
 需同时安装根目录及 `cloud-service/` 依赖，并配置云托管对象存储及 MySQL 连接信息，详见 [云服务配置](../cloud-service/README.md#部署)。本机必须能连接目标 MySQL。
 
-上传工具在开发电脑运行，将 JSON 写入微信云托管对象存储 COS，并将文件 ID 和元数据登记到云托管 MySQL。先在目标 MySQL 数据库执行 `cloud-service/sql/001-dictionaries.sql` 创建 `dictionaries` 表，再在 `cloud-service/.env` 配置 `WX_CLOUD_ENV_ID`、`COS_BUCKET`、`COS_REGION` 和 MySQL 连接信息。云托管需开启开放接口服务的对象存储能力；上传时由开放接口动态获取临时 COS 凭据，不需要在本机配置固定存储密钥。
+上传工具在开发电脑运行，将 JSON 写入微信云托管对象存储 COS，并将文件 ID 和元数据登记到云托管 MySQL。先在目标 MySQL 数据库执行 `cloud-service/service/sql/001-dictionaries.sql` 创建 `dictionaries` 表，再在 `cloud-service/service/.env` 配置 `WX_CLOUD_ENV_ID`、`COS_BUCKET`、`COS_REGION` 和 MySQL 连接信息。云托管需开启开放接口服务的对象存储能力；上传时由开放接口动态获取临时 COS 凭据，不需要在本机配置固定存储密钥。
 
 在仓库根目录执行以下命令，先校验并预览：
 

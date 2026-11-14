@@ -1,7 +1,8 @@
 /** 使用 Drizzle ORM 读写题库资料，复用现有 mysql2 连接池。 */
 import type {Pool} from 'mysql2/promise';
 import {drizzle} from 'drizzle-orm/mysql2';
-import {eq} from 'drizzle-orm';
+import {and, count, eq, like, or} from 'drizzle-orm';
+import type { AdminDictionaryQuery } from '../types/services';
 import {dictionaries} from '../db/schema';
 import type {DictionaryWrite} from '../schemas/dictionary';
 
@@ -9,6 +10,23 @@ import type {DictionaryWrite} from '../schemas/dictionary';
 export function createDictionaryRepository(pool: Pool) {
     const db = drizzle(pool);
     return {
+        /** SQL 分页筛选，避免后台拉取全部题库；LIKE 中转义通配符。 */
+        async listAdmin(query: AdminDictionaryQuery) {
+            const escape = (value: string) => value.replace(/[\\%_]/g, '\\$&');
+            const search = query.q ? `%${escape(query.q)}%` : undefined;
+            const where = and(
+                search ? or(like(dictionaries.id, search), like(dictionaries.label, search)) : undefined,
+                query.category ? eq(dictionaries.category, query.category) : undefined,
+                query.kind ? eq(dictionaries.kind, query.kind) : undefined,
+                query.status ? eq(dictionaries.status, query.status) : undefined,
+            );
+            const [rows, totals] = await Promise.all([
+                db.select().from(dictionaries).where(where).orderBy(dictionaries.id)
+                    .limit(query.pageSize).offset((query.page - 1) * query.pageSize),
+                db.select({ total: count() }).from(dictionaries).where(where),
+            ]);
+            return { dictionaries: rows, total: totals[0].total };
+        },
         /** 查询目录并按 ID 排序。 */
         async list(): Promise<DictionaryWrite[]> {
             return db.select().from(dictionaries).orderBy(dictionaries.id);

@@ -81,6 +81,7 @@ export function authFixture() {
             }
             invite.revokedAt = new Date();
         },
+        async listInvites() { return [...invites.values()]; },
         async listUsers() { return [...users.values()]; },
         async setStatus(actor, id, status) {
             if (!users.has(id)) {

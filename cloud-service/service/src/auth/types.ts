@@ -27,6 +27,7 @@ export interface AuthRepository {
     changePassword(userId: string, oldHash: string, newHash: string): Promise<void>;
     createInvite(invite: AdminInvite): Promise<void>;
     revokeInvite(id: string): Promise<void>;
+    listInvites(): Promise<AdminInvite[]>;
     listUsers(): Promise<AdminUser[]>;
     setStatus(actorId: string, targetId: string, status: 'active' | 'disabled'): Promise<void>;
     consumeLimit(key: string, maximum: number): Promise<boolean>;

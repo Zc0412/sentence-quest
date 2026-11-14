@@ -17,7 +17,8 @@ SentLeap 是以中文提示、逐词拼写、即时反馈、错题复习和 XP �
 | `miniprogram/` | 原生 TypeScript + WXML + WXSS 微信小程序，由开发者工具编译 |
 | `miniprogram/pages/`、`miniprogram/utils/` | 页面及题库、云接口、存储、练习、发音等逻辑 |
 | `miniprogram/data/` | 同步脚本生成的内置题库与目录 |
-| `cloud-service/` | Hono + TypeScript 云托管服务，提供发音、题库读取及管理员接口 |
+| `cloud-service/service/` | Hono + TypeScript 云托管服务，提供发音、题库读取及管理员接口 |
+| `cloud-service/admin-web/` | React + Vite + Ant Design 管理后台，与云服务同源部署 |
 | `scripts/` | 跨端同步、云题库上传和小程序测试 |
 
 开始修改前阅读目标端 README、相关实现与测试。文档与代码冲突时核对 `package.json`、同步脚本和调用链，不沿用过期描述：当前小程序使用 `.ts`，内置精选短语、句子闯关、三个单词的测试库，在线接口通过云托管访问。
@@ -25,11 +26,11 @@ SentLeap 是以中文提示、逐词拼写、即时反馈、错题复习和 XP �
 ## 安装与运行
 
 - 根目录及 Web 声明 Node.js `>=20.9.0`、`pnpm@9.15.9`；云服务依赖独立管理，部署运行时参考其 Dockerfile。
-- 根目录安装工具依赖：`npm ci`。Web 按现有说明执行 `pnpm --dir web install`。云服务执行 `npm --prefix cloud-service ci`。
+- 根目录安装工具依赖：`npm ci`。Web 按现有说明执行 `pnpm --dir web install`。云服务执行 `npm --prefix cloud-service/service ci`。
 - 仓库不是统一依赖安装的 workspace；根目录安装不能替代 Web 或云服务安装。沿用目标目录的包管理方式，不无故切换工具、升级依赖或重写多份 lockfile。
 - 根目录 `npm run dev`、`npm run build`、`npm run start` 转发至 Web。Web 环境变量放在 `web/.env.local`，部署项目根目录为 `web/`。
 - 微信开发者工具导入 `miniprogram/`，使用 TypeScript 编译插件，无需在工具中构建 npm。云环境与服务名配置位于 `miniprogram/config.ts`。
-- 云服务执行 `npm --prefix cloud-service run build` 后以 `npm --prefix cloud-service start` 启动；默认端口 8080，健康检查路径 `/health`。
+- 云服务执行 `npm --prefix cloud-service/service run build` 后以 `npm --prefix cloud-service/service start` 启动；默认端口 8080，健康检查路径 `/health`。
 
 <!-- BEGIN:nextjs-agent-rules -->
 
@@ -98,7 +99,7 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 ## 云服务与敏感配置
 
 - 题库资料保存在云托管 MySQL，通过 Drizzle ORM 和 `mysql2` 访问；题库 JSON 存储在云托管对象存储 COS，服务端通过开放接口获取临时凭据并写入必需的文件元数据。服务端通过数据库登记的 `fileID` 获取题库，不接受客户端指定任意对象存储路径。目录与内容读取须保持发布状态过滤。
-- 元数据更新和下架接口使用服务端 `DICTIONARY_ADMIN_TOKEN` 鉴权；Swagger 上传接口暂不鉴权，部署时必须限制公网访问或增加保护。保持参数校验、请求大小限制及错误响应。删除题库为归档，不直接删除云文件。
+- 除登录和邀请注册外，所有 `/api/admin/*` 接口使用数据库管理员会话鉴权，支持 HttpOnly Cookie 或 Bearer；浏览器写请求检查 `ADMIN_ALLOWED_ORIGINS`。旧 `DICTIONARY_ADMIN_TOKEN` 不再参与鉴权。保持参数校验、请求大小限制及错误响应。删除题库为归档，不直接删除云文件。
 - 上传脚本默认校验与预览；`--upload` 才写入云存储和数据库。未经任务授权，不为本地验证上传、部署或修改真实云数据。
 - 上传文件与数据库登记不属于一个事务；保持失败诊断与可重试性，不擅自清理可能被复用的文件。
 - 密钥、AppSecret、管理员令牌仅通过服务端或本机环境配置，不写入源码、小程序、日志或提交内容。云环境 ID 不等同于密钥。
@@ -118,7 +119,7 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 | 题库上传 | `npm run test:dictionary-upload` |
 | Web 与小程序综合检查 | `npm run check` |
 | Web 生产构建 | `npm run build` |
-| 云服务 | `npm --prefix cloud-service run build`、`npm --prefix cloud-service test` |
+| 云服务 | `npm --prefix cloud-service/service run build`、`npm --prefix cloud-service/service test` |
 
 - 根目录 `check` 不包含云服务测试或 Web 生产构建，涉及这些范围时补充执行。
 - 小程序 Node 测试模拟微信 API，不能替代开发者工具编译与真机验收；云数据库、云存储、网关和发音上游需要真实环境验证。

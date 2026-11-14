@@ -15,3 +15,18 @@ miniprogram/project.private.config.json
 cloud-service/.env
 cloud-service/.env.*
 !cloud-service/.env.example
+
+cloud-service/service/.env
+cloud-service/service/.env.*
+!cloud-service/service/.env.example
+
+# 后台前端 env 仅提交无密钥默认值和模板。
+cloud-service/admin-web/.env
+cloud-service/admin-web/.env.*
+!cloud-service/admin-web/.env.development
+!cloud-service/admin-web/.env.production
+!cloud-service/admin-web/.env.local.example
+!cloud-service/service/.env.development
+!cloud-service/service/.env.production
+!cloud-service/service/.env.development.local.example
+!cloud-service/service/.env.production.local.example

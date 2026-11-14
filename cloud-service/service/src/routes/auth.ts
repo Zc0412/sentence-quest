@@ -215,6 +215,22 @@ export function createRoutes(services: Services) {
         await next();
     });
     app.openapi(createRoute({
+        method: 'get',
+        path: '/api/admin/invites',
+        tags: ['Auth'],
+        security: authSecurity,
+        summary: '最近 100 条邀请；不返回邀请码或哈希',
+        responses: { 200: response(z.object({ invites: z.array(z.object({
+            id: z.string(), createdBy: z.string(), createdAt: z.string(), expiresAt: z.string(),
+            usedAt: z.string().nullable(), usedBy: z.string().nullable(), revokedAt: z.string().nullable(),
+        })) })), ...errors },
+    }), async (c) => {
+        const invites = await repository().listInvites();
+        return c.json({ invites: invites.map(({ id, createdBy, createdAt, expiresAt, usedAt, usedBy, revokedAt }) => ({
+            id, createdBy, createdAt, expiresAt, usedAt, usedBy, revokedAt,
+        })) }, 200);
+    });
+    app.openapi(createRoute({
         method: 'post',
         path: '/api/admin/invites',
         tags: ['Auth'],

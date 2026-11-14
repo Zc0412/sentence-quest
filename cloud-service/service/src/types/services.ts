@@ -11,9 +11,21 @@ export interface Dictionary {
     sha256: string;
     fileID: string;
     status?: string;
+    createdAt?: string;
+    updatedAt?: string;
+}
+
+export interface AdminDictionaryQuery {
+    page: number;
+    pageSize: number;
+    q?: string;
+    category?: string;
+    kind?: 'word' | 'phrase';
+    status?: 'published' | 'draft' | 'archived';
 }
 
 export interface Services {
+    listAdmin?(query: AdminDictionaryQuery): Promise<{ dictionaries: Dictionary[]; total: number }>;
     list(): Promise<Dictionary[]>;
     get(id: string): Promise<Dictionary | undefined>;
     download(fileID: string): Promise<Buffer>;

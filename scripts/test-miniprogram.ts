@@ -707,7 +707,7 @@ delete require.cache[storagePath];
   await Promise.resolve();
   assert.equal(plays, playsBeforePhrase + 1, '离开短语页面后不播放延迟音频');
   phraseAudio.onUnload();
-  const pronunciationFunction = require('../cloud-service/src/services/pronunciation.ts');
+  const pronunciationFunction = require('../cloud-service/service/src/services/pronunciation.ts');
   const https = require('node:https'); const { EventEmitter } = require('node:events');
   const originalGet = https.get; let requestedUrl;
   https.get = (url, callback) => {

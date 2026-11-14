@@ -1,7 +1,7 @@
 /** 后台账号仓储：邀请注册、会话撤销及共享限流均在 MySQL 中执行。 */
 import type { Pool } from 'mysql2/promise';
 import { drizzle } from 'drizzle-orm/mysql2';
-import { and, eq, gt, isNull, sql } from 'drizzle-orm';
+import { and, desc, eq, gt, isNull, sql } from 'drizzle-orm';
 import { adminUsers as users, adminSessions as sessions, adminInvites as invites, adminAuthLimits as limits } from '../db/schema';
 import { AuthError, type AuthRepository } from '../auth/types';
 
@@ -76,6 +76,9 @@ export function createAdminRepository(pool: Pool): AuthRepository {
             if (!result.affectedRows) {
                 throw new AuthError(404, '邀请不存在或已使用、撤销');
             }
+        },
+        async listInvites() {
+            return db.select().from(invites).orderBy(desc(invites.createdAt)).limit(100);
         },
         async listUsers() {
             return db.select().from(users).orderBy(users.createdAt);

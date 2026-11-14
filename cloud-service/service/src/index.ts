@@ -1,4 +1,5 @@
 /** 云托管服务入口：连接 MySQL、云存储和发音服务。 */
+import { mountAdminWeb } from './admin-web';
 import { createAdminRepository } from './repositories/admin';
 import { readAuthConfig } from './auth/types';
 import { networkInterfaces } from 'node:os';
@@ -22,6 +23,8 @@ const app = createApp({
     ...dictionaries,
     pronounce,
 });
+
+mountAdminWeb(app);
 
 serve({
     fetch: app.fetch,
