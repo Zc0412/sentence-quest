@@ -31,7 +31,7 @@ import {
   useParams,
   useSearchParams,
 } from "react-router-dom";
-import { api, dateText, json, type Dictionary } from "../api";
+import { dateText, json, type Dictionary } from "../api";
 import {
   ErrorNotice,
   kindOptions,
@@ -40,6 +40,7 @@ import {
   statusOptions,
   useResource,
 } from "../shared";
+import { useApiMutation } from "../query";
 import { parseEntries } from "../upload";
 
 type ListResult = {
@@ -62,7 +63,8 @@ export default function UploadPage() {
   const [source, setSource] = useState("");
   const [entries, setEntries] = useState<Record<string, unknown>[]>([]);
   const [error, setError] = useState<Error>();
-  const [busy, setBusy] = useState(false);
+  const mutation = useApiMutation<{ dictionary: Dictionary }>("/dictionaries");
+  const busy = mutation.isPending;
   const [reading, setReading] = useState(false);
   const fileRevision = useRef(0);
   const navigate = useNavigate();
@@ -104,7 +106,6 @@ export default function UploadPage() {
       setError(new Error("请先选择并检查题库 JSON 文件"));
       return;
     }
-    setBusy(true);
     setError(undefined);
     const body = new FormData();
     for (const [key, value] of Object.entries(values))
@@ -112,16 +113,14 @@ export default function UploadPage() {
     body.append("status", "draft");
     body.append("file", file);
     try {
-      const result = await api<{ dictionary: Dictionary }>(
-        "/upload-dictionary",
-        { method: "POST", body },
-      );
+      const result = await mutation.mutateAsync({
+        path: "/upload-dictionary",
+        options: { method: "POST", body },
+      });
       message.success("题库草稿已创建，请检查内容后发布");
       navigate(`/dictionaries/${encodeURIComponent(result.dictionary.id)}`);
     } catch (error) {
       setError(error as Error);
-    } finally {
-      setBusy(false);
     }
   }
   return (

@@ -211,7 +211,7 @@ npm --prefix cloud-service/service start
 
 验收需覆盖：Cookie 登录刷新、过期跳转、普通管理员访问限制、草稿上传后不出现在公开目录、发布后可见、归档后可恢复、题目预览顺序、错误 JSON 和重复 ID 提示、改密退出、邀请一次性消费，以及 HTTPS 网关下的真实 MySQL/COS 连通性。本地测试使用模拟依赖，不会写入真实云数据。
 
-后台前端按职责拆分：`admin-web/src/pages/` 每个路由页独立文件，`layouts/` 放后台导航布局，`auth/` 放会话和角色守卫，`routes.tsx` 集中声明路由，`App.tsx` 只组合入口。登录和注册共用 `components/AuthForm.tsx`，接口请求统一通过 `api.ts`。
+后台前端按职责拆分：`admin-web/src/pages/` 每个路由页独立文件，`layouts/` 放后台导航布局，`auth/` 放会话和角色守卫，`routes.tsx` 集中声明路由，`App.tsx` 只组合入口。登录和注册共用 `components/AuthForm.tsx`，接口传输统一通过 `api.ts`，由 TanStack React Query 管理请求状态：`useResource` 负责查询缓存及取消，`useApiMutation` 负责写操作及相关列表、详情的缓存失效。查询缓存保鲜 30 秒，失败不自动重试，窗口重新聚焦不自动刷新；写操作不自动重试。会话退出、过期及登录切换会清除业务缓存，缓存只存在内存中，登录返回的 Bearer token 不进入缓存。
 
 ## 开发与生产环境变量
 

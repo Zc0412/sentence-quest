@@ -17,7 +17,8 @@ import {
   Typography,
 } from "antd";
 import { Link, useNavigate } from "react-router-dom";
-import { api, dateText, json, type Invite, type User } from "../api";
+import { dateText, json, type Invite, type User } from "../api";
+import { useApiMutation } from "../query";
 import { useAuth } from "../auth/AuthProvider";
 import { ErrorNotice, PageHeading, useResource } from "../shared";
 
@@ -25,34 +26,35 @@ export default function InvitesPage() {
   const resource = useResource<{ invites: Invite[] }>("/invites");
   const { message } = App.useApp();
   const [hours, setHours] = useState(24);
-  const [busy, setBusy] = useState(false);
+  const mutation = useApiMutation<{ inviteCode: string; expiresAt: string }>(
+    "/invites",
+  );
+  const busy = mutation.isPending;
   const [created, setCreated] = useState<{
     inviteCode: string;
     expiresAt: string;
   }>();
   async function create() {
-    setBusy(true);
     try {
       setCreated(
-        await api("/invites", json("POST", { expiresInHours: hours })),
+        await mutation.mutateAsync({
+          path: "/invites",
+          options: json("POST", { expiresInHours: hours }),
+        }),
       );
-      resource.reload();
     } catch (error) {
       message.error((error as Error).message);
-    } finally {
-      setBusy(false);
     }
   }
   async function revoke(id: string) {
-    setBusy(true);
     try {
-      await api(`/invites/${id}`, json("DELETE"));
+      await mutation.mutateAsync({
+        path: `/invites/${id}`,
+        options: json("DELETE"),
+      });
       message.success("邀请已撤销");
-      resource.reload();
     } catch (error) {
       message.error((error as Error).message);
-    } finally {
-      setBusy(false);
     }
   }
   const state = (row: Invite) =>

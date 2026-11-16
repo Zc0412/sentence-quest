@@ -17,7 +17,8 @@ import {
   Typography,
 } from "antd";
 import { Link, useNavigate } from "react-router-dom";
-import { api, dateText, json, type Invite, type User } from "../api";
+import { dateText, json, type Invite, type User } from "../api";
+import { useApiMutation } from "../query";
 import { useAuth } from "../auth/AuthProvider";
 import { ErrorNotice, PageHeading, useResource } from "../shared";
 
@@ -25,22 +26,21 @@ export default function UsersPage() {
   const resource = useResource<{ users: User[] }>("/users");
   const { user } = useAuth();
   const { message } = App.useApp();
-  const [busy, setBusy] = useState<string>();
+  const mutation = useApiMutation<unknown>("/users");
+  const busy = mutation.isPending
+    ? mutation.variables?.path.split("/")[2]
+    : undefined;
   async function setStatus(row: User) {
-    setBusy(row.id);
     try {
-      await api(
-        `/users/${row.id}/status`,
-        json("PATCH", {
+      await mutation.mutateAsync({
+        path: `/users/${row.id}/status`,
+        options: json("PATCH", {
           status: row.status === "active" ? "disabled" : "active",
         }),
-      );
+      });
       message.success("账号状态已更新");
-      resource.reload();
     } catch (error) {
       message.error((error as Error).message);
-    } finally {
-      setBusy(undefined);
     }
   }
   return (

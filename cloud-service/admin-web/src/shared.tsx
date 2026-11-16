@@ -1,32 +1,25 @@
-import { useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { useAuth } from "./auth/AuthProvider";
+import { resourceKey } from "./query";
 import { Alert, Button, Space, Tag } from "antd";
 import { ApiError, api } from "./api";
 
-/** 查询切换或组件卸载时取消旧请求，避免迟到响应覆盖当前页面。 */
+/** React Query 按完整路径缓存分页结果，并在切换查询时取消旧请求。 */
 export function useResource<T>(path: string | null) {
-  const [revision, setRevision] = useState(0);
-  const [state, setState] = useState<{
-    data?: T;
-    loading: boolean;
-    error?: Error;
-  }>({ loading: true });
-  useEffect(() => {
-    if (!path) {
-      setState({ loading: false });
-      return;
-    }
-    const controller = new AbortController();
-    setState({ loading: true });
-    api<T>(path, { signal: controller.signal })
-      .then((data) => {
-        if (!controller.signal.aborted) setState({ data, loading: false });
-      })
-      .catch((error: Error) => {
-        if (!controller.signal.aborted) setState({ error, loading: false });
-      });
-    return () => controller.abort();
-  }, [path, revision]);
-  return { ...state, reload: () => setRevision((value) => value + 1) };
+  const { user } = useAuth();
+  const query = useQuery({
+    queryKey: resourceKey(path || ""),
+    queryFn: ({ signal }) => api<T>(path!, { signal }),
+    enabled: !!path && !!user,
+  });
+  return {
+    data: query.data,
+    loading: query.isFetching,
+    error: query.error || undefined,
+    reload: () => {
+      if (path && user) void query.refetch();
+    },
+  };
 }
 
 export function ErrorNotice({

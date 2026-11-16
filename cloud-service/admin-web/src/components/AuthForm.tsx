@@ -17,7 +17,8 @@ import {
   Typography,
 } from "antd";
 import { Link, useNavigate } from "react-router-dom";
-import { api, dateText, json, type Invite, type User } from "../api";
+import { dateText, json, type Invite, type User } from "../api";
+import { useApiMutation } from "../query";
 import { useAuth } from "../auth/AuthProvider";
 import { ErrorNotice, PageHeading, useResource } from "../shared";
 
@@ -34,28 +35,29 @@ export default function AuthForm({ register = false }: { register?: boolean }) {
   const { setUser } = useAuth();
   const navigate = useNavigate();
   const { message } = App.useApp();
-  const [busy, setBusy] = useState(false);
+  const mutation = useApiMutation<{ user: User }>();
+  const busy = mutation.isPending;
   const [error, setError] = useState<Error>();
   async function submit(values: Record<string, string>) {
-    setBusy(true);
     setError(undefined);
     try {
       if (register) {
-        await api("/auth/register", json("POST", values));
+        await mutation.mutateAsync({
+          path: "/auth/register",
+          options: json("POST", values),
+        });
         message.success("账号已创建，请登录");
         navigate("/login");
       } else {
-        const { user } = await api<{ user: User }>(
-          "/auth/login",
-          json("POST", values),
-        );
+        const { user } = await mutation.mutateAsync({
+          path: "/auth/login",
+          options: json("POST", values),
+        });
         setUser(user);
         navigate("/dictionaries");
       }
     } catch (error) {
       setError(error as Error);
-    } finally {
-      setBusy(false);
     }
   }
   return (

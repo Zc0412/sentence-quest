@@ -16,14 +16,16 @@ import {
   useLocation,
   useNavigate,
 } from "react-router-dom";
-import { api, json } from "../api";
+import { json } from "../api";
+import { useApiMutation } from "../query";
 import { useAuth } from "../auth/AuthProvider";
 export default function AdminLayout() {
   const { user, setUser } = useAuth();
   const { message } = AntApp.useApp();
   const location = useLocation();
   const navigate = useNavigate();
-  const [loggingOut, setLoggingOut] = useState(false);
+  const mutation = useApiMutation<unknown>();
+  const loggingOut = mutation.isPending;
   if (!user) return <Navigate to="/login" replace />;
   const selected =
     location.pathname === "/dictionaries/new"
@@ -32,15 +34,15 @@ export default function AdminLayout() {
         ? "/dictionaries"
         : location.pathname;
   async function logout() {
-    setLoggingOut(true);
     try {
-      await api("/auth/logout", json("POST"));
+      await mutation.mutateAsync({
+        path: "/auth/logout",
+        options: json("POST"),
+      });
       setUser(null);
       navigate("/login");
     } catch (error) {
       message.error((error as Error).message);
-    } finally {
-      setLoggingOut(false);
     }
   }
   return (

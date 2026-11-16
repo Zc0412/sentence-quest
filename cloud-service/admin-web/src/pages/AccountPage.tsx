@@ -17,7 +17,8 @@ import {
   Typography,
 } from "antd";
 import { Link, useNavigate } from "react-router-dom";
-import { api, dateText, json, type Invite, type User } from "../api";
+import { dateText, json, type Invite, type User } from "../api";
+import { useApiMutation } from "../query";
 import { useAuth } from "../auth/AuthProvider";
 import { ErrorNotice, PageHeading, useResource } from "../shared";
 
@@ -33,29 +34,27 @@ const passwordRules = [
 export default function AccountPage() {
   const { user, setUser } = useAuth();
   const { message } = App.useApp();
-  const [busy, setBusy] = useState(false);
+  const mutation = useApiMutation<unknown>();
+  const busy = mutation.isPending;
   const [error, setError] = useState<Error>();
   async function changePassword(values: {
     oldPassword: string;
     newPassword: string;
     confirm: string;
   }) {
-    setBusy(true);
     setError(undefined);
     try {
-      await api(
-        "/auth/password",
-        json("PUT", {
+      await mutation.mutateAsync({
+        path: "/auth/password",
+        options: json("PUT", {
           oldPassword: values.oldPassword,
           newPassword: values.newPassword,
         }),
-      );
+      });
       message.success("密码已更新，请重新登录");
       setUser(null);
     } catch (error) {
       setError(error as Error);
-    } finally {
-      setBusy(false);
     }
   }
   return (

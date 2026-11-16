@@ -25,7 +25,11 @@ export async function api<T>(
   });
   const body = await response.json().catch(() => ({}));
   if (!response.ok) {
-    if (response.status === 401 && !path.startsWith("/auth/login")) {
+    if (
+      response.status === 401 &&
+      !options.signal?.aborted &&
+      !["/auth/login", "/auth/me"].includes(path)
+    ) {
       window.dispatchEvent(new Event("session-expired"));
     }
     throw new ApiError(
@@ -34,6 +38,8 @@ export async function api<T>(
       body.details || [],
     );
   }
+  // 登录响应中的 Bearer token 不进入 React Query 缓存，浏览器仅使用 Cookie。
+  if (path === "/auth/login") delete body.token;
   return body;
 }
 

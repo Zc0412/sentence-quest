@@ -31,7 +31,7 @@ import {
   useParams,
   useSearchParams,
 } from "react-router-dom";
-import { api, dateText, json, type Dictionary } from "../api";
+import { dateText, json, type Dictionary } from "../api";
 import {
   ErrorNotice,
   kindOptions,
@@ -40,6 +40,7 @@ import {
   statusOptions,
   useResource,
 } from "../shared";
+import { useApiMutation } from "../query";
 import { parseEntries } from "../upload";
 
 type ListResult = {
@@ -73,24 +74,21 @@ function DictionaryDetail({ id }: { id: string }) {
   );
   const { message } = App.useApp();
   const [editing, setEditing] = useState(false);
-  const [busy, setBusy] = useState(false);
+  const mutation = useApiMutation<unknown>("/dictionaries");
+  const busy = mutation.isPending;
   const [error, setError] = useState<Error>();
   const [form] = Form.useForm();
   async function mutate(values: Record<string, string>, archive = false) {
-    setBusy(true);
     setError(undefined);
     try {
-      await api(
-        `/dictionaries/${encodeURIComponent(id)}`,
-        archive ? json("DELETE") : json("PUT", values),
-      );
+      await mutation.mutateAsync({
+        path: `/dictionaries/${encodeURIComponent(id)}`,
+        options: archive ? json("DELETE") : json("PUT", values),
+      });
       message.success("题库已更新");
       setEditing(false);
-      resource.reload();
     } catch (error) {
       setError(error as Error);
-    } finally {
-      setBusy(false);
     }
   }
   if (!row)
