@@ -1,0 +1,44 @@
+[
+  {
+    "name": "apple",
+    "trans": [
+      "n. 苹果"
+    ],
+    "ukphone": "ˈæpəl",
+    "usphone": "ˈæpəl"
+  },
+  {
+    "name": "book",
+    "trans": [
+      "n. 书；书籍",
+      "v. 预订"
+    ],
+    "ukphone": "bʊk",
+    "usphone": "bʊk"
+  },
+  {
+    "name": "learn",
+    "trans": [
+      "v. 学习；学会"
+    ],
+    "ukphone": "lɜːn",
+    "usphone": "lɜːrn"
+  },
+  {
+    "name": "happy",
+    "trans": [
+      "adj. 快乐的；高兴的"
+    ],
+    "ukphone": "ˈhæpi",
+    "usphone": "ˈhæpi"
+  },
+  {
+    "name": "practice",
+    "trans": [
+      "n. 练习；实践",
+      "v. 练习"
+    ],
+    "ukphone": "ˈpræktɪs",
+    "usphone": "ˈpræktɪs"
+  }
+]

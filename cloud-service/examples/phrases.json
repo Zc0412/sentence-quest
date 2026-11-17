@@ -1,0 +1,138 @@
+[
+  {
+    "id": "example-phrase-001",
+    "zh": "早上好",
+    "english": "good morning",
+    "words": [
+      "good",
+      "morning"
+    ],
+    "annotations": [
+      {
+        "phonetic": "/ɡʊd/",
+        "meaning": "好的",
+        "pos": "adj.",
+        "color": "#3b82f6"
+      },
+      {
+        "phonetic": "/ˈmɔːnɪŋ/",
+        "meaning": "早晨",
+        "pos": "n.",
+        "color": "#3b82f6"
+      }
+    ]
+  },
+  {
+    "id": "example-phrase-002",
+    "zh": "谢谢你",
+    "english": "thank you",
+    "words": [
+      "thank",
+      "you"
+    ],
+    "annotations": [
+      {
+        "phonetic": "/θæŋk/",
+        "meaning": "感谢",
+        "pos": "v.",
+        "color": "#3b82f6"
+      },
+      {
+        "phonetic": "/juː/",
+        "meaning": "你",
+        "pos": "pron.",
+        "color": "#3b82f6"
+      }
+    ]
+  },
+  {
+    "id": "example-phrase-003",
+    "zh": "再见",
+    "english": "see you later",
+    "words": [
+      "see",
+      "you",
+      "later"
+    ],
+    "annotations": [
+      {
+        "phonetic": "/siː/",
+        "meaning": "见到",
+        "pos": "v.",
+        "color": "#3b82f6"
+      },
+      {
+        "phonetic": "/juː/",
+        "meaning": "你",
+        "pos": "pron.",
+        "color": "#3b82f6"
+      },
+      {
+        "phonetic": "/ˈleɪtə/",
+        "meaning": "稍后",
+        "pos": "adv.",
+        "color": "#3b82f6"
+      }
+    ]
+  },
+  {
+    "id": "example-phrase-004",
+    "zh": "照顾",
+    "english": "take care of",
+    "words": [
+      "take",
+      "care",
+      "of"
+    ],
+    "annotations": [
+      {
+        "phonetic": "/teɪk/",
+        "meaning": "采取；与 care of 连用表示照顾",
+        "pos": "v.",
+        "color": "#3b82f6"
+      },
+      {
+        "phonetic": "/keə/",
+        "meaning": "照料",
+        "pos": "n.",
+        "color": "#3b82f6"
+      },
+      {
+        "phonetic": "/ɒv/",
+        "meaning": "……的",
+        "pos": "prep.",
+        "color": "#3b82f6"
+      }
+    ]
+  },
+  {
+    "id": "example-phrase-005",
+    "zh": "尽你最大的努力",
+    "english": "do your best",
+    "words": [
+      "do",
+      "your",
+      "best"
+    ],
+    "annotations": [
+      {
+        "phonetic": "/duː/",
+        "meaning": "做",
+        "pos": "v.",
+        "color": "#3b82f6"
+      },
+      {
+        "phonetic": "/jɔː/",
+        "meaning": "你的",
+        "pos": "det.",
+        "color": "#3b82f6"
+      },
+      {
+        "phonetic": "/best/",
+        "meaning": "最大努力",
+        "pos": "n.",
+        "color": "#3b82f6"
+      }
+    ]
+  }
+]

@@ -42,3 +42,16 @@ export function parseEntries(
     return row;
   });
 }
+
+/** 仅在整份文件明确匹配一种格式时识别类型；混合或无效数据仍交由预检报错。 */
+export function detectEntriesKind(source: string): "word" | "phrase" | null {
+  const matches = (["word", "phrase"] as const).filter((kind) => {
+    try {
+      parseEntries(source, kind);
+      return true;
+    } catch {
+      return false;
+    }
+  });
+  return matches.length === 1 ? matches[0] : null;
+}

@@ -1,4 +1,4 @@
-/** 题库页面：管理全状态题库、只读预览内容、上传草稿及发布归档。 */
+/** 题库上传页：识别 JSON 类型、本地预检和预览，通过管理接口保存草稿。 */
 import { useEffect, useRef, useState } from "react";
 import {
   Alert,
@@ -41,7 +41,8 @@ import {
   useResource,
 } from "../shared";
 import { useApiMutation } from "../query";
-import { parseEntries } from "../upload";
+import { detectEntriesKind, parseEntries } from "../upload";
+import { uploadExamples } from "../upload-examples";
 
 type ListResult = {
   dictionaries: Dictionary[];
@@ -58,7 +59,7 @@ type ContentResult = {
 
 export default function UploadPage() {
   const [form] = Form.useForm();
-  const kind = Form.useWatch("kind", form) || "word";
+  const kind: "word" | "phrase" = Form.useWatch("kind", form) || "word";
   const [file, setFile] = useState<File>();
   const [source, setSource] = useState("");
   const [entries, setEntries] = useState<Record<string, unknown>[]>([]);
@@ -92,6 +93,13 @@ export default function UploadPage() {
         throw new Error("文件过大，请使用小于 5 MiB 的题库文件");
       const text = await next.text();
       if (revision !== fileRevision.current) return false;
+      const detectedKind = detectEntriesKind(text);
+      if (detectedKind && detectedKind !== form.getFieldValue("kind")) {
+        form.setFieldValue("kind", detectedKind);
+        message.info(
+          `已识别为${detectedKind === "word" ? "单词" : "短语"}题库，已切换类型`,
+        );
+      }
       setFile(next);
       setSource(text);
     } catch (error) {
@@ -104,6 +112,13 @@ export default function UploadPage() {
   async function submit(values: Record<string, string>) {
     if (!file || !entries.length) {
       setError(new Error("请先选择并检查题库 JSON 文件"));
+      return;
+    }
+    // 使用提交时的表单类型再次校验，避免切换类型与预检更新之间的时间差。
+    try {
+      parseEntries(source, values.kind === "phrase" ? "phrase" : "word");
+    } catch (error) {
+      setError(error as Error);
       return;
     }
     setError(undefined);
@@ -164,6 +179,7 @@ export default function UploadPage() {
             <Form.Item
               name="kind"
               label="题库类型"
+              extra="选择文件后自动识别单词或短语，也可手动调整。"
               rules={[{ required: true }]}
             >
               <Select options={kindOptions} />
@@ -224,11 +240,7 @@ export default function UploadPage() {
           {!source && (
             <div className="format-guide">
               <strong>文件结构示例</strong>
-              <pre>
-                {kind === "word"
-                  ? '[\n  { "name": "hello", "trans": ["int. 你好"] }\n]'
-                  : '[\n  { "id": "p1", "zh": "早上好",\n    "english": "Good morning",\n    "words": ["Good", "morning"] }\n]'}
-              </pre>
+              <pre>{JSON.stringify(uploadExamples[kind], null, 2)}</pre>
             </div>
           )}
         </Card>
