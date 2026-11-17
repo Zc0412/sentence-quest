@@ -1,4 +1,4 @@
-/** 题库页面：管理全状态题库、只读预览内容、上传草稿及发布归档。 */
+/** 题库详情页：读取资料和内容，支持编辑、发布及可恢复的归档删除。 */
 import { useEffect, useRef, useState } from "react";
 import {
   Alert,
@@ -85,7 +85,9 @@ function DictionaryDetail({ id }: { id: string }) {
         path: `/dictionaries/${encodeURIComponent(id)}`,
         options: archive ? json("DELETE") : json("PUT", values),
       });
-      message.success("题库已更新");
+      message.success(
+        archive ? "题库已删除（归档），可重新发布" : "题库已更新",
+      );
       setEditing(false);
     } catch (error) {
       setError(error as Error);
@@ -135,12 +137,16 @@ function DictionaryDetail({ id }: { id: string }) {
             )}
             {row.status !== "archived" && (
               <Popconfirm
-                title="归档此题库？"
-                description="题库将从公开目录下架，数据库记录和文件保留。"
+                title="删除此题库？"
+                description="删除后归档并从学习端云目录下架，记录与文件保留，可重新发布。"
+                okText="删除题库"
+                cancelText="取消"
+                okButtonProps={{ danger: true }}
+                disabled={busy}
                 onConfirm={() => mutate({}, true)}
               >
                 <Button danger disabled={busy}>
-                  归档下架
+                  删除题库
                 </Button>
               </Popconfirm>
             )}

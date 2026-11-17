@@ -1,4 +1,4 @@
-/** 题库页面：管理全状态题库、只读预览内容、上传草稿及发布归档。 */
+/** 题库列表页：从管理接口查询题库，支持筛选、分页及归档删除。 */
 import { useEffect, useRef, useState } from "react";
 import {
   Alert,
@@ -31,7 +31,7 @@ import {
   useParams,
   useSearchParams,
 } from "react-router-dom";
-import { api, dateText, json, type Dictionary } from "../api";
+import { dateText, json, type Dictionary } from "../api";
 import {
   ErrorNotice,
   kindOptions,
@@ -40,7 +40,7 @@ import {
   statusOptions,
   useResource,
 } from "../shared";
-import { parseEntries } from "../upload";
+import { useApiMutation } from "../query";
 
 type ListResult = {
   dictionaries: Dictionary[];
@@ -61,6 +61,20 @@ export default function DictionariesPage() {
     `/dictionaries?${params.toString()}`,
   );
   const navigate = useNavigate();
+  const { message } = App.useApp();
+  const deletion = useApiMutation("/dictionaries");
+  /** 删除沿用服务端归档语义，成功后刷新全部题库查询。 */
+  async function deleteDictionary(row: Dictionary) {
+    try {
+      await deletion.mutateAsync({
+        path: `/dictionaries/${encodeURIComponent(row.id)}`,
+        options: json("DELETE"),
+      });
+      message.success("题库已删除（归档），可在详情页重新发布");
+    } catch (error) {
+      message.error((error as Error).message);
+    }
+  }
   const [form] = Form.useForm();
   useEffect(() => {
     form.setFieldsValue({
@@ -216,9 +230,33 @@ export default function DictionariesPage() {
             {
               title: "操作",
               render: (_, row) => (
-                <Link to={`/dictionaries/${encodeURIComponent(row.id)}`}>
-                  查看详情 →
-                </Link>
+                <Space>
+                  <Link to={`/dictionaries/${encodeURIComponent(row.id)}`}>
+                    查看详情 →
+                  </Link>
+                  <Popconfirm
+                    title={`删除「${row.label}」？`}
+                    description="删除后归档并从学习端云目录下架，记录与文件保留，可重新发布。"
+                    okText="删除题库"
+                    cancelText="取消"
+                    okButtonProps={{ danger: true }}
+                    onConfirm={() => deleteDictionary(row)}
+                    disabled={row.status === "archived" || deletion.isPending}
+                  >
+                    <Button
+                      type="link"
+                      danger
+                      disabled={row.status === "archived" || deletion.isPending}
+                      loading={
+                        deletion.isPending &&
+                        deletion.variables?.path ===
+                          `/dictionaries/${encodeURIComponent(row.id)}`
+                      }
+                    >
+                      {row.status === "archived" ? "已归档" : "删除"}
+                    </Button>
+                  </Popconfirm>
+                </Space>
               ),
             },
           ]}
