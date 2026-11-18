@@ -1,4 +1,4 @@
-/** 题库详情页：读取资料和内容，支持编辑、发布及可恢复的归档删除。 */
+/** 题库详情页：读取资料和内容，支持编辑、发布及永久删除。 */
 import { useEffect, useRef, useState } from "react";
 import {
   Alert,
@@ -40,7 +40,7 @@ import {
   statusOptions,
   useResource,
 } from "../shared";
-import { useApiMutation } from "../query";
+import { useApiMutation, useDeleteDictionary } from "../query";
 import { parseEntries } from "../upload";
 
 type ListResult = {
@@ -75,20 +75,30 @@ function DictionaryDetail({ id }: { id: string }) {
   const { message } = App.useApp();
   const [editing, setEditing] = useState(false);
   const mutation = useApiMutation<unknown>("/dictionaries");
-  const busy = mutation.isPending;
+  const deletion = useDeleteDictionary();
+  const navigate = useNavigate();
+  const busy = mutation.isPending || deletion.isPending;
   const [error, setError] = useState<Error>();
   const [form] = Form.useForm();
-  async function mutate(values: Record<string, string>, archive = false) {
+  async function mutate(values: Record<string, string>) {
     setError(undefined);
     try {
       await mutation.mutateAsync({
         path: `/dictionaries/${encodeURIComponent(id)}`,
-        options: archive ? json("DELETE") : json("PUT", values),
+        options: json("PUT", values),
       });
-      message.success(
-        archive ? "题库已删除（归档），可重新发布" : "题库已更新",
-      );
+      message.success("题库已更新");
       setEditing(false);
+    } catch (error) {
+      setError(error as Error);
+    }
+  }
+  async function deleteDictionary() {
+    setError(undefined);
+    try {
+      await deletion.mutateAsync(id);
+      message.success("题库文件和记录已永久删除");
+      navigate("/dictionaries", { replace: true });
     } catch (error) {
       setError(error as Error);
     }
@@ -135,21 +145,19 @@ function DictionaryDetail({ id }: { id: string }) {
                 </Button>
               </Popconfirm>
             )}
-            {row.status !== "archived" && (
-              <Popconfirm
-                title="删除此题库？"
-                description="删除后归档并从学习端云目录下架，记录与文件保留，可重新发布。"
-                okText="删除题库"
-                cancelText="取消"
-                okButtonProps={{ danger: true }}
-                disabled={busy}
-                onConfirm={() => mutate({}, true)}
-              >
-                <Button danger disabled={busy}>
-                  删除题库
-                </Button>
-              </Popconfirm>
-            )}
+            <Popconfirm
+              title="永久删除此题库？"
+              description="将永久删除题库文件及数据库记录，无法恢复。已下载到用户设备的内容不会被远程清除。"
+              okText="删除题库"
+              cancelText="取消"
+              okButtonProps={{ danger: true }}
+              disabled={busy}
+              onConfirm={deleteDictionary}
+            >
+              <Button danger disabled={busy} loading={deletion.isPending}>
+                删除题库
+              </Button>
+            </Popconfirm>
           </Space>
         }
       />

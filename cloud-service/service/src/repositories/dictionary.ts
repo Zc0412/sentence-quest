@@ -1,10 +1,10 @@
 /** 使用 Drizzle ORM 读写题库资料，复用现有 mysql2 连接池。 */
-import type {Pool} from 'mysql2/promise';
-import {drizzle} from 'drizzle-orm/mysql2';
-import {and, count, eq, like, or} from 'drizzle-orm';
-import type { AdminDictionaryQuery } from '../types/services';
-import {dictionaries} from '../db/schema';
-import type {DictionaryWrite} from '../schemas/dictionary';
+import type { Pool } from 'mysql2/promise';
+import { drizzle } from 'drizzle-orm/mysql2';
+import { and, count, eq, like, or } from 'drizzle-orm';
+import { DictionaryDeleteConflict, type AdminDictionaryQuery } from '../types/services';
+import { dictionaries } from '../db/schema';
+import type { DictionaryWrite } from '../schemas/dictionary';
 
 /** 创建题库仓储；ORM 自动绑定查询参数。 */
 export function createDictionaryRepository(pool: Pool) {
@@ -21,8 +21,13 @@ export function createDictionaryRepository(pool: Pool) {
                 query.status ? eq(dictionaries.status, query.status) : undefined,
             );
             const [rows, totals] = await Promise.all([
-                db.select().from(dictionaries).where(where).orderBy(dictionaries.id)
-                    .limit(query.pageSize).offset((query.page - 1) * query.pageSize),
+                db
+                    .select()
+                    .from(dictionaries)
+                    .where(where)
+                    .orderBy(dictionaries.id)
+                    .limit(query.pageSize)
+                    .offset((query.page - 1) * query.pageSize),
                 db.select({ total: count() }).from(dictionaries).where(where),
             ]);
             return { dictionaries: rows, total: totals[0].total };
@@ -45,14 +50,46 @@ export function createDictionaryRepository(pool: Pool) {
                 createdAt: record.createdAt || record.updatedAt,
             });
         },
+        /** 持锁删除当前登记的文件，再删除记录；COS 失败回滚，DB 提交失败可按原记录重试。 */
+        async remove(id: string, deleteFile: (fileID: string) => Promise<void>): Promise<boolean> {
+            return db.transaction(async (tx) => {
+                const [row] = await tx
+                    .select({ id: dictionaries.id, fileID: dictionaries.fileID })
+                    .from(dictionaries)
+                    .where(eq(dictionaries.id, id))
+                    .for('update');
+                if (!row) return false;
+                const references = await tx
+                    .select({ id: dictionaries.id })
+                    .from(dictionaries)
+                    .where(eq(dictionaries.fileID, row.fileID))
+                    .for('update');
+                if (references.some((reference) => reference.id !== id)) {
+                    throw new DictionaryDeleteConflict('题库文件仍被其他题库引用，请先处理引用关系');
+                }
+                await deleteFile(row.fileID);
+                await tx.delete(dictionaries).where(eq(dictionaries.id, id));
+                return true;
+            });
+        },
         /** 只更新允许修改的字段，保留 ID 和创建时间。 */
         async update(id: string, fields: Partial<DictionaryWrite>): Promise<boolean> {
-            const allowed = ['label', 'kind', 'category', 'wordCount', 'sha256', 'fileID', 'cloudPath', 'status', 'updatedAt'];
+            const allowed = [
+                'label',
+                'kind',
+                'category',
+                'wordCount',
+                'sha256',
+                'fileID',
+                'cloudPath',
+                'status',
+                'updatedAt',
+            ];
             const values = Object.fromEntries(
                 Object.entries(fields).filter(([key, value]) => allowed.includes(key) && value !== undefined),
             );
             if (!Object.keys(values).length) {
-                const rows = await db.select({id: dictionaries.id}).from(dictionaries).where(eq(dictionaries.id, id));
+                const rows = await db.select({ id: dictionaries.id }).from(dictionaries).where(eq(dictionaries.id, id));
                 return rows.length > 0;
             }
             const [result] = await db.update(dictionaries).set(values).where(eq(dictionaries.id, id));

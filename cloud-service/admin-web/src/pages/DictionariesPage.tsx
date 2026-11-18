@@ -1,4 +1,4 @@
-/** 题库列表页：从管理接口查询题库，支持筛选、分页及归档删除。 */
+/** 题库列表页：从管理接口查询题库，支持筛选、分页及永久删除。 */
 import { useEffect, useRef, useState } from "react";
 import {
   Alert,
@@ -40,7 +40,7 @@ import {
   statusOptions,
   useResource,
 } from "../shared";
-import { useApiMutation } from "../query";
+import { useDeleteDictionary } from "../query";
 
 type ListResult = {
   dictionaries: Dictionary[];
@@ -62,15 +62,12 @@ export default function DictionariesPage() {
   );
   const navigate = useNavigate();
   const { message } = App.useApp();
-  const deletion = useApiMutation("/dictionaries");
-  /** 删除沿用服务端归档语义，成功后刷新全部题库查询。 */
+  const deletion = useDeleteDictionary();
+  /** 永久删除当前登记文件和记录，成功后刷新列表。 */
   async function deleteDictionary(row: Dictionary) {
     try {
-      await deletion.mutateAsync({
-        path: `/dictionaries/${encodeURIComponent(row.id)}`,
-        options: json("DELETE"),
-      });
-      message.success("题库已删除（归档），可在详情页重新发布");
+      await deletion.mutateAsync(row.id);
+      message.success("题库文件和记录已永久删除");
     } catch (error) {
       message.error((error as Error).message);
     }
@@ -84,6 +81,19 @@ export default function DictionariesPage() {
       status: params.get("status") || undefined,
     });
   }, [params, form]);
+  // 删除当前页最后一条后，返回仍有数据的最后一页并保留筛选条件。
+  useEffect(() => {
+    if (!resource.data || resource.loading) return;
+    const lastPage = Math.max(
+      1,
+      Math.ceil(resource.data.total / resource.data.pageSize),
+    );
+    if (resource.data.page > lastPage) {
+      const next = new URLSearchParams(params);
+      next.set("page", String(lastPage));
+      setParams(next, { replace: true });
+    }
+  }, [resource.data, resource.loading, params, setParams]);
   function filter(values: Record<string, string>) {
     const next = new URLSearchParams();
     for (const [key, value] of Object.entries(values))
@@ -114,7 +124,9 @@ export default function DictionariesPage() {
         </div>
         <div>
           <h3>让每一次练习，都有好内容</h3>
-          <p>上传题库、检查内容，再发布给学习者。归档不会删除已有云文件。</p>
+          <p>
+            上传题库、检查内容，再发布给学习者。删除会永久移除题库文件和记录。
+          </p>
         </div>
         <span className="banner-label">CONTENT STUDIO</span>
       </div>
@@ -236,24 +248,22 @@ export default function DictionariesPage() {
                   </Link>
                   <Popconfirm
                     title={`删除「${row.label}」？`}
-                    description="删除后归档并从学习端云目录下架，记录与文件保留，可重新发布。"
+                    description="将永久删除题库文件及数据库记录，无法恢复。已下载到用户设备的内容不会被远程清除。"
                     okText="删除题库"
                     cancelText="取消"
                     okButtonProps={{ danger: true }}
                     onConfirm={() => deleteDictionary(row)}
-                    disabled={row.status === "archived" || deletion.isPending}
+                    disabled={deletion.isPending}
                   >
                     <Button
                       type="link"
                       danger
-                      disabled={row.status === "archived" || deletion.isPending}
+                      disabled={deletion.isPending}
                       loading={
-                        deletion.isPending &&
-                        deletion.variables?.path ===
-                          `/dictionaries/${encodeURIComponent(row.id)}`
+                        deletion.isPending && deletion.variables === row.id
                       }
                     >
-                      {row.status === "archived" ? "已归档" : "删除"}
+                      删除
                     </Button>
                   </Popconfirm>
                 </Space>

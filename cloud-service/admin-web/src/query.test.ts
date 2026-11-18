@@ -57,3 +57,40 @@ test("退出清除业务缓存并取消旧请求，迟到响应不会覆盖新�
   assert.deepEqual(client.getQueryData(sessionKey), { id: "new" });
   client.clear();
 });
+
+test("删除清除详情与内容缓存，刷新列表但不影响其他题库", async () => {
+  const { clearDeletedDictionary } = await import("./query");
+  const client = createQueryClient();
+  for (const path of [
+    "/dictionaries?page=1",
+    "/dictionaries/book",
+    "/dictionaries/book/content?offset=0",
+    "/dictionaries/book-other",
+    "/users",
+  ]) {
+    client.setQueryData(resourceKey(path), { private: true });
+  }
+  await clearDeletedDictionary(client, "book");
+  assert.equal(
+    client.getQueryData(resourceKey("/dictionaries/book")),
+    undefined,
+  );
+  assert.equal(
+    client.getQueryData(resourceKey("/dictionaries/book/content?offset=0")),
+    undefined,
+  );
+  assert.equal(
+    client.getQueryState(resourceKey("/dictionaries?page=1"))?.isInvalidated,
+    true,
+  );
+  assert.equal(
+    client.getQueryState(resourceKey("/dictionaries/book-other"))
+      ?.isInvalidated,
+    false,
+  );
+  assert.equal(
+    client.getQueryState(resourceKey("/users"))?.isInvalidated,
+    false,
+  );
+  client.clear();
+});

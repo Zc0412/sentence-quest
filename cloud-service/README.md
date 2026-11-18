@@ -27,7 +27,7 @@ Hono + TypeScript 服务提供发音、云端题库目录和 JSON 内容接口�
 | `MYSQL_DATABASE` | 数据库名；初始化时由 `db:setup` 创建，日常运行时必须已存在 |
 | `MYSQL_SSL_CA` | 可选，启用 TLS 时使用的可信 CA PEM 内容，不关闭证书验证 |
 
-服务启动不会自动建库或迁移。生产环境建议通过受控的 `db:setup` 初始化流程或数据库管理工具建库、迁移，再给云托管运行账号授予题库和后台账号相关表的 SELECT/INSERT/UPDATE 权限；过期清理命令额外需要会话表及限流表的 DELETE 权限；不建议给服务运行账号长期授予 `CREATE DATABASE`。也可手动执行 `sql/001-dictionaries.sql` 创建初始表；该方式与 Drizzle 首次迁移二选一，不要在同一数据库对未登记的初始迁移重复执行。健康接口只表示进程可响应，不代表数据库已连接；用题库列表接口验证实际读库。
+服务启动不会自动建库或迁移。生产环境建议通过受控的 `db:setup` 初始化流程或数据库管理工具建库、迁移，再给云托管运行账号授予题库和后台账号相关表的 SELECT/INSERT/UPDATE 权限，题库表还需 DELETE 权限；过期清理命令额外需要会话表及限流表的 DELETE 权限；不建议给服务运行账号长期授予 `CREATE DATABASE`。也可手动执行 `sql/001-dictionaries.sql` 创建初始表；该方式与 Drizzle 首次迁移二选一，不要在同一数据库对未登记的初始迁移重复执行。健康接口只表示进程可响应，不代表数据库已连接；用题库列表接口验证实际读库。
 
 旧云开发存储中的 JSON 文件不会自动迁移。请使用原 JSON 及相同题库 ID 重新上传至云托管对象存储并登记到 MySQL；旧的发布状态等管理字段需要单独核对。不要在切换前删除旧记录或云文件。
 
@@ -52,14 +52,14 @@ Hono + TypeScript 服务提供发音、云端题库目录和 JSON 内容接口�
 
 ### 管理题库
 
-除登录和邀请注册外，所有 `/api/admin/*` 接口均要求有效管理员会话，包括题库上传、元数据更新、下架及图片上传。使用 HttpOnly Cookie 或 `Authorization: Bearer <登录返回的 token>`。旧的 `DICTIONARY_ADMIN_TOKEN` 不再参与鉴权。小程序的 `/api/dictionaries`、详情和内容查询继续匿名访问，仅返回已发布题库。参数校验、请求大小限制和题库 JSON 替换限制仍然生效。
+除登录和邀请注册外，所有 `/api/admin/*` 接口均要求有效管理员会话，包括题库上传、元数据更新、永久删除及图片上传。使用 HttpOnly Cookie 或 `Authorization: Bearer <登录返回的 token>`。旧的 `DICTIONARY_ADMIN_TOKEN` 不再参与鉴权。小程序的 `/api/dictionaries`、详情和内容查询继续匿名访问，仅返回已发布题库。参数校验、请求大小限制和题库 JSON 替换限制仍然生效。
 
 - `POST /api/admin/dictionaries`：上传并创建题库 JSON；Swagger UI 支持直接提交 JSON，**需要登录**。
 - `POST /api/admin/upload-dictionary`：通过 Swagger UI 选择 `.json` 文件上传；填写 `id`、`label`、`kind`，文件内容须为题库条目数组，**需要登录**。
 - `PUT /api/admin/dictionaries/:id`：仅可提交 `label`、`category`、`status`；提交 `entries` 替换题库 JSON 暂时禁用并返回 403。题库 ID 和类型不能修改。
-- `DELETE /api/admin/dictionaries/:id`：将状态改为 `archived`，保留数据库记录和云文件；可用 PUT 将 `status` 设为 `published` 重新发布。
+- `DELETE /api/admin/dictionaries/:id`：永久删除当前数据库登记的 COS 文件（含该对象的历史版本及删除标记），然后删除题库记录。不存在返回 404，共享文件引用冲突返回 409。保留文件的下架操作可通过 PUT 将 `status` 设为 `archived`。
 
-题库 ID 和条目顺序影响旧版进度，上传前请检查内容。上传单次请求体上限仍为 5 MiB；下架为归档，不删除云文件。
+题库 ID 和条目顺序影响旧版进度，上传前请检查内容。上传单次请求体上限仍为 5 MiB；DELETE 为不可恢复的永久删除；PUT 设置 `archived` 仅归档。
 
 元数据更新示例：
 
@@ -127,7 +127,7 @@ npm --prefix cloud-service/service run admin:init -- administrator
 2. 同源浏览器自动使用 HttpOnly Cookie；也可复制响应 `token` 到 Swagger 的 **Authorize → AdminBearer**（只填令牌，不加 `Bearer `）。不要将令牌保存在源码或浏览器 localStorage。
 3. 超级管理员调用 `POST /api/admin/invites`，请求体 `{}` 默认有效 24 小时；可传 `expiresInHours`，范围 1–168 小时。邀请码只返回一次。
 4. 新管理员调用 `POST /api/admin/auth/register`，提交 `username`、`password`、`nickname` 和 `inviteCode`；注册后再调用登录。注册只能创建普通 `admin`，不可自选角色。
-5. 登录后可上传题库、更新元数据、下架和上传图片。退出调用 `POST /api/admin/auth/logout`。
+5. 登录后可上传题库、更新元数据、永久删除和上传图片。退出调用 `POST /api/admin/auth/logout`。
 
 | 接口 | 作用 | 权限 |
 | --- | --- | --- |
@@ -198,13 +198,17 @@ npm --prefix cloud-service/service start
 
 构建后服务同时提供 `/admin/` 和 `/api/admin/*`。生产 Docker 构建目录仍是 `cloud-service/`，不要改成 `service/`；Dockerfile 会分别构建两个目录并复制前端产物。服务器使用 HttpOnly、SameSite=Lax Cookie，生产 Cookie 带 Secure，需通过 HTTPS 访问。不要将登录返回的 token 存到 localStorage。后台页面可公开加载，但所有管理数据和操作均由服务端鉴权。
 
-后台包含：登录、邀请注册、题库搜索/筛选/分页、JSON 上传预检和草稿创建、详情与分页内容预览、资料编辑、发布/删除（归档）/重新发布、修改密码、管理员禁用/恢复、邀请生成/查看/撤销。普通管理员可管理题库，只有超级管理员可管理账号及邀请。改密后需重新登录。邀请列表最多展示最近 100 条，不返回明文邀请码或哈希；明文只在生成时显示一次。
+后台包含：登录、邀请注册、题库搜索/筛选/分页、JSON 上传预检和草稿创建、详情与分页内容预览、资料编辑、发布/永久删除/重新发布、修改密码、管理员禁用/恢复、邀请生成/查看/撤销。普通管理员可管理题库，只有超级管理员可管理账号及邀请。改密后需重新登录。邀请列表最多展示最近 100 条，不返回明文邀请码或哈希；明文只在生成时显示一次。
 
 上传示例文件：[词汇 words.json](examples/words.json) 和 [短语 phrases.json](examples/phrases.json)，各含 5 条原创演示数据。在后台「新建题库」分别选择文件，页面会按完整文件内容识别类型（单词 / 短语），识别成功后自动切换；也可手动调整类型。题库 ID 可填写 `example-words` / `example-phrases`，名称和分类在表单中填写。文件顶层为条目数组，无需包裹 `entries` 或题库元数据；词汇需要 `name`、非空 `trans` 数组，短语需要唯一 `id`、`zh`、`english` 和按英文顺序拆分的 `words` 数组。
 
 示例也包含可选音标：词汇的 `ukphone` / `usphone` 分别为英音 / 美音，值不带斜杠；短语的 `annotations` 与 `words` 按位置一一对应，`phonetic` 带斜杠，示例采用英音，并提供逐词释义、词性和颜色。
 
-题库列表和详情均提供删除入口，确认后调用 `DELETE /api/admin/dictionaries/:id` 归档下架。删除保留数据库记录、题库 ID 和云文件，后台仍以「已归档」显示，可在详情重新发布；不会清除用户本地学习进度。
+题库列表和详情均提供永久删除入口，草稿、已发布、已归档题库都可删除。成功后从后台列表移除，详情页返回列表；不能重新发布已删除记录。用户设备已下载的缓存和学习进度不会被远程清除。
+
+删除使用数据库行锁保护当前文件引用；文件被其他题库引用时拒绝删除。只精确枚举当前登记对象的版本，不清理其他路径、旧内容哈希路径的遗留文件或上传失败的孤立文件。COS 临时凭据需具备 `cos:GetBucketObjectVersions` 和 `cos:DeleteObject` 权限。参见 [COS 对象版本 API](https://cloud.tencent.com/document/product/436/35521) 和 [删除对象 API](https://cloud.tencent.cn/document/api/436/7743)。
+
+COS 与 MySQL 不属于同一个事务：文件删除失败时保留数据库记录，部分版本可能已删除；文件删除成功但数据库删除或提交失败时文件无法回滚，请刷新后台，记录仍存在则再次删除。文件已不存在时可重试完成记录清理；不要将失败记录重新发布。单个对象超过 10000 个版本时拒绝自动删除，改用受控存储工具处理。部署应同步更新前后端，避免旧前端仍显示归档确认文案。
 
 后台上传默认保存草稿，再由管理员在详情页发布。请求总大小（含 multipart）上限 5 MiB；前端为元数据预留空间。上传不改写条目顺序、不替换已有题库内容。上传存储与数据库仍非同一个事务，失败时检查服务端日志，不自动删除云文件。学习进度仍在设备本地，不提供跨端用户运营统计。
 
@@ -215,7 +219,7 @@ npm --prefix cloud-service/service start
 - `GET /api/admin/dictionaries/:id/content?offset=0&limit=20&version=<sha256>`：草稿、发布和归档内容预览，`next=null` 表示结束；版本不符返回 409。
 - `GET /api/admin/invites`：超级管理员查看最近邀请。
 
-验收需覆盖：Cookie 登录刷新、过期跳转、普通管理员访问限制、草稿上传后不出现在公开目录、发布后可见、归档后可恢复、题目预览顺序、错误 JSON 和重复 ID 提示、改密退出、邀请一次性消费，以及 HTTPS 网关下的真实 MySQL/COS 连通性。本地测试使用模拟依赖，不会写入真实云数据。
+验收需覆盖：Cookie 登录刷新、过期跳转、普通管理员访问限制、草稿上传后不出现在公开目录、发布后可见、永久删除文件及记录、删除失败可重试、共享引用拒绝删除、题目预览顺序、错误 JSON 和重复 ID 提示、改密退出、邀请一次性消费，以及 HTTPS 网关下的真实 MySQL/COS 连通性。本地测试使用模拟依赖，不会写入真实云数据。
 
 后台前端按职责拆分：`admin-web/src/pages/` 每个路由页独立文件，`layouts/` 放后台导航布局，`auth/` 放会话和角色守卫，`routes.tsx` 集中声明路由，`App.tsx` 只组合入口。登录和注册共用 `components/AuthForm.tsx`，接口传输统一通过 `api.ts`，由 TanStack React Query 管理请求状态：`useResource` 负责查询缓存及取消，`useApiMutation` 负责写操作及相关列表、详情的缓存失效。查询缓存保鲜 30 秒，失败不自动重试，窗口重新聚焦不自动刷新；写操作不自动重试。会话退出、过期及登录切换会清除业务缓存，缓存只存在内存中，登录返回的 Bearer token 不进入缓存。
 

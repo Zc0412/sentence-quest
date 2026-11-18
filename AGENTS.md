@@ -99,7 +99,7 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 ## 云服务与敏感配置
 
 - 题库资料保存在云托管 MySQL，通过 Drizzle ORM 和 `mysql2` 访问；题库 JSON 存储在云托管对象存储 COS，服务端通过开放接口获取临时凭据并写入必需的文件元数据。服务端通过数据库登记的 `fileID` 获取题库，不接受客户端指定任意对象存储路径。目录与内容读取须保持发布状态过滤。
-- 除登录和邀请注册外，所有 `/api/admin/*` 接口使用数据库管理员会话鉴权，支持 HttpOnly Cookie 或 Bearer；浏览器写请求检查 `ADMIN_ALLOWED_ORIGINS`。旧 `DICTIONARY_ADMIN_TOKEN` 不再参与鉴权。保持参数校验、请求大小限制及错误响应。删除题库为归档，不直接删除云文件。
+- 除登录和邀请注册外，所有 `/api/admin/*` 接口使用数据库管理员会话鉴权，支持 HttpOnly Cookie 或 Bearer；浏览器写请求检查 `ADMIN_ALLOWED_ORIGINS`。旧 `DICTIONARY_ADMIN_TOKEN` 不再参与鉴权。保持参数校验、请求大小限制及错误响应。删除题库按用户要求执行永久删除：仅删除数据库登记的 COS 题库文件及其对象版本，再删除记录；文件被其他题库引用时拒绝删除，失败保留记录供重试。不得通过客户端任意路径或目录前缀批量删文件。
 - 上传脚本默认校验与预览；`--upload` 才写入云存储和数据库。未经任务授权，不为本地验证上传、部署或修改真实云数据。
 - 上传文件与数据库登记不属于一个事务；保持失败诊断与可重试性，不擅自清理可能被复用的文件。
 - 密钥、AppSecret、管理员令牌仅通过服务端或本机环境配置，不写入源码、小程序、日志或提交内容。云环境 ID 不等同于密钥。

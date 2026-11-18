@@ -4,7 +4,7 @@ import {
   useMutation,
   useQueryClient,
 } from "@tanstack/react-query";
-import { api } from "./api";
+import { api, json } from "./api";
 
 export const sessionKey = ["session"] as const;
 export const resourceKey = (path: string) => ["admin", path] as const;
@@ -52,5 +52,34 @@ export function useApiMutation<T = unknown>(invalidate?: string) {
       api<T>(path, options),
     onSuccess: () =>
       invalidate ? invalidateResource(client, invalidate) : undefined,
+  });
+}
+
+/** 删除后清除详情和内容缓存，仅刷新列表，避免继续请求已不存在的题库。 */
+export function useDeleteDictionary() {
+  const client = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) =>
+      api(`/dictionaries/${encodeURIComponent(id)}`, json("DELETE")),
+    onSuccess: (_, id) => clearDeletedDictionary(client, id),
+  });
+}
+
+/** 移除已删除题库的详情及分页内容缓存，并刷新列表。 */
+export async function clearDeletedDictionary(client: QueryClient, id: string) {
+  const path = `/dictionaries/${encodeURIComponent(id)}`;
+  const filters = {
+    predicate: ({ queryKey }: { queryKey: readonly unknown[] }) =>
+      queryKey[0] === "admin" &&
+      typeof queryKey[1] === "string" &&
+      (queryKey[1] === path || queryKey[1].startsWith(`${path}/`)),
+  };
+  await client.cancelQueries(filters);
+  client.removeQueries(filters);
+  await client.invalidateQueries({
+    predicate: ({ queryKey }) =>
+      queryKey[0] === "admin" &&
+      typeof queryKey[1] === "string" &&
+      queryKey[1].split("?")[0] === "/dictionaries",
   });
 }

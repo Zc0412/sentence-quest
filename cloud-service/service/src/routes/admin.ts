@@ -2,10 +2,17 @@
 import { authSecurity } from '../middleware/admin-auth';
 import { createRoute, OpenAPIHono, z } from '@hono/zod-openapi';
 import { bodyLimit } from 'hono/body-limit';
-import type { Services, Dictionary } from '../types/services';
+import { DictionaryDeleteConflict, type Services, type Dictionary } from '../types/services';
 import { InputError, prepareDictionary, CreateDictionarySchema, UpdateDictionarySchema } from '../schemas/dictionary';
 import type { DictionaryWrite } from '../schemas/dictionary';
-import { DictionaryIdSchema, DictionaryResponseSchema, JsonErrorResponse, ServerErrorResponse, SuccessResponseSchema, zodValidationErrorHandler } from '../schemas/http';
+import {
+    DictionaryIdSchema,
+    DictionaryResponseSchema,
+    JsonErrorResponse,
+    ServerErrorResponse,
+    SuccessResponseSchema,
+    zodValidationErrorHandler,
+} from '../schemas/http';
 import { publicMetadata } from '../utils/dictionary';
 
 const dictionaryParamsSchema = z.object({
@@ -52,18 +59,20 @@ const uploadDictionaryFileRoute = createRoute({
             required: true,
             content: {
                 'multipart/form-data': {
-                    schema: z.object({
-                        id: z.string().regex(/^[a-zA-Z0-9][a-zA-Z0-9._-]{0,79}$/),
-                        label: z.string().min(1).max(100),
-                        kind: z.enum(['word', 'phrase']),
-                        category: z.string().max(100).optional(),
-                        status: z.enum(['published', 'draft', 'archived']).optional(),
-                        file: z.file().openapi({
-                            type: 'string',
-                            format: 'binary',
-                            description: 'JSON 文件内容为题库条目数组',
-                        }),
-                    }).openapi('UploadDictionaryFileRequest'),
+                    schema: z
+                        .object({
+                            id: z.string().regex(/^[a-zA-Z0-9][a-zA-Z0-9._-]{0,79}$/),
+                            label: z.string().min(1).max(100),
+                            kind: z.enum(['word', 'phrase']),
+                            category: z.string().max(100).optional(),
+                            status: z.enum(['published', 'draft', 'archived']).optional(),
+                            file: z.file().openapi({
+                                type: 'string',
+                                format: 'binary',
+                                description: 'JSON 文件内容为题库条目数组',
+                            }),
+                        })
+                        .openapi('UploadDictionaryFileRequest'),
                 },
             },
         },
@@ -111,32 +120,35 @@ const updateDictionaryRoute = createRoute({
     },
 });
 
-const archiveDictionaryRoute = createRoute({
+const deleteDictionaryRoute = createRoute({
     method: 'delete',
     path: '/api/admin/dictionaries/{id}',
     tags: ['Admin'],
     security: authSecurity,
-    summary: '下架题库',
-    description: '将题库状态改为 archived，不删除数据库记录或云文件。',
+    summary: '永久删除题库',
+    description: '删除数据库登记的 COS 文件及其对象版本，再删除数据库记录；不可恢复。存储失败保留记录供重试。',
     request: { params: dictionaryParamsSchema },
     responses: {
         401: { ...JsonErrorResponse, description: '请先登录或会话已失效' },
         403: { ...JsonErrorResponse, description: '无权限或请求来源不允许' },
         200: {
-            description: '题库已下架',
+            description: '题库文件和记录已删除',
             content: { 'application/json': { schema: SuccessResponseSchema } },
         },
         400: { ...JsonErrorResponse, description: '题库 ID 无效' },
         404: { ...JsonErrorResponse, description: '题库不存在' },
+        409: { ...JsonErrorResponse, description: '文件被其他题库引用' },
         500: ServerErrorResponse,
     },
 });
 
-class DictionaryConflictError extends Error {
-}
+class DictionaryConflictError extends Error {}
 
 /** 上传校验后的 JSON 字节并登记题库元数据。 */
-async function saveDictionary(services: Services, input: z.infer<typeof CreateDictionarySchema>): Promise<ReturnType<typeof publicMetadata>> {
+async function saveDictionary(
+    services: Services,
+    input: z.infer<typeof CreateDictionarySchema>,
+): Promise<ReturnType<typeof publicMetadata>> {
     if (await services.get(input.id)) {
         throw new DictionaryConflictError('题库 ID 已存在');
     }
@@ -162,16 +174,18 @@ async function saveDictionary(services: Services, input: z.infer<typeof CreateDi
 /** 创建管理员路由；统一由全局中间件鉴权，保留请求体大小限制及失败诊断。 */
 export function createRoutes(services: Services) {
     const app = new OpenAPIHono({ defaultHook: zodValidationErrorHandler });
-    app.use('/api/admin/*', bodyLimit({
-        maxSize: 5 * 1024 * 1024,
-        onError: (c) => c.json({ error: '请求体超过 5 MiB' }, 413),
-    }));
+    app.use(
+        '/api/admin/*',
+        bodyLimit({
+            maxSize: 5 * 1024 * 1024,
+            onError: (c) => c.json({ error: '请求体超过 5 MiB' }, 413),
+        }),
+    );
     app.openapi(createDictionaryRoute, async (c) => {
         const input = c.req.valid('json');
         try {
             return c.json({ dictionary: await saveDictionary(services, input) }, 201);
-        }
-        catch (error) {
+        } catch (error) {
             if (error instanceof DictionaryConflictError) {
                 return c.json({ error: error.message }, 409);
             }
@@ -186,21 +200,22 @@ export function createRoutes(services: Services) {
         let entries: unknown;
         try {
             entries = JSON.parse(await file.text());
-        }
-        catch {
+        } catch {
             return c.json({ error: 'JSON 文件格式无效' }, 400);
         }
         const parsed = CreateDictionarySchema.safeParse({ ...metadata, entries });
         if (!parsed.success) {
-            return c.json({
-                error: '题库内容无效',
-                details: parsed.error.issues.map((issue) => `${issue.path.join('.')}: ${issue.message}`),
-            }, 400);
+            return c.json(
+                {
+                    error: '题库内容无效',
+                    details: parsed.error.issues.map((issue) => `${issue.path.join('.')}: ${issue.message}`),
+                },
+                400,
+            );
         }
         try {
             return c.json({ dictionary: await saveDictionary(services, parsed.data) }, 201);
-        }
-        catch (error) {
+        } catch (error) {
             if (error instanceof DictionaryConflictError) {
                 return c.json({ error: error.message }, 409);
             }
@@ -222,25 +237,32 @@ export function createRoutes(services: Services) {
                 return c.json({ error: '题库不存在' }, 404);
             }
             const plan = prepareDictionary(input, existing);
-            if (!await services.update!(id, plan.fields)) {
+            if (!(await services.update!(id, plan.fields))) {
                 return c.json({ error: '题库不存在' }, 404);
             }
             return c.json({ dictionary: publicMetadata({ ...existing, ...plan.fields } as Dictionary) }, 200);
-        }
-        catch (error) {
+        } catch (error) {
             if (error instanceof InputError) {
                 return c.json({ error: error.message }, 400);
             }
             throw error;
         }
     });
-    app.openapi(archiveDictionaryRoute, async (c) => {
+    app.openapi(deleteDictionaryRoute, async (c) => {
         const { id } = c.req.valid('param');
-        if (!await services.get(id)) {
-            return c.json({ error: '题库不存在' }, 404);
+        if (!services.remove || !services.deleteFile) {
+            return c.json({ error: '题库删除服务未配置' }, 500);
         }
-        if (!await services.update!(id, { status: 'archived', updatedAt: new Date().toISOString() })) {
-            return c.json({ error: '题库不存在' }, 404);
+        try {
+            if (!(await services.remove(id, services.deleteFile))) {
+                return c.json({ error: '题库不存在' }, 404);
+            }
+        } catch (error) {
+            if (error instanceof DictionaryDeleteConflict) {
+                return c.json({ error: error.message }, 409);
+            }
+            console.error('题库永久删除失败:', error);
+            return c.json({ error: '删除未完成，请刷新列表确认；记录仍存在时可重试。文件删除成功后无法恢复。' }, 500);
         }
         return c.json({ ok: true }, 200);
     });

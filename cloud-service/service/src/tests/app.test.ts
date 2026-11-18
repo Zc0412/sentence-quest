@@ -12,20 +12,29 @@ const published: Dictionary = {
     category: '单词',
     wordCount: 1,
     sha256: 'a'.repeat(64),
-    fileID: 'cloud://test/file'
+    fileID: 'cloud://test/file',
 };
 
 const hidden = {
     ...published,
     id: 'hidden',
-    status: 'draft'
+    status: 'draft',
 };
 
 const app = createApp({
-    async list() { return [published, hidden]; },
-    async get(id) { return [published, hidden].find((row) => row.id === id); },
-    async download(fileID) { assert.equal(fileID, published.fileID); return Buffer.from('[{"name":"cat"}]'); },
-    async pronounce(event) { return event.word === 'cat' && event.type === '1' ? { ok: true, audio: 'YQ==' } : { ok: false, error: '无效' }; },
+    async list() {
+        return [published, hidden];
+    },
+    async get(id) {
+        return [published, hidden].find((row) => row.id === id);
+    },
+    async download(fileID) {
+        assert.equal(fileID, published.fileID);
+        return Buffer.from('[{"name":"cat"}]');
+    },
+    async pronounce(event) {
+        return event.word === 'cat' && event.type === '1' ? { ok: true, audio: 'YQ==' } : { ok: false, error: '无效' };
+    },
 });
 
 test('Swagger UI 与 OpenAPI 文档可访问', async () => {
@@ -35,7 +44,7 @@ test('Swagger UI 与 OpenAPI 文档可访问', async () => {
     assert.match(await ui.text(), /swagger-ui/);
     const response = await app.request('/openapi.json');
     assert.equal(response.status, 200);
-    const document = await response.json() as any;
+    const document = (await response.json()) as any;
     assert.equal(document.openapi, '3.0.0');
     assert.ok(document.paths['/api/admin/dictionaries'].post.requestBody);
     assert.ok(document.paths['/api/admin/dictionaries'].post.responses['201']);
@@ -49,8 +58,7 @@ test('Swagger UI 与 OpenAPI 文档可访问', async () => {
             for (const operation of Object.values(operations as Record<string, any>)) {
                 if (path.endsWith('/login') || path.endsWith('/register')) {
                     assert.equal(operation.security, undefined);
-                }
-                else {
+                } else {
                     assert.ok(operation.security);
                 }
             }
@@ -60,7 +68,7 @@ test('Swagger UI 与 OpenAPI 文档可访问', async () => {
 
 test('目录不暴露文件 ID 或未发布题库', async () => {
     const response = await app.request('/api/dictionaries');
-    const result = await response.json() as any;
+    const result = (await response.json()) as any;
     assert.equal(result.dictionaries.length, 1);
     assert.equal(result.dictionaries[0].id, 'test');
     assert.equal(result.dictionaries[0].fileID, undefined);
@@ -73,24 +81,30 @@ test('内容只能通过已发布题库 ID 获取', async () => {
     assert.deepEqual(await response.json(), {
         items: [{ name: 'cat' }],
         next: null,
-        sha256: published.sha256
+        sha256: published.sha256,
     });
     assert.equal((await app.request('/api/dictionaries/test/content?version=old')).status, 409);
 });
 
 test('发音接口处理合法和无效请求', async () => {
-    const request = (body: string) => app.request('/api/pronunciation', {
-        method: 'POST',
-        headers: { 'content-type': 'application/json' },
-        body
-    });
+    const request = (body: string) =>
+        app.request('/api/pronunciation', {
+            method: 'POST',
+            headers: { 'content-type': 'application/json' },
+            body,
+        });
     assert.equal((await request('{')).status, 400);
     assert.equal((await request('{"word":12,"type":"1"}')).status, 400);
     const invalid = await request('{"word":"","type":"1"}');
     assert.equal(invalid.status, 400);
-    assert.match((await invalid.json() as {
-        error: string;
-    }).error, /无效/);
+    assert.match(
+        (
+            (await invalid.json()) as {
+                error: string;
+            }
+        ).error,
+        /无效/,
+    );
     assert.equal((await request('{"word":"cat","type":"2"}')).status, 400);
     assert.deepEqual(await (await request('{"word":"cat","type":"1"}')).json(), { ok: true, audio: 'YQ==' });
 });
@@ -98,60 +112,98 @@ test('发音接口处理合法和无效请求', async () => {
 test('大题库分批返回且保持顺序', async () => {
     const source = Array.from({ length: 8 }, (_, index) => ({ index, text: '中'.repeat(20000) }));
     const large = createApp({
-        async list() { return [published]; },
-        async get() { return published; },
-        async download() { return Buffer.from(JSON.stringify(source)); },
-        async pronounce() { return { ok: false }; },
+        async list() {
+            return [published];
+        },
+        async get() {
+            return published;
+        },
+        async download() {
+            return Buffer.from(JSON.stringify(source));
+        },
+        async pronounce() {
+            return { ok: false };
+        },
     });
-    const first = await (await large.request('/api/dictionaries/test/content?offset=0')).json() as any;
+    const first = (await (await large.request('/api/dictionaries/test/content?offset=0')).json()) as any;
     assert.ok(first.next > 0 && first.next < source.length);
-    const second = await (await large.request(`/api/dictionaries/test/content?offset=${first.next}`)).json() as any;
+    const second = (await (await large.request(`/api/dictionaries/test/content?offset=${first.next}`)).json()) as any;
     assert.deepEqual([...first.items, ...second.items], source);
     assert.equal(second.next, null);
 });
 
 test('题库详情只返回可见题库公开资料', async () => {
     assert.equal((await app.request('/api/dictionaries/hidden')).status, 404);
-    const result = await (await app.request('/api/dictionaries/test')).json() as any;
+    const result = (await (await app.request('/api/dictionaries/test')).json()) as any;
     assert.equal(result.dictionary.id, 'test');
     assert.equal(result.dictionary.fileID, undefined);
 });
 
-test('管理员登录后可上传、更新和下架题库', async () => {
+test('管理员登录后可上传、更新和永久删除题库', async () => {
     const record: Dictionary = {
         ...published,
         id: 'cet4',
-        label: '四级'
+        label: '四级',
     };
     const records = new Map<string, Dictionary>([[record.id, record]]);
-    let uploaded: {
-        path: string;
-        content: Buffer;
-    } | undefined;
+    let uploaded:
+        | {
+              path: string;
+              content: Buffer;
+          }
+        | undefined;
+    const deletedFiles: string[] = [];
     const admin = createApp({
         auth: authFixture().repo,
-        async list() { return [...records.values()]; },
-        async get(id) { return records.get(id); },
-        async download() { return Buffer.from('[{"name":"cat","trans":["n. 猫"]}]'); },
-        async upload(path, content) { uploaded = { path, content }; return 'cloud://test/new-file'; },
-        async create(value) { records.set(value.id, value); },
-        async update(id, fields) {
-            const row = records.get(id); if (!row) {
-                return false;
-            } records.set(id, { ...row, ...fields }); return true;
+        async list() {
+            return [...records.values()];
         },
-        async pronounce() { return { ok: false }; },
+        async get(id) {
+            return records.get(id);
+        },
+        async download() {
+            return Buffer.from('[{"name":"cat","trans":["n. 猫"]}]');
+        },
+        async upload(path, content) {
+            uploaded = { path, content };
+            return 'cloud://test/new-file';
+        },
+        async create(value) {
+            records.set(value.id, value);
+        },
+        async deleteFile(fileID) {
+            deletedFiles.push(fileID);
+        },
+        async remove(id, deleteFile) {
+            const row = records.get(id);
+            if (!row) return false;
+            await deleteFile(row.fileID);
+            records.delete(id);
+            return true;
+        },
+        async update(id, fields) {
+            const row = records.get(id);
+            if (!row) {
+                return false;
+            }
+            records.set(id, { ...row, ...fields });
+            return true;
+        },
+        async pronounce() {
+            return { ok: false };
+        },
     });
-    const request = (path: string, method: string, body?: unknown) => admin.request(path, {
-        method,
-        headers: { 'content-type': 'application/json', ...testHeaders },
-        ...(body === undefined ? {} : { body: JSON.stringify(body) }),
-    });
+    const request = (path: string, method: string, body?: unknown) =>
+        admin.request(path, {
+            method,
+            headers: { 'content-type': 'application/json', ...testHeaders },
+            ...(body === undefined ? {} : { body: JSON.stringify(body) }),
+        });
     const data = {
         id: 'cet4',
         label: '四级',
         kind: 'word',
-        entries: [{ name: 'cat', trans: ['n. 猫'] }]
+        entries: [{ name: 'cat', trans: ['n. 猫'] }],
     };
     const uploadResponse = await admin.request('/api/admin/dictionaries', {
         method: 'POST',
@@ -177,15 +229,24 @@ test('管理员登录后可上传、更新和下架题库', async () => {
     assert.equal((await request('/api/admin/dictionaries', 'POST', { ...data, entries: [] })).status, 400);
     assert.equal((await request('/api/admin/dictionaries', 'POST', data)).status, 409);
     assert.equal((await request('/api/admin/dictionaries/cet4', 'PUT', { kind: 'phrase' })).status, 400);
-    assert.equal((await request('/api/admin/dictionaries/cet4', 'PUT', { label: '新四级', entries: [{ name: 'dog', trans: ['n. 狗'] }] })).status, 403);
+    assert.equal(
+        (
+            await request('/api/admin/dictionaries/cet4', 'PUT', {
+                label: '新四级',
+                entries: [{ name: 'dog', trans: ['n. 狗'] }],
+            })
+        ).status,
+        403,
+    );
     assert.equal((await request('/api/admin/dictionaries/cet4', 'PUT', { label: '新四级' })).status, 200);
     assert.equal(records.get('cet4')!.sha256, record.sha256);
     assert.equal(records.get('cet4')!.label, '新四级');
     assert.equal((await request('/api/admin/dictionaries/cet4', 'DELETE')).status, 200);
-    assert.equal(records.get('cet4')!.status, 'archived');
+    assert.equal(records.has('cet4'), false);
+    assert.deepEqual(deletedFiles, [record.fileID]);
     assert.equal((await admin.request('/api/dictionaries/cet4')).status, 404);
-    assert.equal((await request('/api/admin/dictionaries/cet4', 'PUT', { status: 'published' })).status, 200);
-    assert.equal((await admin.request('/api/dictionaries/cet4')).status, 200);
+    assert.equal((await request('/api/admin/dictionaries/cet4', 'PUT', { status: 'published' })).status, 404);
+    assert.equal((await admin.request('/api/dictionaries/cet4')).status, 404);
     assert.equal((await request('/api/admin/dictionaries/missing', 'DELETE')).status, 404);
 });
 
