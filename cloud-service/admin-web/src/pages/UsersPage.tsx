@@ -45,11 +45,7 @@ export default function UsersPage() {
   }
   return (
     <>
-      <PageHeading
-        eyebrow="TEAM"
-        title="管理员"
-        description="管理后台成员。禁用账号后，其已有会话会立即失效。"
-      />
+      <PageHeading title="管理员" />
       <ErrorNotice error={resource.error} retry={resource.reload} />
       <Card className="panel">
         <Table

@@ -1,4 +1,4 @@
-/** 账号页面：复用云服务登录、邀请注册、会话撤销和角色权限接口。 */
+/** 登录与邀请注册页面：居中展示表单，通过云服务建立管理员会话。 */
 import { useState } from "react";
 import {
   Alert,
@@ -62,34 +62,9 @@ export default function AuthForm({ register = false }: { register?: boolean }) {
   }
   return (
     <div className="auth-layout">
-      <section className="auth-story">
-        <div className="brand">
-          <span className="brand-mark">S↗</span>SentLeap
-        </div>
-        <div>
-          <div className="eyebrow">A LITTLE LEAP, EVERY DAY</div>
-          <h1>
-            好内容，
-            <br />
-            让进步发生。
-          </h1>
-          <p>
-            管理每一个单词与短语，
-            <br />
-            为下一次学习准备好起点。
-          </p>
-        </div>
-        <small>SENTLEAP · CONTENT STUDIO</small>
-      </section>
       <section className="auth-form">
         <div className="auth-form-inner">
-          <div className="eyebrow">欢迎来到内容工作台</div>
           <h2>{register ? "加入管理团队" : "登录后台"}</h2>
-          <p>
-            {register
-              ? "使用超级管理员提供的邀请码创建账号。"
-              : "使用管理员账号继续。"}
-          </p>
           <ErrorNotice error={error} />
           <Form
             key={String(register)}
@@ -153,9 +128,6 @@ export default function AuthForm({ register = false }: { register?: boolean }) {
               <Link to="/register">有邀请码？注册管理员账号</Link>
             )}
           </p>
-          <div className="auth-note">
-            后台账号仅用于内容管理，与学习端本地资料独立。
-          </div>
         </div>
       </section>
     </div>

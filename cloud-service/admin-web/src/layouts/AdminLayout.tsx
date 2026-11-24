@@ -1,4 +1,5 @@
 /** 后台布局：导航、当前账号及退出操作，页面由 Outlet 渲染。 */
+import Brand from "../components/Brand";
 import { useState } from "react";
 import { App as AntApp, Avatar, Button, Layout, Menu } from "antd";
 import {
@@ -54,12 +55,8 @@ export default function AdminLayout() {
         className="sidebar"
       >
         <Link to="/dictionaries" className="brand">
-          <span className="brand-mark">S↗</span>
-          <span>
-            SentLeap<small>内容管理工作台</small>
-          </span>
+          <Brand />
         </Link>
-        <div className="nav-caption">内容工作区</div>
         <Menu
           theme="dark"
           selectedKeys={[selected]}
@@ -98,7 +95,7 @@ export default function AdminLayout() {
           <div className="user-tools">
             <Avatar
               size="small"
-              style={{ background: "#d9e9df", color: "#247457" }}
+              style={{ background: "#e6f2ff", color: "#007aff" }}
             >
               {user.nickname.slice(0, 1)}
             </Avatar>

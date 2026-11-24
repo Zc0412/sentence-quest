@@ -59,11 +59,7 @@ export default function AccountPage() {
   }
   return (
     <>
-      <PageHeading
-        eyebrow="ACCOUNT"
-        title="账号设置"
-        description="管理你的后台身份与登录安全。"
-      />
+      <PageHeading title="账号设置" />
       <Card className="panel" title="账号信息">
         <Descriptions
           items={[

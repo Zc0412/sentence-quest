@@ -140,11 +140,7 @@ export default function UploadPage() {
   }
   return (
     <>
-      <PageHeading
-        eyebrow="NEW DICTIONARY"
-        title="新建题库"
-        description="上传一份 JSON，预览内容后保存为草稿。发布前有充分的检查空间。"
-      />
+      <PageHeading title="新建题库" />
       <div className="upload-grid">
         <Card className="panel" title="01 / 基础资料">
           <Form

@@ -12,9 +12,11 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
       locale={zhCN}
       theme={{
         token: {
-          colorPrimary: "#247457",
+          colorPrimary: "#007aff",
+          colorInfo: "#007aff",
+          colorSuccess: "#00a99d",
           borderRadius: 8,
-          colorText: "#21352e",
+          colorText: "#102b46",
           fontFamily: "Inter, 'PingFang SC', 'Microsoft YaHei', sans-serif",
         },
       }}

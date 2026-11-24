@@ -104,9 +104,7 @@ export default function DictionariesPage() {
   return (
     <>
       <PageHeading
-        eyebrow="CONTENT LIBRARY"
         title="题库管理"
-        description="整理每一份学习内容，从草稿到发布，一目了然。"
         action={
           <Button
             type="primary"
@@ -118,18 +116,6 @@ export default function DictionariesPage() {
           </Button>
         }
       />
-      <div className="library-banner">
-        <div className="banner-icon" aria-hidden="true">
-          Aa↗
-        </div>
-        <div>
-          <h3>让每一次练习，都有好内容</h3>
-          <p>
-            上传题库、检查内容，再发布给学习者。删除会永久移除题库文件和记录。
-          </p>
-        </div>
-        <span className="banner-label">CONTENT STUDIO</span>
-      </div>
       <Card className="panel library-panel">
         <Form
           form={form}

@@ -67,11 +67,7 @@ export default function InvitesPage() {
           : "有效";
   return (
     <>
-      <PageHeading
-        eyebrow="INVITATIONS"
-        title="邀请管理"
-        description="邀请新成员加入管理团队。每个邀请码仅能注册一个普通管理员。"
-      />
+      <PageHeading title="邀请管理" />
       <Card className="panel">
         <Space wrap>
           <span>有效时间</span>

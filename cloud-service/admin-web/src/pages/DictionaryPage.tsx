@@ -117,9 +117,7 @@ function DictionaryDetail({ id }: { id: string }) {
         <ArrowLeftOutlined /> 返回题库列表
       </Link>
       <PageHeading
-        eyebrow="DICTIONARY DETAIL"
         title={row.label}
-        description={`${row.id} · ${row.kind === "word" ? "单词题库" : "短语题库"} · ${row.wordCount} 条内容`}
         action={
           <Space>
             <Button

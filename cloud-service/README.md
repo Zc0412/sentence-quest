@@ -240,3 +240,9 @@ COS 与 MySQL 不属于同一个事务：文件删除失败时保留数据库记
 非容器生产运行使用 `npm --prefix cloud-service/service run start:prod`，仅加载 `.env.production` 和可选 `.env.production.local`，不会读取开发 `.env`。生产配置参照 `.env.production.local.example`，填写实际数据库、COS 和 HTTPS 后台来源。不要在生产配置中覆盖 `NODE_ENV=production`，它控制 Secure Cookie。
 
 云托管 Docker 启动仍直接执行 `node dist/index.js`，由平台注入环境变量；镜像已设置 `NODE_ENV=production` 和 `PORT=8080`。镜像不包含任何 `.env` 文件，数据库与 COS 凭据不作为构建参数。以上环境文件切换不自动执行数据库迁移或创建管理员。
+
+### 管理后台品牌样式
+
+后台侧栏使用 `admin-web/public/sentleap-app-icon.png`，使用 Web 同款透明品牌小图标，显示尺寸为 56 × 56px，搭配品牌名称与后台说明横向排列。主题以品牌蓝 `#007aff`、深蓝 `#001b33` 为主，青绿与黄色为辅助色；Ant Design 主题位于 `admin-web/src/main.tsx`，页面样式位于 `admin-web/src/style.css`。
+
+登录与邀请注册页面采用居中表单布局，不展示品牌宣传区域。
