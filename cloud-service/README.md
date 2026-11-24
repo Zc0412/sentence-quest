@@ -1,6 +1,6 @@
 # SentLeap 云托管服务
 
-Hono + TypeScript 服务提供发音、云端题库目录和 JSON 内容接口。Swagger UI 可粘贴 JSON 请求体或选择 JSON 文件创建题库；替换已有题库 JSON 仍需使用仓库根目录的 `npm run upload:dictionary`。未设置 `status` 的历史记录视为可见；设置为 `published` 可发布，其他状态不会通过接口返回。
+Hono + TypeScript 服务提供发音、云端题库目录和 JSON 内容接口。Swagger UI 可粘贴 JSON 请求体或选择 JSON 文件创建题库；后台支持按固定索引编辑已有题目的 JSON，整库替换仍需使用仓库根目录的 `npm run upload:dictionary`。未设置 `status` 的历史记录视为可见；设置为 `published` 可发布，其他状态不会通过接口返回。
 
 ## 部署
 
@@ -56,7 +56,7 @@ Hono + TypeScript 服务提供发音、云端题库目录和 JSON 内容接口�
 
 - `POST /api/admin/dictionaries`：上传并创建题库 JSON；Swagger UI 支持直接提交 JSON，**需要登录**。
 - `POST /api/admin/upload-dictionary`：通过 Swagger UI 选择 `.json` 文件上传；填写 `id`、`label`、`kind`，文件内容须为题库条目数组，**需要登录**。
-- `PUT /api/admin/dictionaries/:id`：仅可提交 `label`、`category`、`status`；提交 `entries` 替换题库 JSON 暂时禁用并返回 403。题库 ID 和类型不能修改。
+- `PUT /api/admin/dictionaries/:id`：支持提交 `label`、`category`、`status`，或单独提交 `edit: { version, index, entry }` 编辑一条题目（index 从 0 开始，version 为打开编辑时的 SHA-256）；提交 `entries` 替换题库 JSON 暂时禁用并返回 403。题库 ID 和类型不能修改。
 - `DELETE /api/admin/dictionaries/:id`：永久删除当前数据库登记的 COS 文件（含该对象的历史版本及删除标记），然后删除题库记录。不存在返回 404，共享文件引用冲突返回 409。保留文件的下架操作可通过 PUT 将 `status` 设为 `archived`。
 
 题库 ID 和条目顺序影响旧版进度，上传前请检查内容。上传单次请求体上限仍为 5 MiB；DELETE 为不可恢复的永久删除；PUT 设置 `archived` 仅归档。
@@ -198,7 +198,7 @@ npm --prefix cloud-service/service start
 
 构建后服务同时提供 `/admin/` 和 `/api/admin/*`。生产 Docker 构建目录仍是 `cloud-service/`，不要改成 `service/`；Dockerfile 会分别构建两个目录并复制前端产物。服务器使用 HttpOnly、SameSite=Lax Cookie，生产 Cookie 带 Secure，需通过 HTTPS 访问。不要将登录返回的 token 存到 localStorage。后台页面可公开加载，但所有管理数据和操作均由服务端鉴权。
 
-后台包含：登录、邀请注册、题库搜索/筛选/分页、JSON 上传预检和草稿创建、详情与分页内容预览、资料编辑、发布/永久删除/重新发布、修改密码、管理员禁用/恢复、邀请生成/查看/撤销。普通管理员可管理题库，只有超级管理员可管理账号及邀请。改密后需重新登录。邀请列表最多展示最近 100 条，不返回明文邀请码或哈希；明文只在生成时显示一次。
+后台包含：登录、邀请注册、题库搜索/筛选/分页、JSON 上传预检和草稿创建、详情与分页内容预览、资料编辑、单条 JSON 编辑与修改预览、发布/永久删除/重新发布、修改密码、管理员禁用/恢复、邀请生成/查看/撤销。普通管理员可管理题库，只有超级管理员可管理账号及邀请。改密后需重新登录。邀请列表最多展示最近 100 条，不返回明文邀请码或哈希；明文只在生成时显示一次。
 
 上传示例文件：[词汇 words.json](examples/words.json) 和 [短语 phrases.json](examples/phrases.json)，各含 5 条原创演示数据。在后台「新建题库」分别选择文件，页面会按完整文件内容识别类型（单词 / 短语），识别成功后自动切换；也可手动调整类型。题库 ID 可填写 `example-words` / `example-phrases`，名称和分类在表单中填写。文件顶层为条目数组，无需包裹 `entries` 或题库元数据；词汇需要 `name`、非空 `trans` 数组，短语需要唯一 `id`、`zh`、`english` 和按英文顺序拆分的 `words` 数组。
 
@@ -246,3 +246,9 @@ COS 与 MySQL 不属于同一个事务：文件删除失败时保留数据库记
 后台侧栏使用 `admin-web/public/sentleap-app-icon.png`，使用 Web 同款透明品牌小图标，显示尺寸为 56 × 56px，搭配品牌名称与后台说明横向排列。主题以品牌蓝 `#007aff`、深蓝 `#001b33` 为主，青绿与黄色为辅助色；Ant Design 主题位于 `admin-web/src/main.tsx`，页面样式位于 `admin-web/src/style.css`。
 
 登录与邀请注册页面采用居中表单布局，不展示品牌宣传区域。
+
+### 编辑题目 JSON
+
+在题库详情的内容表格点击“编辑”，修改单个 JSON 对象，点击“校验并预览”对照修改前后内容，再保存。单词名称、题目 ID、条数和顺序保持不变，允许修正翻译、音标及短语内容。已发布题库保存后直接更新线上版本，不自动改为草稿；修改不清空已有学习进度。
+
+服务端从数据库登记的文件加载原内容并校验，仅替换指定索引，上传新的内容哈希文件后以旧 SHA-256 为条件更新数据库引用。并发版本变化返回 409，需刷新后重新编辑。上传或数据库写入失败时保留原引用；已上传但未登记的新文件和旧版本文件不会自动清理。小程序刷新云目录后按新 SHA-256 下载内容，离线设备仍可使用旧缓存。

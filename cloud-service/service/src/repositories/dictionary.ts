@@ -73,7 +73,7 @@ export function createDictionaryRepository(pool: Pool) {
             });
         },
         /** 只更新允许修改的字段，保留 ID 和创建时间。 */
-        async update(id: string, fields: Partial<DictionaryWrite>): Promise<boolean> {
+        async update(id: string, fields: Partial<DictionaryWrite>, expectedVersion?: string): Promise<boolean> {
             const allowed = [
                 'label',
                 'kind',
@@ -92,7 +92,15 @@ export function createDictionaryRepository(pool: Pool) {
                 const rows = await db.select({ id: dictionaries.id }).from(dictionaries).where(eq(dictionaries.id, id));
                 return rows.length > 0;
             }
-            const [result] = await db.update(dictionaries).set(values).where(eq(dictionaries.id, id));
+            const [result] = await db
+                .update(dictionaries)
+                .set(values)
+                .where(
+                    and(
+                        eq(dictionaries.id, id),
+                        expectedVersion ? eq(dictionaries.sha256, expectedVersion) : undefined,
+                    ),
+                );
             return result.affectedRows > 0;
         },
     };

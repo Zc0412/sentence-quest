@@ -35,7 +35,7 @@ export interface Services {
     auth?: AuthRepository;
     authConfig?: AuthConfig;
     create?(record: DictionaryWrite): Promise<void>;
-    update?(id: string, fields: Partial<DictionaryWrite>): Promise<boolean>;
+    update?(id: string, fields: Partial<DictionaryWrite>, expectedVersion?: string): Promise<boolean>;
     pronounce(event: { word?: unknown; type?: string }): Promise<{
         ok: boolean;
         audio?: string;

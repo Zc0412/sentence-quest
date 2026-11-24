@@ -74,6 +74,14 @@ function DictionaryDetail({ id }: { id: string }) {
   );
   const { message } = App.useApp();
   const [editing, setEditing] = useState(false);
+  const [entryEdit, setEntryEdit] = useState<{
+    index: number;
+    version: string;
+    original: Record<string, unknown>;
+  }>();
+  const [entryText, setEntryText] = useState("");
+  const [preview, setPreview] = useState<Record<string, unknown>>();
+  const [entryError, setEntryError] = useState<Error>();
   const mutation = useApiMutation<unknown>("/dictionaries");
   const deletion = useDeleteDictionary();
   const navigate = useNavigate();
@@ -91,6 +99,52 @@ function DictionaryDetail({ id }: { id: string }) {
       setEditing(false);
     } catch (error) {
       setError(error as Error);
+    }
+  }
+  /** 校验单条 JSON 后预览；固定原始索引及打开时版本，避免覆盖并发更新。 */
+  function previewEntry() {
+    try {
+      const value = JSON.parse(entryText);
+      if (
+        !row ||
+        !entryEdit ||
+        !value ||
+        Array.isArray(value) ||
+        typeof value !== "object"
+      ) {
+        throw new Error("请输入单个题目的 JSON 对象");
+      }
+      parseEntries(JSON.stringify([value]), row.kind);
+      const key = row.kind === "word" ? "name" : "id";
+      if (
+        value[key] !== entryEdit.original[key] ||
+        value.id !== entryEdit.original.id
+      ) {
+        throw new Error("不能修改单词名称或题目 ID");
+      }
+      setPreview(value);
+      setEntryError(undefined);
+    } catch (error) {
+      setEntryError(error as Error);
+    }
+  }
+  async function saveEntry() {
+    if (!entryEdit || !preview) return;
+    try {
+      await mutation.mutateAsync({
+        path: `/dictionaries/${encodeURIComponent(id)}`,
+        options: json("PUT", {
+          edit: {
+            index: entryEdit.index,
+            version: entryEdit.version,
+            entry: preview,
+          },
+        }),
+      });
+      setEntryEdit(undefined);
+      message.success("题目已保存，内容版本已更新");
+    } catch (error) {
+      setEntryError(error as Error);
     }
   }
   async function deleteDictionary() {
@@ -196,7 +250,7 @@ function DictionaryDetail({ id }: { id: string }) {
       <Card
         className="panel"
         title="内容预览"
-        extra={<span className="muted">保留题目原始顺序 · 只读</span>}
+        extra={<span className="muted">保留题目原始顺序</span>}
       >
         <ErrorNotice
           error={content.error}
@@ -212,6 +266,32 @@ function DictionaryDetail({ id }: { id: string }) {
           pagination={false}
           scroll={{ x: 500 }}
           columns={[
+            {
+              title: "操作",
+              width: 80,
+              render: (_, entry, index) => (
+                <Button
+                  type="link"
+                  disabled={
+                    busy ||
+                    content.loading ||
+                    content.data?.sha256 !== row.sha256
+                  }
+                  onClick={() => {
+                    setEntryEdit({
+                      index: offset + index,
+                      version: row.sha256,
+                      original: entry,
+                    });
+                    setEntryText(JSON.stringify(entry, null, 2));
+                    setPreview(undefined);
+                    setEntryError(undefined);
+                  }}
+                >
+                  编辑
+                </Button>
+              ),
+            },
             {
               title: "序号",
               width: 70,
@@ -262,8 +342,62 @@ function DictionaryDetail({ id }: { id: string }) {
       <Alert
         type="info"
         showIcon
-        title="题库 ID、类型与条目顺序关联学习进度，当前不支持替换已上传的题库内容。"
+        title="支持逐条编辑 JSON；单词名称、题目 ID、条数与顺序不可修改。已发布题库保存后会直接更新线上内容。"
       />
+      <Modal
+        title={`编辑第 ${(entryEdit?.index ?? 0) + 1} 条题目`}
+        open={!!entryEdit}
+        width={760}
+        onCancel={() => {
+          if (!busy) setEntryEdit(undefined);
+        }}
+        footer={
+          <Space>
+            <Button disabled={busy} onClick={() => setEntryEdit(undefined)}>
+              取消
+            </Button>
+            <Button disabled={busy} onClick={previewEntry}>
+              校验并预览
+            </Button>
+            <Button
+              type="primary"
+              loading={busy}
+              disabled={!preview}
+              onClick={saveEntry}
+            >
+              保存修改
+            </Button>
+          </Space>
+        }
+      >
+        <ErrorNotice error={entryError} />
+        <Input.TextArea
+          aria-label="题目 JSON"
+          rows={14}
+          value={entryText}
+          disabled={busy}
+          onChange={(event) => {
+            setEntryText(event.target.value);
+            setPreview(undefined);
+          }}
+        />
+        {preview && (
+          <div className="upload-grid">
+            <div>
+              <h4>修改前</h4>
+              <pre className="json-preview">
+                {JSON.stringify(entryEdit?.original, null, 2)}
+              </pre>
+            </div>
+            <div>
+              <h4>修改后</h4>
+              <pre className="json-preview">
+                {JSON.stringify(preview, null, 2)}
+              </pre>
+            </div>
+          </div>
+        )}
+      </Modal>
       <Modal
         title="编辑题库资料"
         open={editing}

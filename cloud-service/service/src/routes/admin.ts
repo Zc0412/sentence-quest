@@ -13,6 +13,7 @@ import {
     SuccessResponseSchema,
     zodValidationErrorHandler,
 } from '../schemas/http';
+import { editEntry } from '../utils/edit-entry';
 import { publicMetadata } from '../utils/dictionary';
 
 const dictionaryParamsSchema = z.object({
@@ -97,7 +98,7 @@ const updateDictionaryRoute = createRoute({
     tags: ['Admin'],
     security: authSecurity,
     summary: '更新题库资料',
-    description: '只能更新元数据；提交 entries 替换题库 JSON 的操作暂时禁用。题库 ID 和类型不可修改。',
+    description: '更新元数据或通过 edit 按索引编辑单条内容；保持条目身份和顺序，使用 version 检查并发冲突。',
     request: {
         params: dictionaryParamsSchema,
         body: {
@@ -113,6 +114,7 @@ const updateDictionaryRoute = createRoute({
             content: { 'application/json': { schema: DictionaryResponseSchema } },
         },
         400: { ...JsonErrorResponse, description: '请求内容无效' },
+        409: { ...JsonErrorResponse, description: '内容版本已变化' },
         404: { ...JsonErrorResponse, description: '题库不存在' },
         413: { ...JsonErrorResponse, description: '请求体超过 5 MiB' },
         415: { ...JsonErrorResponse, description: '请求体必须使用 application/json' },
@@ -235,6 +237,36 @@ export function createRoutes(services: Services) {
             const existing = await services.get(id);
             if (!existing) {
                 return c.json({ error: '题库不存在' }, 404);
+            }
+            if (input.edit) {
+                if (input.edit.version !== existing.sha256) {
+                    return c.json({ error: '内容已更新，请刷新后重新编辑' }, 409);
+                }
+                if (!services.upload || !services.update) throw new Error('题库编辑服务未配置');
+                const original = JSON.parse((await services.download(existing.fileID)).toString('utf8'));
+                const entries = editEntry(original, existing, input.edit.index, input.edit.entry);
+                const plan = prepareDictionary(UpdateDictionarySchema.parse({ entries }), existing);
+                // 新文件上传成功后再以版本条件切换引用；失败不删除原文件。
+                const fileID = await services.upload(plan.fields.cloudPath!, plan.bytes!);
+                if (
+                    !(await services.update(
+                        id,
+                        {
+                            fileID,
+                            cloudPath: plan.fields.cloudPath,
+                            sha256: plan.fields.sha256,
+                            wordCount: plan.fields.wordCount,
+                            updatedAt: plan.fields.updatedAt,
+                        },
+                        input.edit.version,
+                    ))
+                ) {
+                    return c.json({ error: '内容已更新或题库已删除，请刷新后重新编辑' }, 409);
+                }
+                return c.json(
+                    { dictionary: publicMetadata({ ...existing, ...plan.fields, fileID } as Dictionary) },
+                    200,
+                );
             }
             const plan = prepareDictionary(input, existing);
             if (!(await services.update!(id, plan.fields))) {

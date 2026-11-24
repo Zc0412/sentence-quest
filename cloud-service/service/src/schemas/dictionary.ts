@@ -1,23 +1,29 @@
 /** 校验管理员提交的题库信息并生成云存储文件。 */
 import { createHash } from 'node:crypto';
 import type { Dictionary } from '../types/services';
-import {z} from '@hono/zod-openapi';
-import {DictionaryIdSchema} from './http';
+import { z } from '@hono/zod-openapi';
+import { DictionaryIdSchema } from './http';
 
 const nonEmptyString = z.string().refine((value) => value.trim().length > 0);
 const entryIdPattern = /^[a-zA-Z0-9][a-zA-Z0-9._-]{0,79}$/;
 
-const WordEntrySchema = z.object({
-    name: nonEmptyString,
-    trans: z.array(nonEmptyString).min(1),
-}).passthrough().openapi('WordEntry');
+const WordEntrySchema = z
+    .object({
+        name: nonEmptyString,
+        trans: z.array(nonEmptyString).min(1),
+    })
+    .passthrough()
+    .openapi('WordEntry');
 
-const PhraseEntrySchema = z.object({
-    id: nonEmptyString,
-    zh: nonEmptyString,
-    english: nonEmptyString,
-    words: z.array(nonEmptyString).min(1),
-}).passthrough().openapi('PhraseEntry');
+const PhraseEntrySchema = z
+    .object({
+        id: nonEmptyString,
+        zh: nonEmptyString,
+        english: nonEmptyString,
+        words: z.array(nonEmptyString).min(1),
+    })
+    .passthrough()
+    .openapi('PhraseEntry');
 
 const DictionaryFieldsSchema = {
     id: z.string().regex(entryIdPattern).openapi({
@@ -29,29 +35,50 @@ const DictionaryFieldsSchema = {
     status: z.enum(['published', 'draft', 'archived']).optional(),
 };
 
-const CreateWordDictionarySchema = z.object({
-    ...DictionaryFieldsSchema,
-    kind: z.literal('word'),
-    entries: z.array(WordEntrySchema).min(1),
-}).strict().openapi('CreateWordDictionaryRequest');
+const CreateWordDictionarySchema = z
+    .object({
+        ...DictionaryFieldsSchema,
+        kind: z.literal('word'),
+        entries: z.array(WordEntrySchema).min(1),
+    })
+    .strict()
+    .openapi('CreateWordDictionaryRequest');
 
-const CreatePhraseDictionarySchema = z.object({
-    ...DictionaryFieldsSchema,
-    kind: z.literal('phrase'),
-    entries: z.array(PhraseEntrySchema).min(1),
-}).strict().openapi('CreatePhraseDictionaryRequest');
+const CreatePhraseDictionarySchema = z
+    .object({
+        ...DictionaryFieldsSchema,
+        kind: z.literal('phrase'),
+        entries: z.array(PhraseEntrySchema).min(1),
+    })
+    .strict()
+    .openapi('CreatePhraseDictionaryRequest');
 
-export const CreateDictionarySchema = z.discriminatedUnion('kind', [
-    CreateWordDictionarySchema,
-    CreatePhraseDictionarySchema,
-]).openapi('CreateDictionaryRequest');
+export const CreateDictionarySchema = z
+    .discriminatedUnion('kind', [CreateWordDictionarySchema, CreatePhraseDictionarySchema])
+    .openapi('CreateDictionaryRequest');
 
-export const UpdateDictionarySchema = z.object({
-    label: nonEmptyString.max(100).optional(),
-    category: nonEmptyString.max(100).optional(),
-    status: z.enum(['published', 'draft', 'archived']).optional(),
-    entries: z.array(z.union([WordEntrySchema, PhraseEntrySchema])).min(1).optional(),
-}).strict().refine((value) => Object.keys(value).length > 0).openapi('UpdateDictionaryRequest');
+export const UpdateDictionarySchema = z
+    .object({
+        label: nonEmptyString.max(100).optional(),
+        category: nonEmptyString.max(100).optional(),
+        status: z.enum(['published', 'draft', 'archived']).optional(),
+        entries: z
+            .array(z.union([WordEntrySchema, PhraseEntrySchema]))
+            .min(1)
+            .optional(),
+        edit: z
+            .object({
+                version: z.string().regex(/^[a-f0-9]{64}$/),
+                index: z.number().int().nonnegative(),
+                entry: z.record(z.string(), z.unknown()),
+            })
+            .strict()
+            .optional(),
+    })
+    .strict()
+    .refine((value) => Object.keys(value).length > 0)
+    .refine((value) => !value.edit || Object.keys(value).length === 1, '编辑内容不能同时修改其他字段')
+    .openapi('UpdateDictionaryRequest');
 
 export type DictionaryInput = z.infer<typeof CreateDictionarySchema> | z.infer<typeof UpdateDictionarySchema>;
 export type DictionaryWrite = Dictionary & {
@@ -59,8 +86,7 @@ export type DictionaryWrite = Dictionary & {
     updatedAt: string;
     createdAt?: string;
 };
-export class InputError extends Error {
-}
+export class InputError extends Error {}
 /** 校验题库 ID，确保它不会改变云存储路径结构。 */
 export function validId(id: unknown): id is string {
     return DictionaryIdSchema.safeParse(id).success;
@@ -73,22 +99,24 @@ export function validateEntries(entries: unknown, kind: string): asserts entries
     }
     const ids = new Set<string>();
     entries.forEach((row, index) => {
-        const validWord = row
-            && typeof row.name === 'string'
-            && row.name.trim()
-            && Array.isArray(row.trans)
-            && row.trans.length
-            && row.trans.every((value: unknown) => typeof value === 'string' && value.trim());
-        const validPhrase = row
-            && typeof row.id === 'string'
-            && row.id.trim()
-            && typeof row.zh === 'string'
-            && row.zh.trim()
-            && typeof row.english === 'string'
-            && row.english.trim()
-            && Array.isArray(row.words)
-            && row.words.length
-            && row.words.every((word: unknown) => typeof word === 'string' && word.trim());
+        const validWord =
+            row &&
+            typeof row.name === 'string' &&
+            row.name.trim() &&
+            Array.isArray(row.trans) &&
+            row.trans.length &&
+            row.trans.every((value: unknown) => typeof value === 'string' && value.trim());
+        const validPhrase =
+            row &&
+            typeof row.id === 'string' &&
+            row.id.trim() &&
+            typeof row.zh === 'string' &&
+            row.zh.trim() &&
+            typeof row.english === 'string' &&
+            row.english.trim() &&
+            Array.isArray(row.words) &&
+            row.words.length &&
+            row.words.every((word: unknown) => typeof word === 'string' && word.trim());
         if (!(kind === 'word' ? validWord : validPhrase)) {
             throw new InputError(`第 ${index + 1} 条题目格式错误`);
         }
@@ -101,7 +129,10 @@ export function validateEntries(entries: unknown, kind: string): asserts entries
     });
 }
 /** 校验新增或修改字段，并在替换题目时生成内容哈希与云存储路径。 */
-export function prepareDictionary(input: DictionaryInput, existing?: Dictionary): {
+export function prepareDictionary(
+    input: DictionaryInput,
+    existing?: Dictionary,
+): {
     fields: Partial<DictionaryWrite>;
     bytes?: Buffer;
 } {
@@ -124,12 +155,14 @@ export function prepareDictionary(input: DictionaryInput, existing?: Dictionary)
     }
     const label = input.label ?? existing?.label;
     const category = input.category ?? existing?.category ?? (kind === 'word' ? '单词练习' : '短语练习');
-    if (typeof label !== 'string'
-        || !label.trim()
-        || label.length > 100
-        || typeof category !== 'string'
-        || !category.trim()
-        || category.length > 100) {
+    if (
+        typeof label !== 'string' ||
+        !label.trim() ||
+        label.length > 100 ||
+        typeof category !== 'string' ||
+        !category.trim() ||
+        category.length > 100
+    ) {
         throw new InputError('题库名称或分类无效');
     }
     const status = input.status ?? existing?.status ?? 'published';
